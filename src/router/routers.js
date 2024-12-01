@@ -17,6 +17,26 @@ import consultant from '../views/Consultant.vue'
 import informationFicheApprentice from '../views/InformationFicheApprentice.vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import information from '../views/Information.vue'
+import { useAuthStore } from "../stores/useAuth.js";
+
+const auth = (to, from, next) => {
+  const authStore = useAuthStore();
+  const token = authStore.token;
+  const rol = authStore.rol;
+
+  console.log('token', token);
+  console.log('rol', rol);  
+
+  if ((rol === "ADMIN" || rol === "INSTRUCTOR") && !token) {
+    return next({ path: '/' });
+  }
+
+  if (to.meta.roles && !to.meta.roles.includes(rol)) {
+    return next({ path: '/' }); 
+  }
+  next(); 
+};
+
 
 const routes = [
     {
@@ -24,21 +44,21 @@ const routes = [
       component: layouts,
       children: [
         { path: '', redirect: '/layouts/home' },
-        { path: 'home', component: home },
-        { path: 'apprentices', component: apprentices },
-        { path: 'assignament', component: assignament },
-        { path: 'myAssignament', component: myAssignament },
-        { path: 'fiche', component: fiche },
-        { path: 'horas', component: horas },
-        { path: 'certificaciones', component: certificaciones },
-        { path: 'binnacles', component: binnacles },
-        { path: 'followup', component: followup },
-        { path: 'instructor', component: instructor },
-        { path: 'modality', component: modality },
-        { path: 'register', component: register },
-        { path: 'userEP', component: userEP },
-        { path: 'informationFicheApprentice', component: informationFicheApprentice },
-        { path: 'information', component: information }
+        { path: 'home', component: home, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
+        { path: 'apprentices', component: apprentices, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+        { path: 'assignament', component: assignament, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+        { path: 'myAssignament', component: myAssignament, beforeEnter: auth, meta: { roles: ['INSTRUCTOR'] } },
+        { path: 'fiche', component: fiche, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+        { path: 'horas', component: horas, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
+        { path: 'certificaciones', component: certificaciones, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+        { path: 'binnacles', component: binnacles, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
+        { path: 'followup', component: followup, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+        { path: 'instructor', component: instructor, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
+        { path: 'modality', component: modality, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+        { path: 'register', component: register, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+        { path: 'userEP', component: userEP, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+        { path: 'informationFicheApprentice', component: informationFicheApprentice, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+        { path: 'information', component: information, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } }
       ]
     },
     { path: '/', component: loguin },

@@ -105,8 +105,12 @@ const handleSubmit = async () => {
       password: rol.value !== 'CONSULTOR' ? password.value : undefined,
     });
 
-    notifySuccessRequest('Inicio de sesión exitoso');
     authStore.setToken(response.token);
+    authStore.setRol(rol.value);
+    router.push('/layouts/home');
+        
+    notifySuccessRequest('Inicio de sesión exitoso');
+
 
     if (rol.value === 'CONSULTOR') {
       router.push('/consultant');
