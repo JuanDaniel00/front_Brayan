@@ -28,7 +28,7 @@
 
   <dialogCreateObservation v-model="isDialogVisibleCreateObservation" title="Añadir Observación" labelClose="Cerrar"
     labelSend="Enviar" :onclickClose="closeDialog" :onclickSend="handleSend" v-model:textValue="newObservation"
-    :informationBinnacles="observationBinnacles" labelTextArea="Escriba una Observacón para esta bitacoras">
+    :informationBinnacles="observationBinnacles" :informationBinnaclesDate="observationBinnaclesDate" labelTextArea="Escriba una Observacón para esta bitacoras" :loading="loadingCreateOdservation" >
   </dialogCreateObservation>
 
 </template>
@@ -53,6 +53,7 @@ let filterOptionsSearch = ref([]);
 
 // 
 let observationBinnacles = ref('');
+let observationBinnaclesDate = ref([])
 const isDialogVisibleObservation = ref(false);
 const isDialogVisibleCreateObservation = ref(false);
 
@@ -68,6 +69,7 @@ const id = ref('')
 // spiner
 let loading = ref(false);
 let loadingSearch = ref(false);
+let loadingCreateOdservation = ref(false)
 const route = useRoute();
 
 
@@ -147,7 +149,6 @@ async function loadDataBinnacles() {
     }else{
       messageError = 'Error al cargar las bitacoras'
     }
-    // const messageError = error.response.data.message || error.response.data.errors[0].msg || 'Error al cargar las bitacoras'
     notifyErrorRequest(messageError)
 
   } finally {
@@ -159,9 +160,20 @@ async function loadDataBinnacles() {
 async function openClickSeeObservation(row) {
   isDialogVisibleObservation.value = true;
   if (!row.observation || row.observation.length === 0) {
-    observationBinnacles.value = ['No hay observaciones para esta bitacora'];
+    observationBinnacles.value = [{
+      user: 'usuario indefinido',
+      text: 'No hay observaciones',
+      date: 'fecha indefinida'
+    }];
+
   } else {
-    observationBinnacles.value = row.observation.map(obs => obs.observation);
+    observationBinnacles.value = row.observation.map(obs => ({
+      user: obs.user,
+      text: obs.observation,
+      date: obs.observationDate
+    }));
+
+
   }
   loadDataBinnacles();
 }
@@ -172,8 +184,8 @@ async function openClickCreateObservation(row) {
 }
 
 async function handleSend() {
+  loadingCreateOdservation.value = true
   try {
-
     const response = await putData(`/binnacles/addobservation/${id.value}`, { observation: newObservation.value });
     notifySuccessRequest('La observación se ha añadido correctamente');
     isDialogVisibleCreateObservation.value = false;
@@ -188,6 +200,8 @@ async function handleSend() {
       cleanObservaton()
     }
     await loadDataBinnacles()
+  }finally{
+    loadingCreateOdservation.value = false
   }
 }
 
@@ -206,15 +220,13 @@ function closeDialog() {
 }
 
 const OptionsStatus = [
-  { label: 'Programado', value: '1' },
-  { label: 'Ejecutado', value: '2' },
   { label: 'Pendiente', value: '3' },
   { label: 'Verificado', value: '4' }
 ];
 
 async function onclickSelectOptions(row, value) {
   try {
-    const response = await putData(`/binnacles/updatestatus/${row._id}/${OptionsStatus.value}`, {
+    const response = await putData(`/binnacles/updatestatus/${row._id}/${value}`, {
       status: row.value
 
     });
@@ -232,7 +244,7 @@ async function onclickSelectOptions(row, value) {
 async function searchInstructor() {
   try {
     const response = await getData(`/binnacles/listbinnaclesbyinstructor/${searchValue.value}`)
-    console.log('Instlist',response);
+    console.log(response);
     rows.value = response
   } catch (error) {
     if (searchValue.value === '') {
@@ -266,11 +278,11 @@ async function searchApprentice() {
 
 const handleRadioChange = async () => {
   if (radioButtonList.value === 'instructor') {
-    const response = await getData('/Repfora/instructors');
+    const response = await getData('/binnacles/listallbinnacles');
     console.log(response)
     optionSearch.value = response.map(option => ({
-      _id: option._id,
-      label: `${option.name} - ${option.numdocument}`,
+      _id: option.instructor.idinstructor,
+      label: `${option.instructor.name}`,
     }));
     filterOptionsSearch.value = optionSearch.value;
   } else if (radioButtonList.value === 'apprentice') {

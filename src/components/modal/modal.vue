@@ -93,7 +93,7 @@ const computedModelValue = computed({
 .title {
   background-color: #2f7d32;
   color: white;
-
+  width: 100%  !important;
 }
 .titleStyle{
   font-weight: 900  !important;
@@ -109,4 +109,11 @@ const computedModelValue = computed({
   margin-top: 1%;
   margin-bottom: 0px;
 }
+
+.q-card__section {
+    padding: 10px 15px 5px 15px !important;
+    text-align: center !important;
+    width: 100% !important;
+}
+
 </style>

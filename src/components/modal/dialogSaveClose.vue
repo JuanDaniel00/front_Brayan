@@ -28,7 +28,6 @@
 </template>
 
 <script setup>
-import { Loading } from 'quasar';
 import { computed } from 'vue';
 const props = defineProps({
   modelValue: {

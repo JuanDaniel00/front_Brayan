@@ -53,8 +53,6 @@
 import { ref } from "vue";
 
 // const OptionsStatus = [
-//   { label: 'Programado', value: '1' },
-//   { label: 'Ejecutado', value: '2' },
 //   { label: 'Pendiente', value: '3' },
 //   { label: 'Verificado', value: '4' }
 // ];

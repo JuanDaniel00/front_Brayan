@@ -693,7 +693,6 @@ async function searchButton() {
 
 .buttons {
   width: 100%;
-  /* display: flex; */
   gap: 20px;
 }
 
@@ -717,4 +716,5 @@ async function searchButton() {
   margin-right: 2%;
   margin-left: 2%;
 }
+
 </style>

@@ -28,7 +28,7 @@
 
   <dialogCreateObservation v-model="isDialogVisibleCreateObservation" title="AÑADIR ODSERVACIONES" labelClose="close"
     labelSend="guardar" :onclickClose="closeDialog" :onclickSend="handleSend"
-    labelTextArea="Escriba esta observación para este Seguimiento" v-model:textValue="newObservation">
+    labelTextArea="Escriba esta observación para este Seguimiento" v-model:textValue="newObservation" :loading="loadingCreateOdservation">
   </dialogCreateObservation>
 </template>
 
@@ -61,6 +61,7 @@ let radioButtonList = ref('')
 // spiner
 let loading = ref(false);
 let loadingSearch = ref(false);
+let loadingCreateOdservation = ref(false);
 
 
 // observación
@@ -129,7 +130,8 @@ const columns = ref([
     align: "center",
     field: row => formatDate(row.createdAt),
     sortable: true,
-  }
+  },
+
 ])
 
 async function loadDataFollowup() {
@@ -180,7 +182,7 @@ async function openClickCreateObservation(row) {
 }
 async function handleSend() {
   console.log('idod', id.value);
-
+  loadingCreateOdservation.value = true;
   try {
     const response = await putData(`/followup/addobservation/${id.value}`, { observation: newObservation.value });
     notifySuccessRequest('Observación guardada correctamente');
@@ -201,7 +203,8 @@ async function handleSend() {
       }
       notifyErrorRequest(messageError);
     }
-
+  }finally{
+    loadingCreateOdservation.value = false;
   }
 }
 
