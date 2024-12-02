@@ -3,7 +3,7 @@
         <q-btn :class="[btnStyles, props.class]" :color="color" :text-color="textColor" :disable="loading"
             @click="handleClick" :type="type">
             <div id="contentButton">
-                <q-icon :name="props.icon" style="font-size: 22px; color: aliceblue;" v-if="!loading && props.icon" />
+                <q-icon v-if="props.icon && typeof props.icon === 'string'" :name="props.icon" style="font-size: 22px; color: aliceblue;" />
 
                 <span v-if="!loading" id="customButtonLabel">
                     {{ props.label }}
@@ -54,7 +54,7 @@ const props = defineProps({
     },
     icon: {
         type: String,
-        default: ''
+        default: '' // Valor por defecto vacío
     }
 })
 
@@ -68,7 +68,6 @@ const handleClick = async () => {
         }
     }
 };
-
 </script>
 
 <style scoped>
