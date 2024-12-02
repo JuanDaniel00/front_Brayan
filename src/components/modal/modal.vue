@@ -19,7 +19,7 @@
       <q-separator />
 
       <q-card-actions align="right">
-        <q-btn flat :label="labelSend" icon="save_as" @click="onclickSend" color="white"
+        <q-btn flat :label="labelSend" icon="save_as" @click="onclickSend" color="white"  :loading="loading"
           style="background-color: #2F7D32; font-weight: bold;" />
         <q-btn flat :label="labelClose" icon="cancel" @click="onclickClose" color="red-8" v-close-popup style="font-weight: bold;" />
         
@@ -70,6 +70,10 @@ const props = defineProps({
   openModalButton: {
     type: Function,
     required: true
+  },
+  loading: {
+    type: Boolean,
+    required: true
   }
 });
 
@@ -82,8 +86,6 @@ const computedModelValue = computed({
     emit('update:modelValue', value)
   }
 })
-
-
 
 </script>
 
@@ -103,7 +105,7 @@ const computedModelValue = computed({
 }
 
 #button{
-  margin-left: 2.4%;
+  /* margin-left: 2.4%; */
   margin-top: 1%;
   margin-bottom: 0px;
 }

@@ -11,7 +11,7 @@
       <div class="InputButtonsSearch">
         <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
           optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select" />
-        <buttonSearch :onclickButton="bucar" />
+        <buttonSearch :onclickButton="searchButton" :loading="loadingSearch" />
       </div>
     </div>
   </div>
@@ -67,6 +67,7 @@ const id = ref('')
 
 // spiner
 let loading = ref(false);
+let loadingSearch = ref(false);
 const route = useRoute();
 
 
@@ -95,7 +96,7 @@ const columns = ref([
     sortable: true,
   },
   {
-    name: "user",
+    name: "nameInstructor",
     label: "NOMBRE INSTRUCTOR",
     align: "center",
     field: row => row.instructor ? row.instructor.name : 'No asignado',
@@ -110,6 +111,12 @@ const columns = ref([
   }, {
     name: "observation",
     label: "OBSERVACIONES",
+    align: "center",
+    field: "observation",
+    sortable: true,
+  },{
+    name: "detail",
+    label: "DETALLES",
     align: "center",
     field: "observation",
     sortable: true,
@@ -168,7 +175,7 @@ async function handleSend() {
   try {
 
     const response = await putData(`/binnacles/addobservation/${id.value}`, { observation: newObservation.value });
-    notifySuccessRequest('Observación añadida correctamente');
+    notifySuccessRequest('La observación se ha añadido correctamente');
     isDialogVisibleCreateObservation.value = false;
     await loadDataBinnacles();
     cleanObservaton()
@@ -176,7 +183,7 @@ async function handleSend() {
     if (newObservation.value === '') {
       validationHandleSend()
     } else {
-      const messageError = error.response.data.errors[0].msg || error.response.data.message || 'Error al añadir la observación'
+      const messageError = error.response.data.errors[0].msg || error.response.data.message || 'Hubo un error al intentar añadir la asignación. Por favor, inténtalo nuevamente.'
       notifyErrorRequest(messageError);
       cleanObservaton()
     }
@@ -187,7 +194,7 @@ async function handleSend() {
 
 function validationHandleSend() {
   if (newObservation.value === '') {
-    notifyWarningRequest('El campo de observación no puede estar vacio')
+    notifyWarningRequest('El campo de observaciones no puede estar vacío. Por favor, ingresa una observación para continuar.');
     return;
   }
 }
@@ -258,7 +265,6 @@ async function searchApprentice() {
 }
 
 const handleRadioChange = async () => {
-  // validationSearch()
   if (radioButtonList.value === 'instructor') {
     const response = await getData('/Repfora/instructors');
     console.log(response)
@@ -293,7 +299,7 @@ function clearSearch() {
 
 function validationSearch() {
   if (searchValue.value === '') {
-    notifyWarningRequest('El campo de busqueda no puede estar vacio');
+    notifyWarningRequest('El campo de búsqueda no puede estar vacío. Por favor, ingrese un dato para continuar.');
     return;
   }
 }
@@ -312,7 +318,8 @@ async function filterFunctionSearch(val, update) {
   });
 }
 
-async function bucar() {
+async function searchButton() {
+  loadingSearch.value = true;
   validationSearch()
   if(searchValue.value === ''){
     loadDataBinnacles()
@@ -324,6 +331,7 @@ async function bucar() {
     await searchApprentice()
   }
   clearSearch();
+  loadingSearch.value = false;
 }
 </script>
 

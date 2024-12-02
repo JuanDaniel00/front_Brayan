@@ -19,7 +19,7 @@
 
       <q-card-actions align="right">
         <q-btn flat :label="labelSend" icon="save_as" @click="onclickSend" color="white"
-          style="background-color: #2F7D32; font-weight: bold;" />
+          style="background-color: #2F7D32; font-weight: bold;"  :loading="loading" />
         <q-btn flat :label="labelClose" icon="cancel" @click="onclickClose" color="red-8" v-close-popup style="font-weight: bold;" />
         
       </q-card-actions>
@@ -28,6 +28,7 @@
 </template>
 
 <script setup>
+import { Loading } from 'quasar';
 import { computed } from 'vue';
 const props = defineProps({
   modelValue: {
@@ -64,6 +65,10 @@ const props = defineProps({
   },
   onclickClose: {
     type: Function,
+    required: true
+  },
+  loading:{
+    type: Boolean,
     required: true
   }
 

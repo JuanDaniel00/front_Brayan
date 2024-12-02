@@ -20,8 +20,8 @@
 
             <template v-slot:body-cell-seeApprentice="props">
                 <q-td :props="props" class="q-pa-xs text-center">
-                    <q-btn @click="toggleSeeApprentice(props.row)" icon="visibility" color="primary" round size="md"
-                        aria-label="Visibility">
+                    <q-btn @click="toggleSeeApprentice(props.row)" icon="visibility" color="primary" round size="md" 
+                        aria-label="Visibility" :loading="loadingButtonSee[props.row._id]" >
                     </q-btn>
                 </q-td>
             </template>
@@ -42,7 +42,7 @@
 
 <script setup>
 import { ref, watch } from "vue";
-
+let loadingButtonSee = ref({})
 const props = defineProps({
     rows: {
         type: Array,
@@ -63,54 +63,43 @@ const props = defineProps({
     loading: {
         type: Boolean,
         required: true,
+    },
+
+});
+
+const toggleSeeApprentice = async (row) =>{
+    loadingButtonSee.value[row._id] = true;
+    try {
+        await props.toggleSeeApprentice(row);       
+    } finally {
+        loadingButtonSee.value[row._id] = false;
     }
-});
-
-const emit = defineEmits(['update:filter']);
-
-const localFilter = ref(props.filter);
-
-watch(() => props.filter, (newValue) => {
-    localFilter.value = newValue;
-});
-
-function updateFilter(value) {
-    emit('update:filter', value);
 }
+
+
 </script>
 
 <style scoped>
 .q-table-custom {
-    border: 1px solid #000000;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  scrollbar-width: thin; 
+  scrollbar-color: #2F7D32 #f1f1f1;
 }
 
 .custom-header-row {
-    background-color: #449247;
+  background-color: #449247;
 }
 
 .custom-header-cell {
-    color: white;
-    font-weight: bold;
-    text-align: center;
-    padding: 12px;
-    font-size: 16px;
-    font-weight: 700;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .edit-btn {
-    background-color: #1c4b33 !important;
+  background-color: #1c4b33 !important;
 }
 
-.opcion-btn {
-    display: flex;
-    gap: 10px;
-}
-
-.q-pa-md{
-    width: 96%;
-    margin-left: 2%;
-}
 </style>

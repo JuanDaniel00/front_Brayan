@@ -29,7 +29,8 @@
                 </template>
               </q-input>
             </div>
-            <button type="submit" class="login-button">INICIAR SESIÓN</button>
+            <q-btn type="submit" class="login-button" label="INICIAR SESIÓN" color="primary" :loading="loading"
+              unelevated />
           </div>
         </form>
       </div>
@@ -47,8 +48,6 @@ import { postData } from '../services/ApiClient.js';
 import { notifySuccessRequest, notifyErrorRequest, notifyWarningRequest } from '../composables/useNotify.js';
 import { useAuthStore } from "../stores/useAuth.js";
 
-const loading = ref(false); // Estado de carga
-
 const router = useRouter();
 const authStore = useAuthStore();
 
@@ -56,9 +55,8 @@ const rol = ref('');
 const email = ref('');
 const password = ref('');
 const document = ref('');
-
-let isPwd = ref(true);
-
+const loading = ref(false); // Indicador de carga
+const isPwd = ref(true);
 const isConsultorRole = ref(false);
 const isRol = ref(false);
 
@@ -75,11 +73,10 @@ const handleRoleChange = (value) => {
 };
 
 const handleSubmit = async () => {
-  if (!rol.value || !email.value || (rol.value == 'CONSULTOR' && !document.value) || (rol.value !== 'CONSULTOR' && !password.value)) {
+  if (!rol.value || !email.value || (rol.value === 'CONSULTOR' && !document.value) || (rol.value !== 'CONSULTOR' && !password.value)) {
     notifyWarningRequest('Por favor, complete todos los campos');
     return;
   }
-
 
   let loginUrl;
   if (rol.value === 'CONSULTOR') {
@@ -100,9 +97,6 @@ const handleSubmit = async () => {
       email: email.value,
       numDocument: rol.value === 'CONSULTOR' ? document.value : undefined,
       password: rol.value !== 'CONSULTOR' ? password.value : undefined,
-      email: email.value,
-      numDocument: rol.value === 'CONSULTOR' ? document.value : undefined,
-      password: rol.value !== 'CONSULTOR' ? password.value : undefined,
     });
 
     notifySuccessRequest('Inicio de sesión exitoso');
@@ -113,26 +107,20 @@ const handleSubmit = async () => {
     } else {
       router.push({
         path: '/layouts',
-        query: {
-          rol: rol.value
-        }
+        query: { rol: rol.value },
       });
     }
-
-
   } catch (error) {
     console.error('Error en handleSubmit:', error);
-    let messageError = 'Error desconocido. Por favor, inténtelo más tarde.'
-    if (error.response) {
-      if (error.response.data) {
-        if (error.response.data.errors && error.response.data.errors.length > 0) {
-          messageError = error.response.data.errors[0].msg
-        } else if (error.response.data.data && error.response.data.data.msg) {
-          messageError = 'Usuario/contraseña incorrectos. Intenta nuevamente.'
-        }
-      }
+    let messageError = 'Error desconocido. Por favor, inténtelo más tarde.';
+    if (error.response?.data?.errors?.length > 0) {
+      messageError = error.response.data.errors[0].msg;
+    } else if (error.response?.data?.data?.msg) {
+      messageError = 'Usuario/contraseña incorrectos. Intenta nuevamente.';
     }
-    notifyErrorRequest(messageError)
+    notifyErrorRequest(messageError);
+  } finally {
+    loading.value = false; // Desactivar indicador de carga
   }
 };
 
@@ -140,6 +128,8 @@ const forgotPassword = () => {
   notifyWarningRequest('Funcionalidad de recuperación de contraseña aún no implementada.');
 };
 </script>
+
+
 
 <style>
 .login-container {

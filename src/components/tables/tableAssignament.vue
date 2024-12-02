@@ -67,28 +67,27 @@ const props = defineProps({
 
 <style scoped>
 .q-table-custom {
-    border: 1px solid #000000;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  scrollbar-width: thin; 
+  scrollbar-color: #2F7D32 #f1f1f1;
 }
 
 .custom-header-row {
-    background-color: #2F7D32;
+  background-color: #449247;
 }
 
 .custom-header-cell {
-    color: white;
-    font-weight: bold;
-    text-align: center;
-    padding: 12px;
-    font-size: 16px;
-    font-weight: 700;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .edit-btn {
-    background-color: #1c4b33 !important;
+  background-color: #1c4b33 !important;
 }
+
 
 .opcion-btn {
     display: flex;

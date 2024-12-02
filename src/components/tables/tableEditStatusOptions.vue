@@ -75,10 +75,6 @@ const props = defineProps({
     type: Function,
     required: true,
   },
-  toggleActivate: {
-    type: Function,
-    required: true,
-  },
   onclickStatus: {
     type: Function,
     required: true,
@@ -89,14 +85,6 @@ const props = defineProps({
   }
 });
 
-const toggleActivate = async (row) => {
-  loadingStates.value[row._id] = true;
-  try {
-    await props.toggleActivate(row);
-  } finally {
-    loadingStates.value[row._id] = false;
-  }
-};
 
 const onclickStatus = async (row) => {
   loadingStates.value[row._id] = true;
@@ -112,16 +100,6 @@ const onclickStatus = async (row) => {
 </script>
 
 <style scoped>
-.q-table-custom {
-  border: 1px solid #000000;
-  border-radius: 8px;
-  overflow: auto; /* Asegura que haya scroll si es necesario */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  width: 96.8%;
-  margin-left: 1.8%;
-  max-height: 400px; 
-}
-
 .q-table-custom {
   scrollbar-width: thin; 
   scrollbar-color: #2F7D32 #f1f1f1;
@@ -144,8 +122,4 @@ const onclickStatus = async (row) => {
   background-color: #1c4b33 !important;
 }
 
-.opcion-btn {
-  display: flex;
-  gap: 10px;
-}
 </style>

@@ -3,11 +3,11 @@
   <div id="buttons-container">
     <modalDialog class="formModality" :title="modalTitle" v-model="isDialogVisibleModal" nameButton="Crear"
       labelClose="Cerrar" labelSend="Guardar" :onclickClose="handleClose" :onclickSend="handleSend"
-      :openModalButton="openButtonCreate">
+      :openModalButton="openButtonCreate" :loading="loadingSend">
 
       <q-select v-model="modality" :options="filterOptionsModality" label="Nombre de la modalidad" emit-value
         map-options option-label="label" option-value="_id" :use-input="!modalitytp" @filter="filterFunctionModality"
-        class="custom-select" use-chips :rules="[
+        clearable class="custom-select" :rules="[
           (val) => !!val || 'La ficha Modalidad es obligatoria'
         ]" filled>
         <template v-slot:prepend class="custom-select">
@@ -39,14 +39,14 @@
     <div class="InputButtonsSearch">
       <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
         optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select" />
-      <buttonSearch :onclickButton="searchModality" />
+      <buttonSearch :onclickButton="searchModality" :loading="loadingSearch" />
     </div>
   </div>
   <tableModalityEp :rows="rows" :columns="columns" :onclickEdit="openDialogEdit" :loading="loading" />
 </template>
 
 <script setup>
-import { ref, onBeforeMount } from 'vue';
+import { ref, onBeforeMount, TransitionGroup } from 'vue';
 import Header from '../components/header/header.vue';
 import tableModalityEp from '../components/tables/tableModalityEp.vue';
 import modalDialog from '../components/modal/modal.vue';
@@ -81,6 +81,8 @@ let searchValue = ref('')
 
 // spiners
 let loading = ref(false)
+let loadingSearch = ref(false)
+let loadingSend = ref(false)
 
 const rows = ref([
 ]);
@@ -183,15 +185,18 @@ function handleClose() {
   cleanForm()
 }
 
-async function handleSend(row) {
-  // validationsForm()
-  const data = {
-    name: modality.value,
-    hourInstructorFollow: hourInstFollowup.value,
-    hourInstructorTechnical: hourInstTechnical.value,
-    hourInstructorProject: hourInstProyect.value
-  }
+async function handleSend() {
+  loadingSend.value = true
   try {
+    if (!validationsForm()) {
+      return
+    }
+    const data = {
+      name: modality.value,
+      hourInstructorFollow: hourInstFollowup.value,
+      hourInstructorTechnical: hourInstTechnical.value,
+      hourInstructorProject: hourInstProyect.value
+    }
     let response;
     if (ismodalType.value) {
       response = await postData('/modality/addModality', data)
@@ -207,36 +212,44 @@ async function handleSend(row) {
 
       if (!hasChanges) {
         notifyWarningRequest('No se han realizado cambios')
+        isDialogVisibleModal.value = false;
+        cleanForm()
         return
       }
-
     }
-
     isDialogVisibleModal.value = false;
-    cleanForm()
     notifySuccessRequest('Datos enviados correctamente')
+    cleanForm()
     await loadDataModality()
   } catch (error) {
     let messageError;
     if (error.response && error.response.data && error.response.data.message) {
       messageError = error.response.data.message
+    } else if (error.response && error.response.data && error.response.data.error) {
+      messageError = error.response.data.error
     } else if (error.response && error.response.data && error.response.data.errors &&
       error.response.data.errors[0].msg) {
       messageError = error.response.data.errors[0].msg
     } else {
       messageError = 'Error al enviar los datos'
     }
-    // const message = error.response.data.errors[0].msg || error.response.data.message || 'Error al enviar los datos'
+    console.log('error', messageError);
     notifyErrorRequest(messageError)
+    return
+  }finally{
+    loadingSend.value = false
   }
 }
 
 
 function validationsForm() {
-  if (!modality.value || !hourInstFollowup.value || !hourInstTechnical.value || !hourInstProyect.value) {
-    notifyWarningRequest('Todos los campos son obligatorios')
-    return
+  if (!modality.value || hourInstFollowup.value === '' || hourInstFollowup.value === null ||
+    hourInstTechnical.value === '' || hourInstTechnical.value === null ||
+    hourInstProyect.value === '' || hourInstProyect.value === null) {
+    notifyWarningRequest('Por favor, completa todos los campos para poder continuar.')
+    return false
   }
+  return true
 }
 
 function cleanForm() {
@@ -245,8 +258,6 @@ function cleanForm() {
   hourInstTechnical.value = ''
   hourInstProyect.value = ''
 }
-
-
 
 async function fetchDataModality() {
   const response = await getData('/modality/listallmodality')
@@ -308,6 +319,7 @@ function filterFunctionSearch(val, update) {
 }
 
 async function searchModality() {
+  loadingSearch.value = true
   try {
     validationSearch()
     const response = await getData(`/modality/listmodalitybyid/${searchValue.value}`)
@@ -317,6 +329,8 @@ async function searchModality() {
     const message = error.response.data.errors[0].msg || error.response.data.message || 'Error al buscar la modalidad'
     notifyErrorRequest(message)
     await loadDataModality()
+  } finally {
+    loadingSearch.value = false
   }
 
 }
@@ -326,6 +340,10 @@ function validationSearch() {
     notifyWarningRequest('El campo de busqueda no puede estar vacio')
   }
 }
+
+
+
+
 </script>
 
 

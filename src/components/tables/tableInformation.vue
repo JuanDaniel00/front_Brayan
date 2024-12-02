@@ -68,10 +68,8 @@ const toggleActivate = async (row) => {
 
 <style scoped>
 .q-table-custom {
-  border: 1px solid #000000;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  scrollbar-width: thin; 
+  scrollbar-color: #2F7D32 #f1f1f1;
 }
 
 .custom-header-row {
@@ -90,7 +88,6 @@ const toggleActivate = async (row) => {
 .edit-btn {
   background-color: #1c4b33 !important;
 }
-
 .opcion-btn {
   display: flex;
   gap: 10px;
