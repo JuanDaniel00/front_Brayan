@@ -6,11 +6,11 @@
 
       <div class="table-container">
 
-        <CustomButton label="CREAR" :onClickFunction="openDialog">
+        <CustomButton label="CREAR" :onClickFunction="openDialog" icon="add_circle">
         </CustomButton>
 
         <Table :rows="rows" :columns="columns" :onClickEdit="editRegister" :deactivate="toggleStatus"
-          :activate="toggleStatus" :showDetails="showDetails"></Table>
+          :activate="toggleStatus" :showDetails="showDetails" :loading="loading"></Table>
       </div>
 
       <TableModal v-model="TableModalDialog" :row="selectedRow">
@@ -344,6 +344,7 @@ const mailCompanyModal = ref("");
 
 const modalityName = ref("");
 let isReadOnly = ref(false);
+let loading = ref(false);
 
 // Asignación de instructores
 const assignment = ref([{
@@ -368,11 +369,11 @@ let busquedaAprendiz = ref(null);
 const tipos = ref([])
 const columns = ref([
   {
-    name: "numberList",
+    name: "no",
     required: true,
     label: "N°",
     align: "center",
-    field: "numberList",
+    field: "no",
   },
   {
     name: "name",
@@ -683,15 +684,14 @@ const borrarFilaAprendiz = (row) => {
 
 // Función para obtener datos de la tabla
 async function getDataForTable() {
+  loading.value = true;
+  console.log(loading.value);
+
   try {
     const getRegisters = await getData("register/listallregister");
-    console.log("getRegisters: ", getRegisters);
-
-
     const getApprentices = await getData("apprendice/listallapprentice");
     const getModalities = await getData("modality/listallmodality");
     console.log("getModalities: ", getModalities);
-
 
     // Verificar que las respuestas contengan los datos esperados
     if (!getRegisters.data || !Array.isArray(getApprentices) || !Array.isArray(getModalities)) {
@@ -715,7 +715,6 @@ async function getDataForTable() {
           _id: modality._id,
           name: modality.name,
         }));
-
 
         apprenticeOptions.value = getApprentices.map(
           (apprentice) => ({
@@ -741,11 +740,16 @@ async function getDataForTable() {
       }
     );
 
-    rows.value = registersWithApprenticeAndModality;
+    // Ordenar los registros por fecha de creación en orden descendente
+    rows.value = registersWithApprenticeAndModality.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     console.log("rows: ", rows.value);
   } catch (error) {
     console.error("Error al obtener datos para la tabla:", error);
+  } finally {
+    loading.value = false;
+    console.log(loading.value);
+
   }
 }
 
@@ -1125,8 +1129,7 @@ const showDetails = (row) => {
     instructoresAgregados.value = [];
   }
 
-  aprendicesAgregados.value = row.idApprentice.map(apprenticeId => {
-    const apprentice = aprendices.value.find(a => a._id === apprenticeId);
+  aprendicesAgregados.value = row.idApprentice.map(apprentice => {
     return {
       id: apprentice._id,
       firstName: apprentice.firstName,
