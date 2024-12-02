@@ -3,7 +3,7 @@
         <q-btn :class="[btnStyles, props.class]" :color="color" :text-color="textColor" :disable="loading"
             @click="handleClick" :type="type">
             <div id="contentButton">
-                <q-icon :name="icon" style="font-size: 22px; color: aliceblue;" v-if="!loading" />
+                <q-icon :name="props.icon" style="font-size: 22px; color: aliceblue;" v-if="!loading && props.icon" />
 
                 <span v-if="!loading" id="customButtonLabel">
                     {{ props.label }}
@@ -51,6 +51,10 @@ const props = defineProps({
     type: {
         type: String,
         default: 'button'
+    },
+    icon: {
+        type: String,
+        default: ''
     }
 })
 

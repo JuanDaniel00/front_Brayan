@@ -12,7 +12,12 @@
                 </q-tr>
             </template>
 
-            
+
+            <template v-slot:body-cell-no="props">
+                <q-td :props="props" class="q-pa-xs text-center">
+                    {{ props.pageIndex + 1 }}
+                </q-td>
+            </template>
 
             <!-- Slot para la columna 'opciones' con botón de acciones tipo FAB -->
             <template v-slot:body-cell-opciones="props">
@@ -60,6 +65,11 @@
                         style="background-color: green; border-radius: 50%; padding: 3px; margin-left: 4px; cursor: pointer;" />
                 </q-td>
             </template>
+            
+            <template v-slot:loading>
+                <q-inner-loading :showing="loading" color="primary" />
+            </template>
+
         </q-table>
     </div>
 </template>
@@ -97,6 +107,10 @@ const props = defineProps({
     },
     logHours: {
         type: Function,
+        required: true
+    },
+    loading: {
+        type: Boolean,
         required: true
     }
 });
