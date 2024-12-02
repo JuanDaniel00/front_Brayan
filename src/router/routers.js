@@ -15,8 +15,6 @@ import layouts from '../views/Layout.vue'
 import certificaciones from '../views/Certificaciones.vue'
 import consultant from '../views/Consultant.vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
-
-import information from '../views/Information.vue'
 import { useAuthStore } from "../stores/useAuth.js";
 
 const auth = (to, from, next) => {
@@ -57,8 +55,6 @@ const routes = [
         { path: 'modality', component: modality, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
         { path: 'register', component: register, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
         { path: 'userEP', component: userEP, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
-        { path: 'informationFicheApprentice', component: informationFicheApprentice, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
-        { path: 'information', component: information, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } }
       ]
     },
     { path: '/', component: loguin },

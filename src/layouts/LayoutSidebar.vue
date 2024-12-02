@@ -6,8 +6,8 @@
           <img src="https://senasofiaplus.xyz/wp-content/uploads/2023/10/logo-del-sena-01.png" />
         </q-avatar>
         <div class="text-weight-bold text-center"
-          style="text-transform: uppercase; color: black; font-weight: 900; font-size: 15px;">ADMINISTRADOR</div>
-        <div class="text-center" style="color: black;">etapaspruebas@gmail.com</div>
+          style="text-transform: uppercase; color: black; font-weight: 900; font-size: 15px;"><b>{{ roleText }}</b></div>
+        <div class="text-center" style="color: black;"><b>{{ userEmail }}</b></div>
       </div>
     </q-img>
 
@@ -97,15 +97,33 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onBeforeMount } from "vue";
 import { useRoute } from "vue-router";
+import { useAuthStore } from "../stores/useAuth.js";
+
+onBeforeMount(() => {
+  userRoleText()
+})
+
+const authStore = useAuthStore();
 
 // Estado del drawer
 const drawer = ref(false);
 
+const userRole = authStore.rol;
+const userEmail = localStorage.getItem("userEmail");
+let roleText = ref('')
+
 const route = useRoute();
-const rol = route.query.rol;
-console.log('Query de la ruta:', route.query);
+
+
+const userRoleText = () => {
+  if (userRole === 'ADMIN') {
+    roleText = 'USUARIO EP'
+  } else if (userRole === 'INSTRUCTOR') {
+    roleText = 'INSTRUCTOR'
+  }
+}
 
 </script>
 

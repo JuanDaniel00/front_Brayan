@@ -4,7 +4,7 @@
       <div class="login-header">
         <h1>REPFORA</h1>
       </div>
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWoms2HEy0ELPrZGRr001PN2sh5sq9dU_BWQ&s"
+      <img src="https://senasofiaplus.xyz/wp-content/uploads/2023/10/logo-del-sena-01.png"
         alt="Logo SENA" class="logo" />
       <h2 class="login-title">LOGIN</h2>
       <hr />
@@ -42,7 +42,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { postData } from '../services/ApiClient.js';
 import { notifySuccessRequest, notifyErrorRequest, notifyWarningRequest } from '../composables/useNotify.js';
@@ -65,6 +65,22 @@ const roles = ref([
   { label: 'ADMINISTRADOR', value: 'ADMIN' },
   { label: 'INSTRUCTOR', value: 'INSTRUCTOR' }
 ]);
+
+const userData = ref({
+      role: rol.value,
+      email: email.value,
+      numDocument: document.value,
+      password: password.value,
+    })
+
+    watch([email, document, rol, password], () => {
+      userData.value = {
+    role: rol.value,
+    email: email.value,
+    numDocument: document.value,
+    password: password.value,
+  };
+});
 
 const handleRoleChange = (value) => {
   rol.value = value.value;
@@ -92,15 +108,14 @@ const handleSubmit = async () => {
 
   loading.value = true; // Activar indicador de carga
   try {
-    const response = await postData(loginUrl, {
-      role: rol.value,
-      email: email.value,
-      numDocument: rol.value === 'CONSULTOR' ? document.value : undefined,
-      password: rol.value !== 'CONSULTOR' ? password.value : undefined,
-    });
+    console.log('userData', userData.value);
+
+    const response = await postData(loginUrl, userData.value);
 
     authStore.setToken(response.token);
     authStore.setRol(rol.value);
+    localStorage.setItem("userEmail", userData.value.email);
+    
     router.push('/layouts/home');
         
     notifySuccessRequest('Inicio de sesión exitoso');
