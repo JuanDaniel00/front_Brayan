@@ -4,11 +4,11 @@
     <div class="buttons">
       <ModalDialog class="formApprentice" :title="modalTitle" v-model="isDialogVisibleModal" nameButton="Crear"
         labelClose="Cerrar" labelSend="Guardar" :onclickClose="handleClose" :onclickSend="handleSend"
-        :openModalButton="openButtonCreate">
+        :openModalButton="openButtonCreate" :loading="loading">
 
 
         <q-select v-model="fiche" :options="filterOptions" label="Ficha" emit-value map-options option-label="label"
-          option-value="_id" :use-input="!fiche" @filter="filterFunctionFiches" class="custom-select" :rules="[
+          option-value="_id" :use-input="!fiche" @filter="filterFunctionFiches" clearable class="custom-select" :key="fiche" :rules="[
             (val) => !!val || 'La ficha es obligatoria'
           ]" filled>
           <template v-slot:prepend class="custom-select">
@@ -63,7 +63,7 @@
 
         <q-select v-model="idmodality" :options="filterOptionsModality" label="Modalidad Etapa Productiva" emit-value
           map-options option-label="name" option-value="_id" :use-input="!fiche" @filter="filterFunctionModality"
-          class="custom-select" v-show="modality" :rules="[
+          clearable class="custom-select" v-show="modality" :rules="[
             (val) => !!val || 'El Modalidad Etapa Productiva es obligatorio'
           ]" filled> <template v-slot:prepend class="custom-select">
             <q-icon name="abc" />
@@ -90,11 +90,11 @@
     <div class="InputButtonsSearch">
       <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
         optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select" />
-      <buttonSearch :onclickButton="bucar" />
+      <buttonSearch :onclickButton="searchButton" :loading="loadingSearch"/>
     </div>
   </div>
   <CustomTable :rows="rows" :columns="columns" :onClickEdit="openDialogEdit" class="class"
-    :toggleActivate="changestatus" :onclickStatus="changestatusIcon" :loading="loading">
+    :onclickStatus="changestatusIcon" :loading="loading">
   </CustomTable>
 
 
@@ -117,7 +117,8 @@ import buttonSearch from "../components/buttons/buttonSearch.vue";
 
 const route = useRoute();
 
-let loading = ref(true)
+let loading = ref(false)
+let loadingSearch = ref(false)
 
 onBeforeMount(() => {
   loadData()
@@ -179,20 +180,18 @@ const loadData = async () => {
       console.log(response);
       rows.value = response;
     }
-    
+
   } catch (error) {
     let messageError;
     if (error.response && error.response.data && error.response.data.message) {
-      messageError = error.response.data.message
-      const response = await getData('/apprendice/listallapprentice');
-      rows.value = response;
+      messageError = error.response.data.message || 'No se encontraron aprendices para la búsqueda realizada.';
     } else if (error.respo && error.response.data && error.response.data.errors && error.response.data.errors[0].msg) {
       messageError = error.response.data.errors[0].msg
     } else {
-      messageError = 'No se encontraron aprendices'
+      messageError = 'Ocurrió un error inesperado. Por favor, intente nuevamente.'
     }
-      notifyErrorRequest(messageError);
-  }finally{
+    notifyErrorRequest(messageError);
+  } finally {
     loading.value = false
   }
 }
@@ -297,6 +296,7 @@ async function changestatusIcon(row) {
     await putData(`/apprendice/enableapprentice/${row._id}`);
   }
   row.status = row.status === 1 ? 0 : 1;
+  notifySuccessRequest(row.status === 1 ? 'Aprendiz activado correctamente' : 'Aprendiz inactivado correctamente');
 }
 
 function openButtonCreate() {
@@ -320,6 +320,7 @@ const originalValues = ref({
 });
 
 function openDialogEdit(row) {
+  const filteredFiche = filterOptions.value.find((opt) => opt._id === row.fiche.idFiche);
   isDialogVisibleModal.value = true;
   ismodalType.value = false;
   modality.value = false
@@ -331,9 +332,10 @@ function openDialogEdit(row) {
   emailIntitutional.value = row.institutionalEmail;
   phone.value = row.phone;
   tpDocument.value = row.tpDocument;
-  numDocument.value = row.numDocument;
   fiche.value = row.fiche.idFiche;
+  numDocument.value = row.numDocument;
   row_id.value = row._id;
+  
 
   // guarda valores originales
   originalValues.value = {
@@ -353,29 +355,54 @@ function handleClose() {
   resetForm();
 }
 
-// validar los campos que no tenga valores vacios
-
+// // validar los campos que no tenga valores vacios
 function validateAndTrim() {
-  firstName.value = firstName.value.replace(/\s+/g, ' ') // Elimina espacios al principio y al final
-  lastName.value = lastName.value.replace(/\s+/g, ' ')
-  emailPersonal.value = emailPersonal.value.trim()
-  emailIntitutional.value = emailIntitutional.value.trim()
-  phone.value = phone.value.trim()
-  tpDocument.value = tpDocument.value.trim()
-  numDocument.value = numDocument.value.trim()
-  fiche.value = fiche.value.trim()
+  const validateName = /^[^\s].*[^\s]$/;
+  const validateTrimmedInput = /^\S+$/;
+  const validateNumber = /^[0-9]+$/;
+  // const validateSenaEmail = /^[^\s@]+@soy\.sena\.edu\.co$/;
+
+  if (!validateName.test(firstName.value) || !validateName.test(lastName.value) || !validateTrimmedInput.test(numDocument.value)
+    || !validateTrimmedInput.test(emailPersonal.value) || !validateTrimmedInput.test(emailIntitutional.value) || !tpDocument.value
+    || !fiche.value || ismodalType.value && !idmodality.value || !validateTrimmedInput.test(phone.value)) {
+    notifyWarningRequest('Los campos no puede estar vacío ni tener espacios en blanco. Por favor, ingrese un valor válido.');
+    return false
+  } else if (!firstName.value || !lastName.value || !emailPersonal.value || !emailIntitutional.value
+    || !phone.value || !tpDocument.value || !numDocument.value || !fiche.value) {
+    notifyWarningRequest('Por favor, completa todos los campos para poder continuar.');
+    return false
+  }
+
+  if (!validateNumber.test(numDocument.value)) {
+    notifyErrorRequest('El número de documento debe ser numérico.');
+    return false
+  }
+  if (numDocument.value.length !== 10) {
+    notifyErrorRequest('Por favor, ingresa un número de documento válido de exactamente 10 dígitos.');
+    return false
+  }
+  if (!emailIntitutional.value.endsWith('@soy.sena.edu.co')) {
+    notifyErrorRequest('El correo ingresado debe ser institucional y terminar en @soy.sena.edu.co');
+    return false;
+  }
+  if (!validateNumber.test(phone.value)) {
+    notifyErrorRequest('El número de teléfono debe ser numérico.');
+    return false
+  }
+  if (phone.value.length !== 10) {
+    notifyErrorRequest('Por favor, asegúrate de que el número de teléfono tenga exactamente 10 dígitos.');
+    return false
+  }
+  return true
 }
 
-const handleSend = async (row) => {
-  validateAndTrim()
-  if (!firstName.value || !lastName.value || !emailPersonal.value || !emailIntitutional.value
-    || !phone.value || !tpDocument.value || !numDocument.value || !fiche.value) {
-    notifyWarningRequest('Todos los campos son obligatorios');
-    return;
-  }
+const handleSend = async () => {
+  loading.value = true;
   const selectedFiche = filterOptions.value.find((opt) => opt._id === fiche.value);
-
   try {
+    if (!validateAndTrim()) {
+      return;
+    }
     let response;
     if (ismodalType.value) {
       response = await postData('/apprendice/addapprentice', {
@@ -393,8 +420,23 @@ const handleSend = async (row) => {
         },
         idModality: idmodality.value
       });
+
     } else {
-      const hasChanges = 
+      response = await putData(`/apprendice/updateapprenticebyid/${row_id.value}`, {
+        firstName: firstName.value,
+        lastName: lastName.value,
+        personalEmail: emailPersonal.value,
+        institutionalEmail: emailIntitutional.value,
+        phone: phone.value,
+        tpDocument: tpDocument.value,
+        numDocument: numDocument.value,
+        fiche: {
+          idFiche: fiche.value,
+          name: selectedFiche.name,
+          number: selectedFiche.number,
+        },
+      });
+      const hasChanges =
         firstName.value !== originalValues.value.firstName ||
         lastName.value !== originalValues.value.lastName ||
         emailPersonal.value !== originalValues.value.personalEmail ||
@@ -405,25 +447,13 @@ const handleSend = async (row) => {
         fiche.value !== originalValues.value.fiche;
 
       if (!hasChanges) {
-        notifyWarningRequest('No se realizaron cambios en los datos del Aprendiz');
+        notifyWarningRequest('No se han realizado cambios en la información del aprendiz.');
+        resetForm()
         isDialogVisibleModal.value = false;
         return;
       }
-      response = await putData(`/apprendice/updateapprenticebyid/${row_id.value}`, {
-        firstName: firstName.value,
-        lastName: lastName.value,
-        personalEmail: emailPersonal.value,
-        institutionalEmail: emailIntitutional.value,
-        phone: phone.value,
-        tpDocument: tpDocument.value,
-        numDocument: numDocument.value,
-        fiche: {
-          name: selectedFiche.name,
-          number: selectedFiche.number,
-        },
-      });
     }
-    notifySuccessRequest(ismodalType.value ? 'Aprendiz creado correctamente' : 'Aprendiz actualizado correctamente');
+    notifySuccessRequest(ismodalType.value ? 'El aprendiz se ha creado exitosamente.' : 'La información del aprendiz se ha actualizado correctamente.');
 
     isDialogVisibleModal.value = false;
     ismodalType.value = false;
@@ -435,14 +465,15 @@ const handleSend = async (row) => {
     let messageError;
     if (error.response && error.response.data && error.response.data.message) {
       messageError = error.response.data.message
-    } else if (error.respo && error.response.data && error.response.data.errors && error.response.data.errors[0].msg) {
+    } else if(error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].msg) {
       messageError = error.response.data.errors[0].msg
     } else {
-      messageError = 'Ocurrió un error inesperado'
+      messageError = 'Ocurrió un error inesperado al cargar los datos. Por favor, intente nuevamente más tarde.'
     }
-    // // const messageError = error.response.data.errors[0].msg || error.response.data.message || 'Ocurrió un error inesperado';
-    notifyErrorRequest(messageError);
     ismodalType.value = false;
+    notifyErrorRequest(messageError);
+  } finally {
+    loading.value = false
   }
 };
 
@@ -518,15 +549,12 @@ async function listApprenticeForFiches() {
     if (searchValue.value === '') {
       validationSearch()
     } else {
-      notifyErrorRequest(`No se encontraron aprendices en la ficha seleccionada`);
+      notifyErrorRequest(`No se encontraron aprendices registrados en la ficha seleccionada.`);
     }
-    loadData()
-
   }
 }
 
 async function listApprenticeForApprentice() {
-
   try {
     const response = await getData(`/apprendice/listapprenticebyid/${searchValue.value}`);
     console.log(response);
@@ -535,11 +563,9 @@ async function listApprenticeForApprentice() {
     if (searchValue.value === '') {
       validationSearch()
     } else {
-      notifyErrorRequest('No se encontraron aprendices con el número de documento ingresado');
+      notifyErrorRequest('No se encontró ningún aprendiz que coincidan con el nombre o número de documento ingresado');
     }
-    loadData()
   }
-
 }
 
 async function listApprenticeForStatus() {
@@ -551,9 +577,14 @@ async function listApprenticeForStatus() {
     if (searchValue.value === '') {
       validationSearch()
     } else {
-      notifyErrorRequest(`No se encontraron aprendices con el estado seleccionado`);
+      if (searchValue.value === 1) {
+        notifyErrorRequest('No hay aprendices registrados en estado activo en este momento')
+        // return
+      } else {
+        notifyErrorRequest('No hay aprendices registrados en estado inactivo en este momento.');
+      }
+
     }
-    loadData()
   }
 }
 
@@ -592,7 +623,7 @@ function clearSearch() {
 
 function validationSearch() {
   if (searchValue.value === '') {
-    notifyWarningRequest('El campo de busqueda no puede estar vacio');
+    notifyWarningRequest('El campo de búsqueda no puede estar vacío. Por favor, ingrese un dato para continuar.');
     return;
   }
 }
@@ -611,7 +642,8 @@ async function filterFunctionSearch(val, update) {
   });
 }
 
-async function bucar() {
+async function searchButton() {
+  loadingSearch.value = true
   validationSearch()
   if (radiobuttonlist.value === 'Fiche') {
     await listApprenticeForFiches();
@@ -621,6 +653,7 @@ async function bucar() {
     await listApprenticeForStatus();
   }
   clearSearch();
+  loadingSearch.value = false
 }
 
 

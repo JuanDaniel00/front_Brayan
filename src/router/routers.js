@@ -14,8 +14,8 @@ import horas from '../views/Horas.vue'
 import layouts from '../views/Layout.vue'
 import certificaciones from '../views/Certificaciones.vue'
 import consultant from '../views/Consultant.vue'
-import informationFicheApprentice from '../views/InformationFicheApprentice.vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
+
 import information from '../views/Information.vue'
 import { useAuthStore } from "../stores/useAuth.js";
 
@@ -37,13 +37,13 @@ const auth = (to, from, next) => {
   next(); 
 };
 
-
 const routes = [
     {
       path: '/layouts',
       component: layouts,
       children: [
         { path: '', redirect: '/layouts/home' },
+
         { path: 'home', component: home, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
         { path: 'apprentices', component: apprentices, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
         { path: 'assignament', component: assignament, beforeEnter: auth, meta: { roles: ['ADMIN'] } },

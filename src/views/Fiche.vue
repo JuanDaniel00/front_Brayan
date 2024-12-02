@@ -11,7 +11,7 @@
     </div>
 
     <ficheTable :rows="filteredRows" :columns="columns" v-model:filter="filter" :toggleSeeApprentice="seeApprentices"
-        :loading="loading"></ficheTable>
+        :loading="loading" />
 </template>
 
 <script setup>
@@ -27,8 +27,7 @@ import { notifyErrorRequest } from '../composables/useNotify';
 onBeforeMount(() => {
     loadDataFiches();
 })
-const loading = ref(true); // Estado de carga
-
+let loading = ref(false); 
 let filter = ref('');
 
 async function loadDataFiches() {
@@ -93,7 +92,7 @@ async function seeApprentices(row) {
         }
 
     } catch (error) {
-        notifyErrorRequest('No hay aprendices en esa ficha')
+        notifyErrorRequest('No hay aprendices registrados en esta ficha.')
     }
 
 }

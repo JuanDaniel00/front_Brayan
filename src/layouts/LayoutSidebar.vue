@@ -77,14 +77,8 @@
           <q-item-section>Modalidad EP</q-item-section>
         </q-item>
 
-        <q-item v-if="rol !== 'INSTRUCTOR'" clickable to="/layouts/information" class="menu-item">
-          <q-item-section avatar>
-            <q-icon name="file_copy" />
-          </q-item-section>
-          <q-item-section>Informes</q-item-section>
-        </q-item>
 
-        <q-item v-if=" rol !== 'ADMIN'"  clickable to="/layouts/certificaciones" class="menu-item">
+        <q-item  clickable to="/layouts/certificaciones" class="menu-item">
           <q-item-section avatar>
             <q-icon name="done_all" />
           </q-item-section>
@@ -95,7 +89,7 @@
           <q-item-section avatar>
             <q-icon name="more_time" />
           </q-item-section>
-          <q-item-section>Informe Horas</q-item-section>
+          <q-item-section>Informe Horas Instructores EP</q-item-section>
         </q-item>
       </q-list>
     </q-scroll-area>
