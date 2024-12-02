@@ -3,7 +3,7 @@
     <q-img class="absolute-top" src="" style="height: 150px; background-color: #ddd;">
       <div class="absolute-bottom bg-transparent user-info">
         <q-avatar size="65px" class="q-mb-sm">
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWoms2HEy0ELPrZGRr001PN2sh5sq9dU_BWQ&s" />
+          <img src="https://senasofiaplus.xyz/wp-content/uploads/2023/10/logo-del-sena-01.png" />
         </q-avatar>
         <div class="text-weight-bold text-center"
           style="text-transform: uppercase; color: black; font-weight: 900; font-size: 15px;">ADMINISTRADOR</div>
