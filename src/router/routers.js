@@ -50,7 +50,7 @@ const routes = [
         { path: 'horas', component: horas, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
         { path: 'certificaciones', component: certificaciones, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
         { path: 'binnacles', component: binnacles, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
-        { path: 'followup', component: followup, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+        { path: 'followup', component: followup, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
         { path: 'instructor', component: instructor, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
         { path: 'modality', component: modality, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
         { path: 'register', component: register, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
@@ -66,7 +66,3 @@ export const router = createRouter({
     history: createWebHashHistory(),
     routes
 })
-
-
-
-

@@ -1,12 +1,12 @@
-<!-- <template>
+<template>
   <Header title="Aprendices"></Header>
   <div id="buttons-container">
     <div class="buttons">
       <ModalDialog class="formApprentice" :title="modalTitle" v-model="isDialogVisibleModal" nameButton="Crear"
         labelClose="Cerrar" labelSend="Guardar" :onclickClose="handleClose" :onclickSend="handleSend"
-        :openModalButton="openButtonCreate" :loading="loading">
-        <q-form ref="formRef" @submit="handleSubmit">
+        :openModalButton="openButtonCreate" :loading="loadingHandleSend">
 
+        <q-form ref="formRef" @submit="handleSubmit">
           <q-select v-model="formData.fiche" :options="filterOptions" label="Ficha" emit-value map-options
             option-label="label" option-value="_id" :use-input="!fiche" @filter="filterFunctionFiches" clearable
             class="custom-select" :key="fiche" filled :rules="[validateRequiredFiche]" lazy-rules>
@@ -70,6 +70,7 @@
             </template>
           </q-select>
         </q-form>
+
       </ModalDialog>
       <buttonuploadFile nameButton="Subir"></buttonuploadFile>
     </div>
@@ -103,7 +104,7 @@
 
 <script setup>
 import CustomTable from "../components/tables/tableEditStatusOptions.vue";
-import { ref, onBeforeMount, h } from "vue";
+import { ref, onBeforeMount, } from "vue";
 import Header from "../components/header/header.vue";
 import { getData, postData, putData } from '../services/ApiClient.js';
 import ModalDialog from '../components/modal/modal.vue';
@@ -116,16 +117,17 @@ import { useRoute } from 'vue-router';
 import InputSelect from "../components/input/inputSelect.vue"
 import buttonSearch from "../components/buttons/buttonSearch.vue";
 
-
 const route = useRoute();
 
 let loading = ref(false)
 let loadingSearch = ref(false)
+let loadingHandleSend = ref(false)
 
 onBeforeMount(() => {
   loadData()
 });
-const formRef = ref(null);
+
+const formRef = ref(null)
 const formData = ref({
   firstName: '',
   lastName: '',
@@ -136,38 +138,16 @@ const formData = ref({
   numDocument: '',
   fiche: '',
   idmodality: ''
-});
+})
 let row_id = ref('')
 let modality = ref(false)
 let inputIdmodality = ref(false)
-
-// validaciones
-const validateRequiredFirstName = (v) => !!v || 'Este campo Nombres es obligatorio';
-const validateFirstname = (v) => /^[a-zA-Z\s]*$/.test(v) || 'Este campo Nombres solo puede contener letras';
-const validateFirstnameSpaceWhite = (v) => /^[^\s].*[^\s]$/.test(v) || 'Este campo Nombres no puede tener espacios en blanco';
-const validateRequiredLastName = (v) => !!v || 'Este campo Apellidos es obligatorio';
-const validateLastName = (v) => /^[a-zA-Z\s]*$/.test(v) || 'Este campo Apellidos solo puede contener letras';
-const validateLastNameSpaceWhite = (v) => /^[^\s].*[^\s]$/.test(v) || 'Este campo Apellidos no puede tener espacios en blanco';
-const validateRequiredTpDocument = (v) => !!v || 'Este campo Tipo de Documento es obligatorio';
-const validateRequiredNumDocument = (v) => !!v || 'Este campo NÚmero de Documento es obligatorio';
-const validateNumericDocument = (v) => /^[0-9]*$/.test(v) || 'Este campo Número de Docuemnto solo puede contener números';
-const validateNumDocuemnt = (v) => v.length === 10 || 'El número de documento debe tener 10 dígitos';
-const validateNumDocumentSpaceWhite = (v) => /^\S+$/.test(v) || 'Este campo Número de Documento no puede tener espacios en blanco';
-const validateRequieredEmailPersonal = (v) => !!v || 'Este campo Email Personal es obligatorio';
-const validateEmailPersonal = (v) => /.+@.+\..+/.test(v) || 'Correo electrónico no válido';
-const validateRequiredEmailInstitutional = (v) => !!v || 'Este campo Email Institucional es obligatorio';
-const validateEmailInstitutional = (v) => /.+@.+\..+/.test(v) || 'Correo electrónico no válido';
-const validateRequiredPhone = (v) => !!v || 'Este campo Teléfono es obligatorio';
-const validatePhone = (v) => v.length === 10 || 'El número de teléfono debe tener 10 dígitos';
-const validateNumericPhone = (v) => /^[0-9]*$/.test(v) || 'Este campo Teléfono solo puede contener números';
-const validatePhoneSpaceWhite = (v) => /^\S+$/.test(v) || 'Este campo Teléfono no puede tener espacios en blanco';
-const validateRequiredFiche = (v) => !!v || 'Este campo Ficha es obligatorio';
-const validateRequiredIdModality = (v) => !!v || 'Este campo Modalidad Etapa Productiva es obligatorio';
 
 // opciones de tipo de documento
 const optionsTpC = [
   'C.C', 'T.I', 'C.E', 'S.C.R', 'P.A'
 ]
+
 // radio buttons
 let radiobuttonlist = ref('');
 let searchValue = ref('')
@@ -176,7 +156,7 @@ let optionSearch = ref([])
 
 // Modal
 let isDialogVisibleModal = ref(false)
-let ismodalType = ref(false)
+let ismodalType = ref(true)
 let modalTitle = ref(ismodalType.value ? 'Crear Aprendiz' : 'Editar Aprendiz')
 
 // filtros fichas
@@ -186,6 +166,51 @@ const filterOptions = ref([]);
 // filtros modalidades
 const optionsModality = ref([]);
 const filterOptionsModality = ref([]);
+
+// validaciones
+const validateRequiredFirstName = (v) => !!v || 'los Nombres son obligatorio';
+const validateFirstname = (v) => /^[a-zA-Z\s]*$/.test(v) || 'Los nombres solo puede incluir letras.';
+const validateFirstnameSpaceWhite = (v) => /^[^\s].*[^\s]$/.test(v) || 'Los nombres no puede empezar ni terminar con espacios.';
+const validateRequiredLastName = (v) => !!v || 'Los Apellidos es obligatorio';
+const validateLastName = (v) => /^[a-zA-Z\s]*$/.test(v) || 'Los Apellidos solo puede contener letras';
+const validateLastNameSpaceWhite = (v) => /^[^\s].*[^\s]$/.test(v) || 'Los Apellidos no puede empezar ni terminar con espacios';
+const validateRequiredTpDocument = (v) => !!v || 'El  Tipo de Documento es obligatorio';
+const validateRequiredNumDocument = (v) => !!v || 'El Número de Documento es obligatorio';
+const validateRequieredEmailPersonal = (v) => !!v || 'El Email Personal es obligatorio';
+const validateEmailPersonal = (v) => /.+@.+\..+/.test(v) || 'Correo electrónico no válido';
+const validateRequiredEmailInstitutional = (v) => !!v || 'El  Email Institucional es obligatorio';
+const validateEmailInstitutional = (v) => /.+@.+\..+/.test(v) || 'Correo electrónico no válido';
+const validateRequiredPhone = (v) => !!v || 'El Teléfono es obligatorio';
+
+const validateRequiredFiche = (v) => !!v || 'La Ficha es obligatorio';
+const validateRequiredIdModality = (v) => !!v || 'La Modalidad Etapa Productiva es obligatorio';
+
+const validateNumericDocument = (v) => {
+  if (/\s/.test(v)) {
+    return 'El Número de Documento no puede tener espacios en blanco';
+  }
+  if (/[^0-9]/.test(v)) {
+    return 'El Número de Documento solo puede contener números';
+  }
+  if (v.length !== 10) {
+    return 'El Número de documento debe tener 10 dígitos';
+  }
+  return true;
+};
+
+const validateNumericPhone = (v) => {
+  if (/\s/.test(v)) {
+    return 'El Teléfono no puede tener espacios en blanco';
+  }
+  if (/[^0-9]/.test(v)) {
+    return 'El Teléfono solo puede contener números';
+  }
+  if (v.length !== 10) {
+    return 'El Teléfono debe tener 10 dígitos';
+  }
+  return true;
+}
+
 
 const loadData = async () => {
   loading.value = true
@@ -276,14 +301,14 @@ const columns = ref([
   {
     name: "fiche.name",
     align: "center",
-    label: "FICHA",
+    label: "PROGRAMA",
     field: row => row.fiche.name,
     sortable: true,
   },
   {
     name: "fiche.number",
     align: "center",
-    label: "COD.FICHA",
+    label: "FICHA",
     field: row => row.fiche.number,
     sortable: true,
   },
@@ -304,17 +329,15 @@ const columns = ref([
 ]);
 
 function resetForm() {
-  formData.value = {
-    firstName: '',
-    lastName: '',
-    emailPersonal: '',
-    emailIntitutional: '',
-    phone: '',
-    tpDocument: '',
-    numDocument: '',
-    fiche: '',
-    idmodality: ''
-  };
+  formData.value.firstName = '';
+  formData.value.lastName = '';
+  formData.value.emailPersonal = '';
+  formData.value.emailIntitutional = '';
+  formData.value.phone = '';
+  formData.value.tpDocument = '';
+  formData.value.numDocument = '';
+  formData.value.fiche = '';
+  formData.value.idmodality = '';
 }
 
 async function changestatusIcon(row) {
@@ -351,18 +374,18 @@ function openDialogEdit(row) {
   isDialogVisibleModal.value = true;
   ismodalType.value = false;
   modality.value = false
-  inputIdmodality.value = false;
-  modalTitle.value = ismodalType.value ? 'Crear Aprendiz' : 'Editar Aprendiz';
-  formData.value.firstName = row.firstName;
-  formData.value.lastName  = row.lastName;
-  formData.value.emailPersonal = row.personalEmail;
-  formData.value.emailIntitutional = row.institutionalEmail;
-  formData.value.phone = row.phone;
-  formData.value.tpDocument  = row.tpDocument;
-  formData.value.fiche = row.fiche.idFiche;
-  formData.value.numDocument = row.numDocument;
-  row_id.value = row._id;
 
+
+  formData.value.firstName = row.firstName;
+  formData.value.lastName = row.lastName
+  formData.value.emailPersonal = row.personalEmail
+  formData.value.emailIntitutional = row.institutionalEmail
+  formData.value.phone = row.phone
+  formData.value.tpDocument = row.tpDocument
+  formData.value.numDocument = row.numDocument
+  formData.value.fiche = row.fiche.idFiche
+
+  row_id.value = row._id;
 
   // guarda valores originales
   originalValues.value = {
@@ -376,92 +399,100 @@ function openDialogEdit(row) {
     fiche: row.fiche.idFiche
   };
 }
-
 function handleClose() {
   ismodalType.value = false
   resetForm();
 }
+function isFormEmpty() {
+  return !formData.value.firstName &&
+         !formData.value.lastName &&
+         !formData.value.emailPersonal &&
+         !formData.value.emailIntitutional &&
+         !formData.value.phone &&
+         !formData.value.tpDocument &&
+         !formData.value.numDocument &&
+         !formData.value.fiche;
+}
 
 
 const handleSend = async () => {
-  loading.value = true;
-  const selectedFiche = filterOptions.value.find((opt) => opt._id === formData.value.fiche);
-  const isTypeModalval = ismodalType.value;
+  loadingHandleSend.value = true;
   try {
-      let response;
-      console.log('ismodalType.value:', ismodalType.value);
-      if (isTypeModalval) {
-        console.log('Attempting to update apprentice with Post');
-        response = await postData('/apprendice/addapprentice', {
-          firstName: formData.value.firstName,
-          lastName: formData.value.lastName,
-          personalEmail: formData.value.emailPersonal,
-          institutionalEmail: formData.value.emailIntitutional,
-          phone: formData.value.phone,
-          tpDocument: formData.value.tpDocument,
-          numDocument: formData.value.numDocument,
-          fiche: {
-            idFiche: formData.value.fiche,
-            name: selectedFiche.name,
-            number: selectedFiche.number,
-          },
-          idModality: formData.value.idmodality
-        });
+    const selectedFiche = filterOptions.value.find((opt) => opt._id === formData.value.fiche);
+    if (ismodalType.value) {
+      if (isFormEmpty()) {
+    notifyWarningRequest('Por favor, ingrese datos en el formulario.');
+    return;
+  }
+    const  response = await postData('/apprendice/addapprentice', {
+        firstName: formData.value.firstName,
+        lastName: formData.value.lastName,
+        personalEmail: formData.value.emailPersonal,
+        institutionalEmail: formData.value.emailIntitutional,
+        phone: formData.value.phone,
+        tpDocument: formData.value.tpDocument,
+        numDocument: formData.value.numDocument,
+        fiche: {
+          idFiche: formData.value.fiche,
+          name: selectedFiche.name,
+          number: selectedFiche.number,
+        },
+        idModality: formData.value.idmodality
+      });
+    } else {
+      const response = await putData(`/apprendice/updateapprenticebyid/${row_id.value}`, {
+        firstName: formData.value.firstName,
+        lastName: formData.value.lastName,
+        personalEmail: formData.value.emailPersonal,
+        institutionalEmail: formData.value.emailIntitutional,
+        phone: formData.value.phone,
+        tpDocument: formData.value.tpDocument,
+        numDocument: formData.value.numDocument,
+        fiche: {
+          idFiche: formData.value.fiche,
+          name: selectedFiche.name,
+          number: selectedFiche.number,
+        },
+      });
 
-      } else {
-        console.log('Attempting to update apprentice with PUT');
-        response = await putData(`/apprendice/updateapprenticebyid/${row_id.value}`, {
-          firstName: formData.value.firstName,
-          lastName: formData.value.lastName,
-          personalEmail: formData.value.emailPersonal,
-          institutionalEmail: formData.value.emailIntitutional,
-          phone: formData.value.phone,
-          tpDocument: formData.value.tpDocument,
-          numDocument: formData.value.numDocument,
-          fiche: {
-            idFiche: formData.value.fiche,
-            name: selectedFiche.name,
-            number: selectedFiche.number,
-          },
-        });
-        const hasChanges =
-          formData.value.firstName !== originalValues.value.firstName ||
-          formData.value.lastName !== originalValues.value.lastName ||
-          formData.value.emailPersonal !== originalValues.value.personalEmail ||
-          formData.value.emailIntitutional !== originalValues.value.institutionalEmail ||
-          formData.value.phone !== originalValues.value.phone ||
-          formData.value.tpDocument !== originalValues.value.tpDocument ||
-          formData.value.numDocument !== originalValues.value.numDocument ||
-          formData.value.fiche !== originalValues.value.fiche;
+      const hasChanges =
+        formData.value.firstName !== originalValues.value.firstName ||
+        formData.value.lastName !== originalValues.value.lastName ||
+        formData.value.emailPersonal !== originalValues.value.personalEmail ||
+        formData.value.emailIntitutional !== originalValues.value.institutionalEmail ||
+        formData.value.phone !== originalValues.value.phone ||
+        formData.value.tpDocument !== originalValues.value.tpDocument ||
+        formData.value.numDocument !== originalValues.value.numDocument ||
+        formData.value.fiche !== originalValues.value.fiche 
 
-        if (!hasChanges) {
-          notifyWarningRequest('No se han realizado cambios en la información del aprendiz.');
-          resetForm()
-          isDialogVisibleModal.value = false;
-          return;
-        }
+      if (!hasChanges) {
+        notifyWarningRequest('No se han realizado cambios en la información del aprendiz.');
+        resetForm();
+        isDialogVisibleModal.value = false;
+        await loadData()
+        return
       }
-      notifySuccessRequest(ismodalType.value ? 'El aprendiz se ha creado exitosamente.' : 'La información del aprendiz se ha actualizado correctamente.');
 
-      isDialogVisibleModal.value = false;
-      // ismodalType.value = false;
-      // resetForm();
-      await loadData();
-    // } else {
-    //   notifyWarningRequest('Por favor, completa todos los campos para poder continuar.');
-    // }
+    }
+    notifySuccessRequest(ismodalType.value ? 'El aprendiz se ha creado exitosamente.' : 'La información del aprendiz se ha actualizado correctamente.');
+
+    isDialogVisibleModal.value = false;
+    resetForm();
+    await loadData();
   } catch (error) {
     console.log(error);
+
     let messageError;
     if (error.response && error.response.data && error.response.data.message) {
-      messageError = error.response.data.message
-    } else if (error.response && error.response.data.errors && error.response.data.errors[0].msg) {
-      messageError = error.response.data.errors[0].msg
-    } 
-    ismodalType.value = false;
+      messageError = error.response.data.message;
+    } else if (error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].msg) {
+      messageError = error.response.data.errors[0].msg;
+    } else {
+      messageError = 'Ocurrió un error inesperado al cargar los datos. Por favor, intente nuevamente más tarde.';
+    }
     notifyErrorRequest(messageError);
   } finally {
-    loading.value = false
+    loadingHandleSend.value = false;
   }
 };
 
@@ -704,7 +735,4 @@ async function searchButton() {
   margin-right: 2%;
   margin-left: 2%;
 }
-</style> -->
-<template>
-  
-</template>
+</style>

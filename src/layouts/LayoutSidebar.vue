@@ -89,7 +89,8 @@
           <q-item-section avatar>
             <q-icon name="more_time" />
           </q-item-section>
-          <q-item-section>Informe Horas Instructores EP</q-item-section>
+          <q-item-section v-if="userRole === 'ADMIN'">Informes de Horas Instructor </q-item-section>
+          <q-item-section v-else="userRole === 'ADMIN'">Informes de Horas</q-item-section>
         </q-item>
       </q-list>
     </q-scroll-area>
