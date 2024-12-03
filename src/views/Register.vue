@@ -84,6 +84,20 @@
             >
             </CustomSelect>
 
+            <CustomSelect
+              filled
+              label="Instructor de Seguimiento"
+              v-model="followupInstructor"
+              @filter="filtroInstructores"
+              required
+              :options="instructoresFiltrados"
+              optionLabel="instructorName"
+              optionValue="instructorId"
+              errorMessage="Instructor de seguimiento requerido"
+              icon="chalkboard-user"
+              type="text"
+            ></CustomSelect>
+
             <Input
               id="startDate"
               filled
@@ -1109,7 +1123,7 @@ function formatDate(date) {
 // Función para abrir el siguiente modal del formulario
 function nextFormModal() {
   console.log(modalityId.value.name);
-  dialogTitle.value = "NUEVO REGISTRO ETAPA PRODUCTIVA ";
+  dialogTitle.value = "CREAR REGISTRO";
   if (
     modalityId.value.name.toLowerCase() == "pasantia" ||
     modalityId.value.name.toLowerCase() == "vinculo laboral" ||

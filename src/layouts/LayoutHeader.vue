@@ -9,7 +9,7 @@
         icon="menu"
         @click="toggleDrawer"
       />
-      <q-toolbar-title style="font-weight: bold;">REPFORA</q-toolbar-title>
+      <q-toolbar-title style="font-weight: bold;">ETAPAS PRÁCTICAS</q-toolbar-title>
       <q-btn @click="logout">
         <q-icon name="logout" style="font-size: 25px;"></q-icon>
       </q-btn>
