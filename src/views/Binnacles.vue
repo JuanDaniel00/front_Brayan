@@ -184,7 +184,7 @@ async function openClickCreateObservation(row) {
 }
 
 async function handleSend() {
-  loadingCreateOdservation.value = true
+  loadingCreateOdservation.value = true;
   try {
     const response = await putData(`/binnacles/addobservation/${id.value}`, { observation: newObservation.value });
     notifySuccessRequest('La observación se ha añadido correctamente');
@@ -331,19 +331,16 @@ async function filterFunctionSearch(val, update) {
 }
 
 async function searchButton() {
-  loadingSearch.value = true;
+  // loadingSearch.value = true;
   validationSearch()
-  if(searchValue.value === ''){
-    loadDataBinnacles()
-    await loadDataBinnacles()
-  }
+
   if (radioButtonList.value === 'instructor') {
     await searchInstructor()
   } else if (radioButtonList.value === 'apprentice') {
     await searchApprentice()
   }
   clearSearch();
-  loadingSearch.value = false;
+  // loadingSearch.value = false;
 }
 </script>
 

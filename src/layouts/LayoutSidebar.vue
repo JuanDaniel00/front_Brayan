@@ -21,35 +21,35 @@
           <q-item-section>Inicio</q-item-section>
         </q-item>
 
-        <q-item v-if="rol !== 'INSTRUCTOR'" clickable to="/layouts/apprentices" class="menu-item">
+        <q-item v-if="userRole !== 'INSTRUCTOR'" clickable to="/layouts/apprentices" class="menu-item">
           <q-item-section avatar>
             <q-icon name="groups" />
           </q-item-section>
           <q-item-section>Aprendices</q-item-section>
         </q-item>
 
-        <q-item v-if="rol !== 'INSTRUCTOR'" clickable to="/layouts/fiche" class="menu-item">
+        <q-item v-if="userRole !== 'INSTRUCTOR'" clickable to="/layouts/fiche" class="menu-item">
           <q-item-section avatar>
             <q-icon name="school" />
           </q-item-section>
           <q-item-section>Fichas</q-item-section>
         </q-item>
 
-        <q-item v-if="rol !== 'INSTRUCTOR'" clickable to="/layouts/register" class="menu-item">
+        <q-item v-if="userRole !== 'INSTRUCTOR'" clickable to="/layouts/register" class="menu-item">
           <q-item-section avatar>
             <q-icon name="book" />
           </q-item-section>
           <q-item-section>Registros</q-item-section>
         </q-item>
 
-        <q-item v-if="rol !== 'INSTRUCTOR'" clickable to="/layouts/assignament" class="menu-item">
+        <q-item v-if="userRole !== 'INSTRUCTOR'" clickable to="/layouts/assignament" class="menu-item">
           <q-item-section avatar>
             <q-icon name="how_to_reg" />
           </q-item-section>
           <q-item-section>Asignaciones</q-item-section>
         </q-item>
 
-        <q-item  v-if="rol !== 'ADMIN'" clickable to="/layouts/myAssignament" class="menu-item">
+        <q-item  v-if=" userRole !== 'ADMIN' " clickable to="/layouts/myAssignament" class="menu-item">
           <q-item-section avatar>
             <q-icon name="how_to_reg" />
           </q-item-section>
