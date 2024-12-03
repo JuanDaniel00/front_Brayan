@@ -1,16 +1,25 @@
 <template>
   <q-layout view="lHh Lpr lff" class="layout">
     <q-page-container>
-
       <Header title="Registro"></Header>
 
       <div class="table-container">
-
-        <CustomButton label="CREAR" :onClickFunction="openDialog" icon="add_circle">
+        <CustomButton
+          label="CREAR"
+          :onClickFunction="openDialog"
+          icon="add_circle"
+        >
         </CustomButton>
 
-        <Table :rows="rows" :columns="columns" :onClickEdit="editRegister" :deactivate="toggleStatus"
-          :activate="toggleStatus" :showDetails="showDetails" :loading="loading"></Table>
+        <Table
+          :rows="rows"
+          :columns="columns"
+          :onClickEdit="editRegister"
+          :deactivate="toggleStatus"
+          :activate="toggleStatus"
+          :showDetails="showDetails"
+          :loading="loading"
+        ></Table>
       </div>
 
       <TableModal v-model="TableModalDialog" :row="selectedRow">
@@ -18,60 +27,186 @@
           <div class="table-container">
             <h5>{{ title2 }}</h5>
             <hr id="hr" color="primary" />
-            <Table :rows="rows2" :columns="columns2" :onClickView="openDialogWithRow"></Table>
+            <Table
+              :rows="rows2"
+              :columns="columns2"
+              :onClickView="openDialogWithRow"
+            ></Table>
           </div>
         </template>
       </TableModal>
 
-      <FormModal :modelValue="dialog" :title="dialogTitle" @update:modelValue="dialog = $event" :next="nextFormModal">
+      <FormModal
+        :modelValue="dialog"
+        :title="modalityDialogTitle"
+        @update:modelValue="dialog = $event"
+        :next="nextFormModal"
+      >
         <template #content>
           <div class="input-grid">
-            <CustomSelect map-options label="Seleccionar modalidad" v-model="modalityId" required
-              :options="modalitiesOptions" optionLabel="name" optionValue="_id" errorMessage="Modalidad requerida"
-              icon="shapes" type="text">
+            <CustomSelect
+              map-options
+              label="Seleccionar modalidad"
+              v-model="modalityId"
+              required
+              :options="modalitiesOptions"
+              optionLabel="name"
+              optionValue="_id"
+              errorMessage="Modalidad requerida"
+              icon="shapes"
+              type="text"
+            >
             </CustomSelect>
           </div>
         </template>
       </FormModal>
 
-      <FormModal :modelValue="secondModaldialog" :title="dialogTitle" :onSave="saveRegister"
-        @update:modelValue="secondModaldialog = $event">
+      <FormModal
+        :modelValue="secondModaldialog"
+        :title="dialogTitle"
+        :onSave="saveRegister"
+        @update:modelValue="secondModaldialog = $event"
+      >
         <template #content>
           <div class="input-grid">
-            <CustomSelect map-options label="Aprendiz" v-model="apprentice" @filter="filterApprentice" required
-              :options="apprenticeOptions" optionLabel="apprenticeName" optionValue="apprenticeId"
-              errorMessage="Aprendiz requerido" icon="users-line" type="text">
+            <CustomSelect
+              map-options
+              label="Aprendiz"
+              v-model="apprentice"
+              @filter="filterApprentice"
+              required
+              :options="apprenticeOptions"
+              optionLabel="apprenticeName"
+              optionValue="apprenticeId"
+              errorMessage="Aprendiz requerido"
+              icon="users-line"
+              type="text"
+            >
             </CustomSelect>
 
-            <Input id="startDate" filled label="Fecha de Inicio" v-model="startDate" required
-              errorMessage="Fecha requerida" icon="calendar-days" type="date" />
-            <Input id="endDate" filled label="Fecha de Fin" v-model="endDate" required errorMessage="Fecha requerida"
-              icon="calendar-days" type="date" />
-            <Input id="company" filled label="Nombre de la Empresa" v-model="company" required
-              errorMessage="Empresa requerida" icon="spell-check" type="text" />
-            <Input id="phoneCompany" filled label="Teléfono de la empresa" v-model="phoneCompany" required
-              errorMessage="Número de contacto requerido" icon="phone" type="text" />
-            <Input id="addressCompany" filled label="Dirección de la empresa" v-model="addressCompany" required
-              errorMessage="Dirección requerida" icon="map-location-dot" type="text" />
-            <Input id="owner" filled label="Dueño de la Empresa" v-model="owner" required errorMessage="Dueño requerido"
-              icon="user-tie" type="text" />
-            <Input id="docAlternative" filled label="Documento Alternativo" v-model="docAlternative" required
-              errorMessage="Documento requerido" icon="file-invoice" type="text" />
-            <Input id="hour" filled label="Horas" v-model="hour" required errorMessage="Horas requeridas" icon="clock"
-              type="text" />
-            <Input id="businessProyectHour" filled label="Horas del Proyecto de Negocio" v-model="businessProyectHour"
-              required errorMessage="Horas requeridas" icon="stopwatch" type="text" />
-            <Input id="productiveProjectHour" filled label="Horas del Proyecto Productivo"
-              v-model="productiveProjectHour" required errorMessage="Horas requeridas" icon="stopwatch" type="text" />
-            <Input id="mailCompany" filled label="Email de la empresa" v-model="mailCompany" required
-              errorMessage="Email de la empresa requerido" icon="envelope" type="text" />
+            <Input
+              id="startDate"
+              filled
+              label="Fecha de Inicio"
+              v-model="startDate"
+              required
+              errorMessage="Fecha requerida"
+              icon="calendar-days"
+              type="date"
+            />
+            <Input
+              id="endDate"
+              filled
+              label="Fecha de Fin"
+              v-model="endDate"
+              required
+              errorMessage="Fecha requerida"
+              icon="calendar-days"
+              type="date"
+            />
+            <Input
+              id="company"
+              filled
+              label="Nombre de la Empresa"
+              v-model="company"
+              required
+              errorMessage="Empresa requerida"
+              icon="spell-check"
+              type="text"
+            />
+            <Input
+              id="phoneCompany"
+              filled
+              label="Teléfono de la empresa"
+              v-model="phoneCompany"
+              required
+              errorMessage="Número de contacto requerido"
+              icon="phone"
+              type="text"
+            />
+            <Input
+              id="addressCompany"
+              filled
+              label="Dirección de la empresa"
+              v-model="addressCompany"
+              required
+              errorMessage="Dirección requerida"
+              icon="map-location-dot"
+              type="text"
+            />
+            <Input
+              id="owner"
+              filled
+              label="Dueño de la Empresa"
+              v-model="owner"
+              required
+              errorMessage="Dueño requerido"
+              icon="user-tie"
+              type="text"
+            />
+            <Input
+              id="docAlternative"
+              filled
+              label="Documento Alternativo"
+              v-model="docAlternative"
+              required
+              errorMessage="Documento requerido"
+              icon="file-invoice"
+              type="text"
+            />
+            <Input
+              id="hour"
+              filled
+              label="Horas"
+              v-model="hour"
+              required
+              errorMessage="Horas requeridas"
+              icon="clock"
+              type="text"
+            />
+            <Input
+              id="businessProyectHour"
+              filled
+              label="Horas del Proyecto de Negocio"
+              v-model="businessProyectHour"
+              required
+              errorMessage="Horas requeridas"
+              icon="stopwatch"
+              type="text"
+            />
+            <Input
+              id="productiveProjectHour"
+              filled
+              label="Horas del Proyecto Productivo"
+              v-model="productiveProjectHour"
+              required
+              errorMessage="Horas requeridas"
+              icon="stopwatch"
+              type="text"
+            />
+            <Input
+              id="mailCompany"
+              filled
+              label="Email de la empresa"
+              v-model="mailCompany"
+              required
+              errorMessage="Email de la empresa requerido"
+              icon="envelope"
+              type="text"
+            />
           </div>
         </template>
       </FormModal>
     </q-page-container>
-    <q-dialog v-model="dialogFull" persistent :maximized="maximizedToggle" transition-show="slide-up"
-      transition-hide="slide-down" @hide="clearForm">
-      <q-card class="text-dark ">
+    <q-dialog
+      v-model="dialogFull"
+      persistent
+      :maximized="maximizedToggle"
+      transition-show="slide-up"
+      transition-hide="slide-down"
+      @hide="clearForm"
+    >
+      <q-card class="text-dark">
         <q-bar class="bg-primary text-white">
           <q-space />
           <q-btn dense flat icon="close" @click="confirmClose">
@@ -82,7 +217,14 @@
           <!-- Formulario de datos planos -->
           <div class="titulo">
             <div>
-              <div style="margin: 50px; border-bottom: 4px solid green; font-size: 4em;">{{ tituloRegistro }}
+              <div
+                style="
+                  margin: 50px;
+                  border-bottom: 4px solid green;
+                  font-size: 4em;
+                "
+              >
+                {{ tituloRegistro }}
               </div>
             </div>
           </div>
@@ -90,42 +232,89 @@
             <div class="contFormFila">
               <h5>Datos</h5>
               <div class="contInput">
-                <q-input v-model="ownerModal" label="Jefe inmediato" label-color="primary" label-class="customLabel"
+                <q-input
+                  v-model="ownerModal"
+                  label="Jefe inmediato"
+                  label-color="primary"
+                  label-class="customLabel"
                   class="long"
-                  :rules="[val => !!val || 'Campo requerido', val => val.trim().length > 0 || 'No se permiten espacios vacíos']"
-                  :readonly="isReadOnly">
+                  :rules="[
+                    (val) => !!val || 'Campo requerido',
+                    (val) =>
+                      val.trim().length > 0 || 'No se permiten espacios vacíos',
+                  ]"
+                  :readonly="isReadOnly"
+                >
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="person" />
                   </template>
                 </q-input>
-                <q-input v-model="docAlternativeModal" label="Documentos alternativos" label-color="primary"
-                  label-class="customLabel" class="long"
-                  :rules="[val => !!val || 'Campo requerido', val => val.trim().length > 0 || 'No se permiten espacios vacíos']"
-                  :readonly="isReadOnly">
+                <q-input
+                  v-model="docAlternativeModal"
+                  label="Documentos alternativos"
+                  label-color="primary"
+                  label-class="customLabel"
+                  class="long"
+                  :rules="[
+                    (val) => !!val || 'Campo requerido',
+                    (val) =>
+                      val.trim().length > 0 || 'No se permiten espacios vacíos',
+                  ]"
+                  :readonly="isReadOnly"
+                >
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="description" />
                   </template>
                 </q-input>
-                <q-input v-model="hourProductiveStageApprenticeModal" label="Horas etapa productiva"
-                  label-color="primary" label-class="customLabel" class="short" type="number"
-                  :rules="[val => !!val || 'Campo requerido', val => /^\d+$/.test(val) || 'Solo números']"
-                  :readonly="isReadOnly">
+                <q-input
+                  v-model="hourProductiveStageApprenticeModal"
+                  label="Horas etapa productiva"
+                  label-color="primary"
+                  label-class="customLabel"
+                  class="short"
+                  type="number"
+                  :rules="[
+                    (val) => !!val || 'Campo requerido',
+                    (val) => /^\d+$/.test(val) || 'Solo números',
+                  ]"
+                  :readonly="isReadOnly"
+                >
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="schedule" />
                   </template>
                 </q-input>
-                <q-input v-model="startDateModal" label="Fecha de inicio" type="date" label-class="customLabel"
-                  label-color="primary" class="short"
-                  :rules="[val => !!val || 'Campo requerido', val => val.trim().length > 0 || 'No se permiten espacios vacíos']"
-                  :readonly="isReadOnly">
+                <q-input
+                  v-model="startDateModal"
+                  label="Fecha de inicio"
+                  type="date"
+                  label-class="customLabel"
+                  label-color="primary"
+                  class="short"
+                  :rules="[
+                    (val) => !!val || 'Campo requerido',
+                    (val) =>
+                      val.trim().length > 0 || 'No se permiten espacios vacíos',
+                  ]"
+                  :readonly="isReadOnly"
+                >
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="event" />
                   </template>
                 </q-input>
-                <q-input v-model="endDateModal" label="Fecha final" type="date" label-class="customLabel"
-                  label-color="primary" class="short"
-                  :rules="[val => !!val || 'Campo requerido', val => val.trim().length > 0 || 'No se permiten espacios vacíos']"
-                  :readonly="isReadOnly">
+                <q-input
+                  v-model="endDateModal"
+                  label="Fecha final"
+                  type="date"
+                  label-class="customLabel"
+                  label-color="primary"
+                  class="short"
+                  :rules="[
+                    (val) => !!val || 'Campo requerido',
+                    (val) =>
+                      val.trim().length > 0 || 'No se permiten espacios vacíos',
+                  ]"
+                  :readonly="isReadOnly"
+                >
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="event" />
                   </template>
@@ -135,34 +324,73 @@
             <div class="contFormFila">
               <h5>Datos empresa</h5>
               <div class="contInput">
-                <q-input v-model="companyModal" label="Nombre Empresa" label-color="primary" label-class="customLabel"
+                <q-input
+                  v-model="companyModal"
+                  label="Nombre Empresa"
+                  label-color="primary"
+                  label-class="customLabel"
                   class="long"
-                  :rules="[val => !!val || 'Campo requerido', val => val.trim().length > 0 || 'No se permiten espacios vacíos']"
-                  :readonly="isReadOnly">
+                  :rules="[
+                    (val) => !!val || 'Campo requerido',
+                    (val) =>
+                      val.trim().length > 0 || 'No se permiten espacios vacíos',
+                  ]"
+                  :readonly="isReadOnly"
+                >
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="business" />
                   </template>
                 </q-input>
-                <q-input v-model="mailCompanyModal" label="Correo Empresa" label-color="primary"
-                  label-class="customLabel" class="long" type="email"
-                  :rules="[val => !!val || 'Campo requerido', val => /.+@.+\..+/.test(val) || 'Correo inválido', val => val.trim().length > 0 || 'No se permiten espacios vacíos']"
-                  :readonly="isReadOnly">
+                <q-input
+                  v-model="mailCompanyModal"
+                  label="Correo Empresa"
+                  label-color="primary"
+                  label-class="customLabel"
+                  class="long"
+                  type="email"
+                  :rules="[
+                    (val) => !!val || 'Campo requerido',
+                    (val) => /.+@.+\..+/.test(val) || 'Correo inválido',
+                    (val) =>
+                      val.trim().length > 0 || 'No se permiten espacios vacíos',
+                  ]"
+                  :readonly="isReadOnly"
+                >
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="email" />
                   </template>
                 </q-input>
-                <q-input v-model="addressCompanyModal" label="Dirección Empresa" label-color="primary"
-                  label-class="customLabel" class="long"
-                  :rules="[val => !!val || 'Campo requerido', val => val.trim().length > 0 || 'No se permiten espacios vacíos']"
-                  :readonly="isReadOnly">
+                <q-input
+                  v-model="addressCompanyModal"
+                  label="Dirección Empresa"
+                  label-color="primary"
+                  label-class="customLabel"
+                  class="long"
+                  :rules="[
+                    (val) => !!val || 'Campo requerido',
+                    (val) =>
+                      val.trim().length > 0 || 'No se permiten espacios vacíos',
+                  ]"
+                  :readonly="isReadOnly"
+                >
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="location_on" />
                   </template>
                 </q-input>
-                <q-input v-model="phoneCompanyModal" label="Número Empresa" label-color="primary"
-                  label-class="customLabel" type="tel"
-                  :rules="[val => !!val || 'Campo requerido', val => /^\d+$/.test(val) || 'Solo números', val => val.trim().length > 0 || 'No se permiten espacios vacíos']"
-                  :readonly="isReadOnly">
+                <q-input
+                  v-model="phoneCompanyModal"
+                  label="Número Empresa"
+                  label-color="primary"
+                  label-class="customLabel"
+                  type="tel"
+                  :rules="[
+                    (val) => !!val || 'Campo requerido',
+                    (val) => /^\d+$/.test(val) || 'Solo números',
+                    (val) =>
+                      val.trim().length > 0 || 'No se permiten espacios vacíos',
+                  ]"
+                  :readonly="isReadOnly"
+                >
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="phone" />
                   </template>
@@ -174,29 +402,66 @@
           <div>
             <!--Tabla aprendices  -->
             <div>
-              <div style="margin: 50px; border-bottom: 4px solid green; font-size: 4em;text-align: center">Aprendices
+              <div
+                style="
+                  margin: 50px;
+                  border-bottom: 4px solid green;
+                  font-size: 4em;
+                  text-align: center;
+                "
+              >
+                Aprendices
               </div>
             </div>
             <div style="padding: 40px">
               <div style="display: flex; justify-content: end; gap: 10px">
-                <q-select filled clearable v-model="busquedaAprendiz" use-input input-debounce="0"
-                  label="Buscar aprendiz por nombre..." :options="aprendicesFiltrados"
-                  :option-label="option => `${option.firstName} ${option.lastName} - ${option.numDocument}`"
-                  @filter="filtroAprendices" style="width: 40%" transition-show="flip-up" transition-hide="flip-down"
-                  :disable="isReadOnly">
+                <q-select
+                  filled
+                  clearable
+                  v-model="busquedaAprendiz"
+                  use-input
+                  input-debounce="0"
+                  label="Buscar aprendiz por nombre..."
+                  :options="aprendicesFiltrados"
+                  :option-label="
+                    (option) =>
+                      `${option.firstName} ${option.lastName} - ${option.numDocument}`
+                  "
+                  @filter="filtroAprendices"
+                  style="width: 40%"
+                  transition-show="flip-up"
+                  transition-hide="flip-down"
+                  :disable="isReadOnly"
+                >
                   <template v-slot:no-option>
                     <q-item>
                       <q-item-section class="text-grey">
-                        <q-btn style="width: 20%" @click="open = true" icon="add" color="primary"
-                          :disable="isReadOnly"></q-btn>
+                        <q-btn
+                          style="width: 20%"
+                          @click="open = true"
+                          icon="add"
+                          color="primary"
+                          :disable="isReadOnly"
+                        ></q-btn>
                       </q-item-section>
                     </q-item>
                   </template>
                 </q-select>
-                <q-btn @click="listaAprendices" icon="add" color="primary" :disable="isReadOnly" />
+                <q-btn
+                  @click="listaAprendices"
+                  icon="add"
+                  color="primary"
+                  :disable="isReadOnly"
+                />
               </div>
               <div>
-                <q-table :rows="aprendicesAgregados" :columns="columnsAprendices" row-key="id" flat bordered>
+                <q-table
+                  :rows="aprendicesAgregados"
+                  :columns="columnsAprendices"
+                  row-key="id"
+                  flat
+                  bordered
+                >
                   <template v-slot:body-cell-no="props">
                     <q-td :props="props">
                       {{ props.pageIndex + 1 }}
@@ -205,8 +470,12 @@
                   <template v-slot:body-cell-options="props">
                     <q-td>
                       <div class="divBorrarFila">
-                        <q-btn @click="() => borrarFilaAprendiz(props.row)" icon="delete" color="negative"
-                          :disable="isReadOnly" />
+                        <q-btn
+                          @click="() => borrarFilaAprendiz(props.row)"
+                          icon="delete"
+                          color="negative"
+                          :disable="isReadOnly"
+                        />
                       </div>
                     </q-td>
                   </template>
@@ -216,21 +485,50 @@
             <!-- Tabla instructores -->
             <div class="contTablaInstructor">
               <div>
-                <div style="margin: 50px; border-bottom: 4px solid green; font-size: 4em;text-align: center">
+                <div
+                  style="
+                    margin: 50px;
+                    border-bottom: 4px solid green;
+                    font-size: 4em;
+                    text-align: center;
+                  "
+                >
                   Instructores
                 </div>
               </div>
               <div style="padding: 40px">
                 <div style="display: flex; justify-content: end; gap: 10px">
-                  <q-select filled clearable v-model="busquedaInstructor" use-input input-debounce="0"
-                    label="Buscar instructor por nombre..." :options="instructoresFiltrados" option-label="name"
-                    @filter="filtroInstructores" style="width: 40%" transition-show="flip-up"
-                    transition-hide="flip-down" :disable="isReadOnly">
+                  <q-select
+                    filled
+                    clearable
+                    v-model="busquedaInstructor"
+                    use-input
+                    input-debounce="0"
+                    label="Buscar instructor por nombre..."
+                    :options="instructoresFiltrados"
+                    option-label="name"
+                    @filter="filtroInstructores"
+                    style="width: 40%"
+                    transition-show="flip-up"
+                    transition-hide="flip-down"
+                    :disable="isReadOnly"
+                  >
                   </q-select>
-                  <q-btn @click="listaInstructores" icon="add" color="primary" :disable="isReadOnly" />
+                  <q-btn
+                    @click="listaInstructores"
+                    icon="add"
+                    color="primary"
+                    :disable="isReadOnly"
+                  />
                 </div>
                 <div>
-                  <q-table :rows="instructoresAgregados" :columns="columnsInstructores" row-key="id" flat bordered>
+                  <q-table
+                    :rows="instructoresAgregados"
+                    :columns="columnsInstructores"
+                    row-key="id"
+                    flat
+                    bordered
+                  >
                     <template v-slot:body-cell-no="props">
                       <q-td :props="props">
                         {{ props.pageIndex + 1 }}
@@ -239,16 +537,25 @@
                     <template v-slot:body-cell-tipo="props">
                       <q-td>
                         <div class="contTypeSelect">
-                          <q-select class="typeSelect" borderless v-model="props.row.tipo" :options="tipos"
-                            :disable="isReadOnly" />
+                          <q-select
+                            class="typeSelect"
+                            borderless
+                            v-model="props.row.tipo"
+                            :options="tipos"
+                            :disable="isReadOnly"
+                          />
                         </div>
                       </q-td>
                     </template>
                     <template v-slot:body-cell-options="props">
                       <q-td>
                         <div class="divBorrarFila">
-                          <q-btn @click="() => borrarFilaInstructor(props.row)" icon="delete" color="negative"
-                            :disable="isReadOnly" />
+                          <q-btn
+                            @click="() => borrarFilaInstructor(props.row)"
+                            icon="delete"
+                            color="negative"
+                            :disable="isReadOnly"
+                          />
                         </div>
                       </q-td>
                     </template>
@@ -260,7 +567,13 @@
           </div>
         </div>
         <q-card-actions align="right" class="bg-white text-teal">
-          <q-btn color="primary" :loading="isSaving" label="Guardar" @click="saveFunction" :disable="isReadOnly" />
+          <q-btn
+            color="primary"
+            :loading="isSaving"
+            label="Guardar"
+            @click="saveFunction"
+            :disable="isReadOnly"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -307,7 +620,8 @@ let dialogFull = ref(false);
 const maximizedToggle = ref(true);
 const secondModaldialog = ref(false);
 const tableModalDialog = ref(false);
-const dialogTitle = ref("SELECCIONE MODALIDAD");
+const dialogTitle = ref("");
+const modalityDialogTitle = ref("SELECCIONE MODALIDAD");
 const drawerOpen = ref(true);
 const isSaving = ref(false);
 const confirmDialog = ref(false);
@@ -347,16 +661,18 @@ let isReadOnly = ref(false);
 let loading = ref(false);
 
 // Asignación de instructores
-const assignment = ref([{
-  followUpInstructor: [],
-  technicalInstructor: [],
-  projectInstructor: []
-}]);
+const assignment = ref([
+  {
+    followUpInstructor: [],
+    technicalInstructor: [],
+    projectInstructor: [],
+  },
+]);
 
 let busquedaInstructor = ref(null);
 
 const selectedRow = ref(null);
-const saveFunction = ref(() => { });
+const saveFunction = ref(() => {});
 
 const rows = ref([]);
 const instructores = ref([]);
@@ -366,7 +682,7 @@ const aprendices = ref([]);
 const aprendicesAgregados = ref([]);
 const aprendicesFiltrados = ref([]);
 let busquedaAprendiz = ref(null);
-const tipos = ref([])
+const tipos = ref([]);
 const columns = ref([
   {
     name: "no",
@@ -432,7 +748,7 @@ const columns = ref([
     name: "opciones",
     align: "center",
     label: "OPCIONES",
-    field: "opciones"
+    field: "opciones",
   },
 ]);
 
@@ -491,7 +807,7 @@ const columnsInstructores = ref([
     label: "opciones",
     align: "center",
     sortable: true,
-  }
+  },
 ]);
 
 const columnsAprendices = ref([
@@ -507,7 +823,7 @@ const columnsAprendices = ref([
     required: true,
     label: "Nombre Aprendiz",
     align: "center",
-    field: row => `${row.firstName} ${row.lastName}`,
+    field: (row) => `${row.firstName} ${row.lastName}`,
   },
   {
     name: "numDocument",
@@ -549,8 +865,8 @@ const columnsAprendices = ref([
     label: "opciones",
     align: "center",
     sortable: true,
-  }
-])
+  },
+]);
 
 // Función para obtener datos al montar el componente
 onBeforeMount(() => {
@@ -570,7 +886,12 @@ function listaInstructores() {
   const maxInstructores = (() => {
     if (modalityId.value.name?.toLowerCase() === "proyecto productivo  i+d") {
       return 1;
-    } else if (modalityId.value.name?.toLowerCase() === "proyecto productivo" || modalityId.value.name?.toLowerCase() === "proyecto social" || modalityName.value?.toLowerCase() === "proyecto productivo" || modalityName.value?.toLowerCase() === "proyecto social") {
+    } else if (
+      modalityId.value.name?.toLowerCase() === "proyecto productivo" ||
+      modalityId.value.name?.toLowerCase() === "proyecto social" ||
+      modalityName.value?.toLowerCase() === "proyecto productivo" ||
+      modalityName.value?.toLowerCase() === "proyecto social"
+    ) {
       return 2;
     } else {
       return 3; // Valor por defecto si no coincide con ninguna modalidad específica
@@ -578,7 +899,9 @@ function listaInstructores() {
   })();
 
   if (instructoresAgregados.value.length >= maxInstructores) {
-    notifyErrorRequest(`No se pueden agregar más de ${maxInstructores} instructores para esta modalidad.`);
+    notifyErrorRequest(
+      `No se pueden agregar más de ${maxInstructores} instructores para esta modalidad.`
+    );
     return;
   }
 
@@ -587,7 +910,9 @@ function listaInstructores() {
     return;
   }
 
-  const instructorExistente = instructoresAgregados.value.find(instructor => instructor.id === busquedaInstructor.value._id);
+  const instructorExistente = instructoresAgregados.value.find(
+    (instructor) => instructor.id === busquedaInstructor.value._id
+  );
   if (instructorExistente) {
     notifyErrorRequest("El instructor ya ha sido agregado.");
     return;
@@ -614,7 +939,9 @@ function listaAprendices() {
     return;
   }
 
-  const aprendizExistente = aprendicesAgregados.value.find(aprendiz => aprendiz.id === busquedaAprendiz.value._id);
+  const aprendizExistente = aprendicesAgregados.value.find(
+    (aprendiz) => aprendiz.id === busquedaAprendiz.value._id
+  );
   if (aprendizExistente) {
     notifyErrorRequest("El aprendiz ya ha sido agregado.");
     return;
@@ -634,7 +961,6 @@ function listaAprendices() {
   console.log(aprendices.value);
 }
 
-
 // Función para filtrar instructores
 const filtroInstructores = (val, update) => {
   /* productosFiltrados.value =  !nombre ? productosApi.value : productosApi.value.filter((item)=> item.nombre.toLowerCase().includes(nombre)) 
@@ -649,15 +975,17 @@ const filtroInstructores = (val, update) => {
 
   update(() => {
     // Filtra los instructores aquí
-    instructoresFiltrados.value = instructoresFiltrados.value.filter(instructor =>
-      instructor.name.toLowerCase().includes(val.toLowerCase())
+    instructoresFiltrados.value = instructoresFiltrados.value.filter(
+      (instructor) => instructor.name.toLowerCase().includes(val.toLowerCase())
     );
   });
 };
 
 // Función para borrar fila de instructor
 const borrarFilaInstructor = (row) => {
-  instructoresAgregados.value = instructoresAgregados.value.filter(instructor => instructor.id !== row.id);
+  instructoresAgregados.value = instructoresAgregados.value.filter(
+    (instructor) => instructor.id !== row.id
+  );
 };
 
 // Función para filtrar aprendices
@@ -671,15 +999,19 @@ const filtroAprendices = (val, update) => {
 
   update(() => {
     const needle = val.toLowerCase();
-    aprendicesFiltrados.value = aprendices.value.filter(aprendiz =>
-      `${aprendiz.numDocument} ${aprendiz.firstName} ${aprendiz.lastName}`.toLowerCase().includes(needle)
+    aprendicesFiltrados.value = aprendices.value.filter((aprendiz) =>
+      `${aprendiz.numDocument} ${aprendiz.firstName} ${aprendiz.lastName}`
+        .toLowerCase()
+        .includes(needle)
     );
   });
 };
 
 // Función para borrar fila de aprendiz
 const borrarFilaAprendiz = (row) => {
-  aprendicesAgregados.value = aprendicesAgregados.value.filter(aprendiz => aprendiz.id !== row.id);
+  aprendicesAgregados.value = aprendicesAgregados.value.filter(
+    (aprendiz) => aprendiz.id !== row.id
+  );
 };
 
 // Función para obtener datos de la tabla
@@ -694,7 +1026,11 @@ async function getDataForTable() {
     console.log("getModalities: ", getModalities);
 
     // Verificar que las respuestas contengan los datos esperados
-    if (!getRegisters.data || !Array.isArray(getApprentices) || !Array.isArray(getModalities)) {
+    if (
+      !getRegisters.data ||
+      !Array.isArray(getApprentices) ||
+      !Array.isArray(getModalities)
+    ) {
       throw new Error("Datos no encontrados en la respuesta");
     }
 
@@ -716,13 +1052,11 @@ async function getDataForTable() {
           name: modality.name,
         }));
 
-        apprenticeOptions.value = getApprentices.map(
-          (apprentice) => ({
-            apprenticeId: apprentice._id,
-            apprenticeName:
-              `${apprentice.firstName} ${apprentice.lastName} - ${apprentice.fiche.name}`.trim(),
-          })
-        );
+        apprenticeOptions.value = getApprentices.map((apprentice) => ({
+          apprenticeId: apprentice._id,
+          apprenticeName:
+            `${apprentice.firstName} ${apprentice.lastName} - ${apprentice.fiche.name}`.trim(),
+        }));
 
         return {
           ...register,
@@ -741,7 +1075,9 @@ async function getDataForTable() {
     );
 
     // Ordenar los registros por fecha de creación en orden descendente
-    rows.value = registersWithApprenticeAndModality.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    rows.value = registersWithApprenticeAndModality.sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
 
     console.log("rows: ", rows.value);
   } catch (error) {
@@ -749,14 +1085,13 @@ async function getDataForTable() {
   } finally {
     loading.value = false;
     console.log(loading.value);
-
   }
 }
 
 // Función para formatear fecha para input
 function formatDateToInput(date) {
   if (!date) return "";
-  const [day, month, year] = date.split('/');
+  const [day, month, year] = date.split("/");
   return `${year}-${month}-${day}`;
 }
 
@@ -795,11 +1130,14 @@ function nextFormModal() {
     // Requieren los instructores: followUpInstructor, technicalInstructor.
 
     if (modalityId.value.name?.toLowerCase() == "proyecto productivo  i+d") {
-      tipos.value = ['Seguimiento']
-    } else if (modalityId.value.name?.toLowerCase() == "proyecto productivo" || modalityId.value.name?.toLowerCase() == "proyecto social") {
-      tipos.value = ['Seguimiento', 'Tecnico']
+      tipos.value = ["Seguimiento"];
+    } else if (
+      modalityId.value.name?.toLowerCase() == "proyecto productivo" ||
+      modalityId.value.name?.toLowerCase() == "proyecto social"
+    ) {
+      tipos.value = ["Seguimiento", "Tecnico"];
     } else {
-      tipos.value = ['Seguimiento', 'Tecnico', 'Proyecto']
+      tipos.value = ["Seguimiento", "Tecnico", "Proyecto"];
     }
   }
 }
@@ -814,7 +1152,6 @@ const closeWithoutSaving = () => {
   clearForm();
 };
 
-
 // Función para alternar el estado del drawer
 function toggleDrawer() {
   drawerOpen.value = !drawerOpen.value;
@@ -828,23 +1165,22 @@ const openDialog = () => {
   saveFunction.value = saveRegisterModal;
   dialog.value = true;
   console.log("dialog: ", dialog.value);
-
 };
 
 // Función para limpiar el formulario
 const clearForm = () => {
   isReadOnly.value = false;
-  idApprenticeModal.value = '';
-  startDateModal.value = '';
-  endDateModal.value = '';
-  modalityId.value = '';
-  companyModal.value = '';
-  phoneCompanyModal.value = '';
-  addressCompanyModal.value = '';
-  ownerModal.value = '';
-  docAlternativeModal.value = '';
-  hourProductiveStageApprenticeModal.value = '';
-  mailCompanyModal.value = '';
+  idApprenticeModal.value = "";
+  startDateModal.value = "";
+  endDateModal.value = "";
+  modalityId.value = "";
+  companyModal.value = "";
+  phoneCompanyModal.value = "";
+  addressCompanyModal.value = "";
+  ownerModal.value = "";
+  docAlternativeModal.value = "";
+  hourProductiveStageApprenticeModal.value = "";
+  mailCompanyModal.value = "";
   instructoresAgregados.value = [];
   aprendicesAgregados.value = [];
 };
@@ -860,7 +1196,9 @@ const editRegister = (row) => {
   modalityName.value = row.modalityName;
 
   // Asignar los datos seleccionados a los campos del formulario
-  idApprenticeModal.value = row.idApprentice.map(apprentice => apprentice._id);
+  idApprenticeModal.value = row.idApprentice.map(
+    (apprentice) => apprentice._id
+  );
   startDateModal.value = formatDateToInput(row.startDate);
   endDateModal.value = formatDateToInput(row.endDate);
   companyModal.value = row.company;
@@ -873,31 +1211,38 @@ const editRegister = (row) => {
 
   if (row.assignment && row.assignment.length > 0) {
     const lastAssignment = row.assignment[row.assignment.length - 1];
-    const followUpInstructor = lastAssignment.followUpInstructor.slice(-1).map(instructor => ({ ...instructor, tipo: 'Seguimiento' }));
-    const technicalInstructor = lastAssignment.technicalInstructor.slice(-1).map(instructor => ({ ...instructor, tipo: 'Tecnico' }));
-    const projectInstructor = lastAssignment.projectInstructor.slice(-1).map(instructor => ({ ...instructor, tipo: 'Proyecto' }));
+    const followUpInstructor = lastAssignment.followUpInstructor
+      .slice(-1)
+      .map((instructor) => ({ ...instructor, tipo: "Seguimiento" }));
+    const technicalInstructor = lastAssignment.technicalInstructor
+      .slice(-1)
+      .map((instructor) => ({ ...instructor, tipo: "Tecnico" }));
+    const projectInstructor = lastAssignment.projectInstructor
+      .slice(-1)
+      .map((instructor) => ({ ...instructor, tipo: "Proyecto" }));
 
-    instructoresAgregados.value = followUpInstructor.concat(
-      technicalInstructor,
-      projectInstructor
-    ).map(instructor => {
-      const busquedaInstructorData = instructores.value.find(i => i._id === instructor.idInstructor) || {};
-      return {
-        id: instructor.idInstructor,
-        name: instructor.name,
-        tpdocument: busquedaInstructorData.tpdocument || '',
-        numdocument: busquedaInstructorData.numdocument || '',
-        email: instructor.email,
-        phone: busquedaInstructorData.phone || '',
-        thematicarea: busquedaInstructorData.thematicarea || '',
-        tipo: instructor.tipo
-      };
-    });
+    instructoresAgregados.value = followUpInstructor
+      .concat(technicalInstructor, projectInstructor)
+      .map((instructor) => {
+        const busquedaInstructorData =
+          instructores.value.find((i) => i._id === instructor.idInstructor) ||
+          {};
+        return {
+          id: instructor.idInstructor,
+          name: instructor.name,
+          tpdocument: busquedaInstructorData.tpdocument || "",
+          numdocument: busquedaInstructorData.numdocument || "",
+          email: instructor.email,
+          phone: busquedaInstructorData.phone || "",
+          thematicarea: busquedaInstructorData.thematicarea || "",
+          tipo: instructor.tipo,
+        };
+      });
   } else {
     instructoresAgregados.value = [];
   }
 
-  aprendicesAgregados.value = row.idApprentice.map(apprentice => {
+  aprendicesAgregados.value = row.idApprentice.map((apprentice) => {
     return {
       id: apprentice._id,
       firstName: apprentice.firstName,
@@ -930,10 +1275,13 @@ const editRegister = (row) => {
     // PROYECTO SOCIAL y PROYECTO PRODUCTIVO:
     // Requieren los instructores: followUpInstructor, technicalInstructor.
 
-    if (row.modalityName.toLowerCase() == "proyecto productivo" || row.modalityName.toLowerCase() == "proyecto social") {
-      tipos.value = ['Seguimiento', 'Tecnico']
+    if (
+      row.modalityName.toLowerCase() == "proyecto productivo" ||
+      row.modalityName.toLowerCase() == "proyecto social"
+    ) {
+      tipos.value = ["Seguimiento", "Tecnico"];
     } else {
-      tipos.value = ['Seguimiento', 'Tecnico', 'Proyecto']
+      tipos.value = ["Seguimiento", "Tecnico", "Proyecto"];
     }
   }
 };
@@ -953,7 +1301,17 @@ const saveRegister = async () => {
 
 const saveRegisterModal = async () => {
   // Verificar que todos los campos estén llenos
-  if (!startDateModal.value || !endDateModal.value || !companyModal.value || !phoneCompanyModal.value || !addressCompanyModal.value || !ownerModal.value || !docAlternativeModal.value || !hourProductiveStageApprenticeModal.value || !mailCompanyModal.value) {
+  if (
+    !startDateModal.value ||
+    !endDateModal.value ||
+    !companyModal.value ||
+    !phoneCompanyModal.value ||
+    !addressCompanyModal.value ||
+    !ownerModal.value ||
+    !docAlternativeModal.value ||
+    !hourProductiveStageApprenticeModal.value ||
+    !mailCompanyModal.value
+  ) {
     notifyErrorRequest("Todos los campos deben estar llenos.");
     return;
   }
@@ -967,11 +1325,15 @@ const saveRegisterModal = async () => {
 
   for (const instructor of instructoresAgregados.value) {
     if (!instructor.tipo) {
-      notifyErrorRequest("Todos los instructores deben tener un tipo seleccionado.");
+      notifyErrorRequest(
+        "Todos los instructores deben tener un tipo seleccionado."
+      );
       return;
     }
     if (tiposSeleccionados.has(instructor.tipo.toLowerCase())) {
-      notifyErrorRequest(`No se pueden agregar más de un instructor con el tipo ${instructor.tipo}.`);
+      notifyErrorRequest(
+        `No se pueden agregar más de un instructor con el tipo ${instructor.tipo}.`
+      );
       return;
     }
     tiposSeleccionados.add(instructor.tipo.toLowerCase());
@@ -981,21 +1343,21 @@ const saveRegisterModal = async () => {
         idInstructor: instructor.id,
         name: instructor.name,
         email: instructor.email,
-        status: 1 // Agregar el campo status
+        status: 1, // Agregar el campo status
       });
     } else if (instructor.tipo.toLowerCase() === "tecnico") {
       technicalInstructor.push({
         idInstructor: instructor.id,
         name: instructor.name,
         email: instructor.email,
-        status: 1 // Agregar el campo status
+        status: 1, // Agregar el campo status
       });
     } else if (instructor.tipo.toLowerCase() === "proyecto") {
       projectInstructor.push({
         idInstructor: instructor.id,
         name: instructor.name,
         email: instructor.email,
-        status: 1 // Agregar el campo status
+        status: 1, // Agregar el campo status
       });
     }
   }
@@ -1003,11 +1365,11 @@ const saveRegisterModal = async () => {
   const assignmentData = {
     followUpInstructor,
     technicalInstructor,
-    projectInstructor
+    projectInstructor,
   };
 
   const registerDataModal = {
-    idApprentice: aprendicesAgregados.value.map(aprendiz => aprendiz.id), // Solo enviar los IDs
+    idApprentice: aprendicesAgregados.value.map((aprendiz) => aprendiz.id), // Solo enviar los IDs
     idModality: modalityId.value._id,
     modalityName: modalityId.value.name,
     startDate: startDateModal.value,
@@ -1019,11 +1381,13 @@ const saveRegisterModal = async () => {
     hourProductiveStageApprentice: hourProductiveStageApprenticeModal.value,
     mailCompany: mailCompanyModal.value,
     addressCompany: addressCompanyModal.value,
-    assignment: [assignmentData] // Incluye assignment en registerDataModal
+    assignment: [assignmentData], // Incluye assignment en registerDataModal
   };
 
   if (new Date(endDateModal.value) < new Date(startDateModal.value)) {
-    notifyErrorRequest("La fecha final no puede ser menor que la fecha inicial.");
+    notifyErrorRequest(
+      "La fecha final no puede ser menor que la fecha inicial."
+    );
     return;
   }
 
@@ -1046,19 +1410,32 @@ const saveRegisterModal = async () => {
 // Función para editar un registro desde el modal
 const editRegisterModal = async () => {
   // Verificar que todos los campos estén llenos
-  if (!startDateModal.value || !endDateModal.value || !companyModal.value || !phoneCompanyModal.value || !addressCompanyModal.value || !ownerModal.value || !docAlternativeModal.value || !hourProductiveStageApprenticeModal.value || !mailCompanyModal.value || aprendicesAgregados.value.length === 0) {
+  if (
+    !startDateModal.value ||
+    !endDateModal.value ||
+    !companyModal.value ||
+    !phoneCompanyModal.value ||
+    !addressCompanyModal.value ||
+    !ownerModal.value ||
+    !docAlternativeModal.value ||
+    !hourProductiveStageApprenticeModal.value ||
+    !mailCompanyModal.value ||
+    aprendicesAgregados.value.length === 0
+  ) {
     notifyErrorRequest("Todos los campos deben estar llenos.");
     return;
   }
 
   // Lógica de validación y actualización de los aprendices
   if (new Date(endDateModal.value) < new Date(startDateModal.value)) {
-    notifyErrorRequest("La fecha final no puede ser menor que la fecha inicial.");
+    notifyErrorRequest(
+      "La fecha final no puede ser menor que la fecha inicial."
+    );
     return;
   }
 
   const registerDataModal = {
-    idApprentice: aprendicesAgregados.value.map(aprendiz => aprendiz.id),
+    idApprentice: aprendicesAgregados.value.map((aprendiz) => aprendiz.id),
     startDate: startDateModal.value,
     endDate: endDateModal.value,
     company: companyModal.value,
@@ -1073,7 +1450,10 @@ const editRegisterModal = async () => {
   console.log(registerDataModal);
 
   try {
-    let response = await putData(`register/updateregisterbyid/${selectedRow.value._id}`, registerDataModal);
+    let response = await putData(
+      `register/updateregisterbyid/${selectedRow.value._id}`,
+      registerDataModal
+    );
 
     // Si la respuesta es exitosa, llamamos a addAssignment
     await addAssignment();
@@ -1105,31 +1485,38 @@ const showDetails = (row) => {
 
   if (row.assignment && row.assignment.length > 0) {
     const lastAssignment = row.assignment[row.assignment.length - 1];
-    const followUpInstructor = lastAssignment.followUpInstructor.slice(-1).map(instructor => ({ ...instructor, tipo: 'Seguimiento' }));
-    const technicalInstructor = lastAssignment.technicalInstructor.slice(-1).map(instructor => ({ ...instructor, tipo: 'Tecnico' }));
-    const projectInstructor = lastAssignment.projectInstructor.slice(-1).map(instructor => ({ ...instructor, tipo: 'Proyecto' }));
+    const followUpInstructor = lastAssignment.followUpInstructor
+      .slice(-1)
+      .map((instructor) => ({ ...instructor, tipo: "Seguimiento" }));
+    const technicalInstructor = lastAssignment.technicalInstructor
+      .slice(-1)
+      .map((instructor) => ({ ...instructor, tipo: "Tecnico" }));
+    const projectInstructor = lastAssignment.projectInstructor
+      .slice(-1)
+      .map((instructor) => ({ ...instructor, tipo: "Proyecto" }));
 
-    instructoresAgregados.value = followUpInstructor.concat(
-      technicalInstructor,
-      projectInstructor
-    ).map(instructor => {
-      const busquedaInstructorData = instructores.value.find(i => i._id === instructor.idInstructor) || {};
-      return {
-        id: instructor.idInstructor,
-        name: instructor.name,
-        tpdocument: busquedaInstructorData.tpdocument || '',
-        numdocument: busquedaInstructorData.numdocument || '',
-        email: instructor.email,
-        phone: busquedaInstructorData.phone || '',
-        thematicarea: busquedaInstructorData.thematicarea || '',
-        tipo: instructor.tipo
-      };
-    });
+    instructoresAgregados.value = followUpInstructor
+      .concat(technicalInstructor, projectInstructor)
+      .map((instructor) => {
+        const busquedaInstructorData =
+          instructores.value.find((i) => i._id === instructor.idInstructor) ||
+          {};
+        return {
+          id: instructor.idInstructor,
+          name: instructor.name,
+          tpdocument: busquedaInstructorData.tpdocument || "",
+          numdocument: busquedaInstructorData.numdocument || "",
+          email: instructor.email,
+          phone: busquedaInstructorData.phone || "",
+          thematicarea: busquedaInstructorData.thematicarea || "",
+          tipo: instructor.tipo,
+        };
+      });
   } else {
     instructoresAgregados.value = [];
   }
 
-  aprendicesAgregados.value = row.idApprentice.map(apprentice => {
+  aprendicesAgregados.value = row.idApprentice.map((apprentice) => {
     return {
       id: apprentice._id,
       firstName: apprentice.firstName,
@@ -1144,7 +1531,6 @@ const showDetails = (row) => {
   });
 };
 
-
 // Función para añadir asignación
 const addAssignment = async () => {
   // Lógica actualización
@@ -1156,11 +1542,15 @@ const addAssignment = async () => {
 
   for (const instructor of instructoresAgregados.value) {
     if (!instructor.tipo) {
-      notifyErrorRequest("Todos los instructores deben tener un tipo seleccionado.");
+      notifyErrorRequest(
+        "Todos los instructores deben tener un tipo seleccionado."
+      );
       return;
     }
     if (tiposSeleccionados.has(instructor.tipo.toLowerCase())) {
-      notifyErrorRequest(`No se pueden agregar más de un instructor con el tipo ${instructor.tipo}.`);
+      notifyErrorRequest(
+        `No se pueden agregar más de un instructor con el tipo ${instructor.tipo}.`
+      );
       return;
     }
     tiposSeleccionados.add(instructor.tipo.toLowerCase());
@@ -1170,38 +1560,42 @@ const addAssignment = async () => {
         idInstructor: instructor.id,
         name: instructor.name,
         email: instructor.email,
-        status: 1 // Agregar el campo status
+        status: 1, // Agregar el campo status
       });
     } else if (instructor.tipo.toLowerCase() === "tecnico") {
       technicalInstructor.push({
         idInstructor: instructor.id,
         name: instructor.name,
         email: instructor.email,
-        status: 1 // Agregar el campo status
+        status: 1, // Agregar el campo status
       });
     } else if (instructor.tipo.toLowerCase() === "proyecto") {
       projectInstructor.push({
         idInstructor: instructor.id,
         name: instructor.name,
         email: instructor.email,
-        status: 1 // Agregar el campo status
+        status: 1, // Agregar el campo status
       });
     }
   }
 
-
   const assignmentData = {
-    assignment: [{
-      followUpInstructor,
-      technicalInstructor,
-      projectInstructor
-    }]
+    assignment: [
+      {
+        followUpInstructor,
+        technicalInstructor,
+        projectInstructor,
+      },
+    ],
   };
 
   console.log(assignmentData);
 
   try {
-    let response = await putData(`register/addassignment/${selectedRow.value._id}`, assignmentData);
+    let response = await putData(
+      `register/addassignment/${selectedRow.value._id}`,
+      assignmentData
+    );
     // Si la respuesta es exitosa, actualizamos la tabla y cerramos el modal
     // dialogFull.value = false;
     getDataForTable();
@@ -1228,7 +1622,6 @@ async function toggleStatus(row) {
     notifySuccessRequest("Estado cambiado exitosamente");
     getDataForTable();
     console.log(res);
-
   } catch (error) {
     console.log(error);
 
@@ -1269,7 +1662,7 @@ async function toggleStatus(row) {
   align-items: center;
   gap: 50px;
   width: 100%;
-  margin: 10px 0
+  margin: 10px 0;
 }
 
 .customLabel {
