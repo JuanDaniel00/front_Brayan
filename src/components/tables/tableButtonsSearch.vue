@@ -49,7 +49,7 @@
                 </q-td>
             </template>
 
-            <template v-slot:body-cell-binnacles="props">
+            <template v-slot:body-cell-followup="props">
                 <q-td :props="props" class="q-pa-xs ">
                     <q-btn @click="onClickSearchFollow(props.row)" icon="search" color="primary" round size="md"
                         aria-label="Edit Square" :loading="loadingFollowup[props.row._id]">
@@ -61,7 +61,7 @@
             </template>
 
 
-            <template v-slot:body-cell-followup="props">
+            <template v-slot:body-cell-binnacles="props">
                 <q-td :props="props" class="q-pa-xs ">
                     <q-btn @click="onClickSearchBinnacle(props.row)" icon="search" color="primary" round size="md"
                         aria-label="Edit Square" :loading="loadingBinnacles[props.row._id]">
