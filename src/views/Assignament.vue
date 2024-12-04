@@ -347,10 +347,7 @@ async function onclickSearchFollow(row) {
     notifyErrorRequest('No se encontro seguimiento registrado para el aprendiz.');
   }
 }
-
 </script>
-
-
 <style scoped>
 * {
   margin: 0px;

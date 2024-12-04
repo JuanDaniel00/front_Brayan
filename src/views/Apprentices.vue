@@ -2,11 +2,11 @@
   <Header title="Aprendices"></Header>
   <div id="buttons-container">
     <div class="buttons">
-      <ModalDialog class="formApprentice" :title="modalTitle" v-model="isDialogVisibleModal" nameButton="Crear"
+      <ModalDialog :title="modalTitle" v-model="isDialogVisibleModal" nameButton="Crear"
         labelClose="Cerrar" labelSend="Guardar" :onclickClose="handleClose" :onclickSend="handleSend"
         :openModalButton="openButtonCreate" :loading="loadingHandleSend">
 
-        <q-form ref="formRef" @submit="handleSubmit">
+        <q-form ref="formRef" @submit="handleSubmit"  class="formApprentice" >
           <q-select v-model="formData.fiche" :options="filterOptions" label="Ficha" emit-value map-options
             option-label="label" option-value="_id" :use-input="!fiche" @filter="filterFunctionFiches" clearable
             class="custom-select" :key="fiche" filled :rules="[validateRequiredFiche]" lazy-rules>
@@ -15,8 +15,8 @@
             </template>
           </q-select>
 
-          <q-input v-model="formData.firstName" label="Nombres Aprendiz" filled
-            :rules="[validateRequiredFirstName, validateFirstname, validateFirstnameSpaceWhite]" lazy-rules>
+          <q-input v-model="formData.firstName" label="Nombres Aprendiz" filled 
+          :rules="[validateRequiredFirstName, validateFirstname, validateFirstnameSpaceWhite]" lazy-rules >
             <template v-slot:prepend>
               <q-icon name="abc" />
             </template>
@@ -33,8 +33,7 @@
             :rules="[validateRequiredTpDocument]" lazy-rules />
 
           <q-input v-model="formData.numDocument" label="N° Documento" filled
-            :rules="[validateRequiredNumDocument, validateNumDocuemnt, validateNumericDocument, validateNumDocumentSpaceWhite]"
-            lazy-rules>
+            :rules="[validateRequiredNumDocument, validateNumericDocument]" lazy-rules >
             <template v-slot:prepend>
               <q-icon name="pin" />
             </template>
@@ -55,7 +54,7 @@
           </q-input>
 
           <q-input v-model="formData.phone" label="Telefono Aprendiz" filled
-            :rules="[validateRequiredPhone, validatePhone, validateNumericPhone, validatePhoneSpaceWhite]" lazy-rules>
+            :rules="[validateRequiredPhone, validateNumericPhone ]" lazy-rules>
             <template v-slot:prepend>
               <q-icon name="pin" />
             </template>
@@ -64,7 +63,7 @@
           <q-select v-model="formData.idmodality" :options="filterOptionsModality" label="Modalidad Etapa Productiva"
             emit-value map-options option-label="name" option-value="_id" :use-input="!fiche"
             @filter="filterFunctionModality" clearable class="custom-select" v-show="modality" filled
-            :rules="[validateRequiredIdModality]" lazy-rules>
+            :rules="[validateRequiredIdModality]"lazy-rules >
             <template v-slot:prepend class="custom-select">
               <q-icon name="abc" />
             </template>
@@ -91,7 +90,7 @@
 
     <div class="InputButtonsSearch">
       <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
-        optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select" />
+        optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select" :rules="[validateRequieredSearch]" lazy-rules />
       <buttonSearch :onclickButton="searchButton" :loading="loadingSearch" />
     </div>
   </div>
@@ -104,7 +103,7 @@
 
 <script setup>
 import CustomTable from "../components/tables/tableEditStatusOptions.vue";
-import { ref, onBeforeMount, } from "vue";
+import { ref, onBeforeMount, TransitionGroup, } from "vue";
 import Header from "../components/header/header.vue";
 import { getData, postData, putData } from '../services/ApiClient.js';
 import ModalDialog from '../components/modal/modal.vue';
@@ -153,6 +152,7 @@ let radiobuttonlist = ref('');
 let searchValue = ref('')
 let filterOptionsSearch = ref([])
 let optionSearch = ref([])
+let firstNameError = ref(false)
 
 // Modal
 let isDialogVisibleModal = ref(false)
@@ -168,32 +168,30 @@ const optionsModality = ref([]);
 const filterOptionsModality = ref([]);
 
 // validaciones
-const validateRequiredFirstName = (v) => !!v || 'los Nombres son obligatorio';
-const validateFirstname = (v) => /^[a-zA-Z\s]*$/.test(v) || 'Los nombres solo puede incluir letras.';
+const validateRequiredFirstName = (v) => !!v || 'los nombres son obligatorio';
+const validateFirstname = (v) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(v) || 'Los nombres solo puede incluir letras.';
 const validateFirstnameSpaceWhite = (v) => /^[^\s].*[^\s]$/.test(v) || 'Los nombres no puede empezar ni terminar con espacios.';
-const validateRequiredLastName = (v) => !!v || 'Los Apellidos es obligatorio';
-const validateLastName = (v) => /^[a-zA-Z\s]*$/.test(v) || 'Los Apellidos solo puede contener letras';
-const validateLastNameSpaceWhite = (v) => /^[^\s].*[^\s]$/.test(v) || 'Los Apellidos no puede empezar ni terminar con espacios';
-const validateRequiredTpDocument = (v) => !!v || 'El  Tipo de Documento es obligatorio';
-const validateRequiredNumDocument = (v) => !!v || 'El Número de Documento es obligatorio';
-const validateRequieredEmailPersonal = (v) => !!v || 'El Email Personal es obligatorio';
+const validateRequiredLastName = (v) => !!v || 'Los apellidos son obligatorio';
+const validateLastName = (v) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(v)|| 'Los apellidos solo puede contener letras';
+const validateLastNameSpaceWhite = (v) => /^[^\s].*[^\s]$/.test(v) || 'Los apellidos no puede empezar ni terminar con espacios';
+const validateRequiredTpDocument = (v) => !!v || 'El  tipo de Documento es obligatorio';
+const validateRequiredNumDocument = (v) => !!v || 'El número de Documento es obligatorio';
+const validateRequieredEmailPersonal = (v) => !!v || 'El email Personal es obligatorio';
 const validateEmailPersonal = (v) => /.+@.+\..+/.test(v) || 'Correo electrónico no válido';
-const validateRequiredEmailInstitutional = (v) => !!v || 'El  Email Institucional es obligatorio';
+const validateRequiredEmailInstitutional = (v) => !!v || 'El email Institucional es obligatorio';
 const validateEmailInstitutional = (v) => /.+@.+\..+/.test(v) || 'Correo electrónico no válido';
-const validateRequiredPhone = (v) => !!v || 'El Teléfono es obligatorio';
-
-const validateRequiredFiche = (v) => !!v || 'La Ficha es obligatorio';
-const validateRequiredIdModality = (v) => !!v || 'La Modalidad Etapa Productiva es obligatorio';
-
+const validateRequiredPhone = (v) => !!v || 'El teléfono es obligatorio';
+const validateRequiredFiche = (v) => !!v || 'La ficha es obligatorio';
+const validateRequiredIdModality = (v) => !!v || 'La modalidad Etapa Productiva es obligatorio';
 const validateNumericDocument = (v) => {
   if (/\s/.test(v)) {
-    return 'El Número de Documento no puede tener espacios en blanco';
+    return 'El número de documento no puede tener espacios en blanco';
   }
   if (/[^0-9]/.test(v)) {
-    return 'El Número de Documento solo puede contener números';
+    return 'El número de documento solo puede contener números';
   }
   if (v.length !== 10) {
-    return 'El Número de documento debe tener 10 dígitos';
+    return 'El número de documento debe tener 10 dígitos';
   }
   return true;
 };
@@ -211,6 +209,16 @@ const validateNumericPhone = (v) => {
   return true;
 }
 
+// validar el input de busqueda
+const validateRequieredSearch = (v) => {
+  if(radiobuttonlist.value === ''){
+    return  'Debes seleccionar una opción (Ficha, Aprendiz o Estado) antes de buscar'
+  }
+  if (!v) {
+    return 'El campo de búsqueda es obligatorio';
+  }
+  return true;
+}
 
 const loadData = async () => {
   loading.value = true
@@ -374,8 +382,6 @@ function openDialogEdit(row) {
   isDialogVisibleModal.value = true;
   ismodalType.value = false;
   modality.value = false
-
-
   formData.value.firstName = row.firstName;
   formData.value.lastName = row.lastName
   formData.value.emailPersonal = row.personalEmail
@@ -384,7 +390,7 @@ function openDialogEdit(row) {
   formData.value.tpDocument = row.tpDocument
   formData.value.numDocument = row.numDocument
   formData.value.fiche = row.fiche.idFiche
-
+  formData.value.idmodality = row.idModality
   row_id.value = row._id;
 
   // guarda valores originales
@@ -414,18 +420,21 @@ function isFormEmpty() {
     !formData.value.fiche;
 }
 
-
 const handleSend = async () => {
+
+  if (isFormEmpty()) {
+    notifyWarningRequest('Por favor, ingrese datos en el formulario.');
+  }
+  const isValid = await formRef.value.validate();
+  if (!isValid ) {
+    return;
+  }
   loadingHandleSend.value = true;
   try {
     const selectedFiche = filterOptions.value.find((opt) => opt._id === formData.value.fiche);
+    let response;
     if (ismodalType.value) {
-      if (isFormEmpty()) {
-        notifyWarningRequest('Por favor, ingrese datos en el formulario.');
-        return;
-      }
-      if (formRef.value.validate()) {
-        const response = await postData('/apprendice/addapprentice', {
+        response = await postData('/apprendice/addapprentice', {
           firstName: formData.value.firstName,
           lastName: formData.value.lastName,
           personalEmail: formData.value.emailPersonal,
@@ -441,7 +450,7 @@ const handleSend = async () => {
           idModality: formData.value.idmodality
         });
       } else {
-        const response = await putData(`/apprendice/updateapprenticebyid/${row_id.value}`, {
+         response = await putData(`/apprendice/updateapprenticebyid/${row_id.value}`, {
           firstName: formData.value.firstName,
           lastName: formData.value.lastName,
           personalEmail: formData.value.emailPersonal,
@@ -454,6 +463,7 @@ const handleSend = async () => {
             name: selectedFiche.name,
             number: selectedFiche.number,
           },
+          ...(formData.value.idmodality && { idModality: formData.value.idmodality })
         });
 
         const hasChanges =
@@ -471,18 +481,16 @@ const handleSend = async () => {
           resetForm();
           isDialogVisibleModal.value = false;
           await loadData()
+          loadingHandleSend.value = false;
           return
         }
 
       }
       notifySuccessRequest(ismodalType.value ? 'El aprendiz se ha creado exitosamente.' : 'La información del aprendiz se ha actualizado correctamente.');
-
       isDialogVisibleModal.value = false;
       resetForm();
       await loadData();
-    } else {
-      notifyErrorRequest('Los campos son Obligatorios')
-    }
+  
   } catch (error) {
     console.log(error);
 
@@ -645,9 +653,12 @@ function clearSearch() {
 }
 
 function validationSearch() {
-  if (searchValue.value === '') {
+  if (radiobuttonlist.value === '') {
+    notifyWarningRequest('Debes seleccionar una opción (Ficha, Aprendiz o Estado) antes de buscar.')
+    return 
+  }else if(searchValue.value === ''){
     notifyWarningRequest('El campo de búsqueda no puede estar vacío. Por favor, ingrese un dato para continuar.');
-    return;
+    return 
   }
 }
 
@@ -690,9 +701,11 @@ async function searchButton() {
 }
 
 .formApprentice {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
+  margin-top: 15px;
 }
 
 .filterButtons p {

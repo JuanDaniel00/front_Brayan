@@ -140,7 +140,7 @@ async function loadDataFollowup() {
   console.log('idInstructor:', idInstructor);
   try {
     if (idInstructor) {
-      const response = await getData(`/followup/listBinnaclesByRegister/${idInstructor}`);
+      const response = await getData(`/followup/listFollowupByRegister/${idInstructor}`);
       console.log(response);
       rows.value = response.followup
     } else {

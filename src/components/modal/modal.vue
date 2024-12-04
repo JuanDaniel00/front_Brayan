@@ -99,6 +99,8 @@ const computedModelValue = computed({
 .titleStyle{
   font-weight: 900  !important;
    font-size: 28px  !important;
+   width: 100%  !important;
+   padding: 15px;
 }
 
 .q-card {
@@ -106,7 +108,6 @@ const computedModelValue = computed({
 }
 
 #button{
-  /* margin-left: 2.4%; */
   margin-top: 1%;
   margin-bottom: 0px;
 }

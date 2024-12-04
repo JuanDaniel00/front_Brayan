@@ -46,6 +46,7 @@ import buttonSearch from '../components/buttons/buttonSearch.vue';
 import { notifyErrorRequest, notifySuccessRequest, notifyWarningRequest } from '../composables/useNotify.js';
 import { getData, postData, putData } from '../services/ApiClient';
 import { useRoute } from 'vue-router';
+import { formatDate } from '../utils/changeDateFormat.js';
 let searchValue = ref('');
 let radioButtonList = ref('');
 let optionSearch = ref([]);
@@ -154,7 +155,6 @@ async function loadDataBinnacles() {
   } finally {
     loading.value = false
   }
-
 }
 
 async function openClickSeeObservation(row) {
@@ -168,12 +168,11 @@ async function openClickSeeObservation(row) {
 
   } else {
     observationBinnacles.value = row.observation.map(obs => ({
-      user: obs.user,
+      user: instructor.name,
       text: obs.observation,
-      date: obs.observationDate
+      date: formatDate(obs.observationDate)
     }));
-
-
+    // observationBinnacles.value = row.instructor.name
   }
   loadDataBinnacles();
 }
@@ -310,7 +309,9 @@ function clearSearch() {
 }
 
 function validationSearch() {
-  if (searchValue.value === '') {
+  if (searchValue.value === '' || radioButtonList.value === '') {
+    notifyErrorRequest('Debes seleccionar una opción (Ficha, Aprendiz o Estado) antes de buscar.')
+  }else{
     notifyWarningRequest('El campo de búsqueda no puede estar vacío. Por favor, ingrese un dato para continuar.');
     return;
   }

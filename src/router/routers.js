@@ -14,6 +14,8 @@ import horas from '../views/Horas.vue'
 import layouts from '../views/Layout.vue'
 import certificaciones from '../views/Certificaciones.vue'
 import consultant from '../views/Consultant.vue'
+import binnacleInstructor from '../views/BinnacleInstructor.vue'
+import followupInstructor from '../views/FollowupInstructor.vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { useAuthStore } from "../stores/useAuth.js";
 
@@ -23,46 +25,48 @@ const auth = (to, from, next) => {
   const rol = authStore.rol;
 
   console.log('token', token);
-  console.log('rol', rol);  
+  console.log('rol', rol);
 
   if ((rol === "ADMIN" || rol === "INSTRUCTOR") && !token) {
     return next({ path: '/' });
   }
 
   if (to.meta.roles && !to.meta.roles.includes(rol)) {
-    return next({ path: '/' }); 
+    return next({ path: '/' });
   }
-  next(); 
+  next();
 };
 
 const routes = [
-    {
-      path: '/layouts',
-      component: layouts,
-      children: [
-        { path: '', redirect: '/layouts/home' },
+  {
+    path: '/layouts',
+    component: layouts,
+    children: [
+      { path: '', redirect: '/layouts/home' },
 
-        { path: 'home', component: home, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
-        { path: 'apprentices', component: apprentices, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
-        { path: 'assignament', component: assignament, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
-        { path: 'myAssignament', component: myAssignament, beforeEnter: auth, meta: { roles: ['INSTRUCTOR'] } },
-        { path: 'fiche', component: fiche, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
-        { path: 'horas', component: horas, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
-        { path: 'certificaciones', component: certificaciones, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
-        { path: 'binnacles', component: binnacles, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
-        { path: 'followup', component: followup, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
-        { path: 'instructor', component: instructor, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
-        { path: 'modality', component: modality, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
-        { path: 'register', component: register, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
-        { path: 'userEP', component: userEP, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
-      ]
-    },
-    { path: '/', component: loguin },
-    { path: '/apprentices', component: loguin },
-    { path: '/consultant', component: consultant}
-  ];
+      { path: 'home', component: home, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
+      { path: 'apprentices', component: apprentices, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+      { path: 'assignament', component: assignament, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+      { path: 'myAssignament', component: myAssignament, beforeEnter: auth, meta: { roles: ['INSTRUCTOR'] } },
+      { path: 'fiche', component: fiche, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+      { path: 'horas', component: horas, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
+      { path: 'certificaciones', component: certificaciones, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+      { path: 'binnacles', component: binnacles, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+      { path: 'followup', component: followup, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+      { path: 'instructor', component: instructor, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
+      { path: 'modality', component: modality, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+      { path: 'register', component: register, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+      { path: 'userEP', component: userEP, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+      { path: 'followupInstructor', component: followupInstructor, beforeEnter: auth, meta: { roles: ['INSTRUCTOR'] } },
+      { path: 'binnaclespInstructor', component: binnacleInstructor, beforeEnter: auth, meta: { roles: ['INSTRUCTOR'] } }
+    ]
+  },
+  { path: '/', component: loguin },
+  { path: '/apprentices', component: loguin },
+  { path: '/consultant', component: consultant }
+];
 
 export const router = createRouter({
-    history: createWebHashHistory(),
-    routes
+  history: createWebHashHistory(),
+  routes
 })

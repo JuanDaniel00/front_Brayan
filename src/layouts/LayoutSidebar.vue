@@ -55,15 +55,31 @@
           </q-item-section>
           <q-item-section>Mis Asignaciones</q-item-section>
         </q-item>
-
-        <q-item  clickable to="/layouts/binnacles" class="menu-item">
+        
+        <q-item v-if=" userRole !== 'INSTRUCTOR'" clickable to="/layouts/binnacles" class="menu-item">
           <q-item-section avatar>
             <q-icon name="fact_check" />
           </q-item-section>
           <q-item-section>Bitacoras</q-item-section>
         </q-item>
 
-        <q-item  clickable to="/layouts/followup" class="menu-item">
+        <q-item v-if=" userRole !== 'INSTRUCTOR'" clickable to="/layouts/followup" class="menu-item">
+          <q-item-section avatar>
+            <q-icon name="contact_page" />
+          </q-item-section>
+          <q-item-section>Seguimientos</q-item-section>
+        </q-item>
+
+        <!-- SEGUIMIENTO Y BITACORAS DE ROL INSTRUCTOR -->
+
+        <q-item v-if=" userRole !== 'ADMIN'" clickable to="/layouts/binnaclespInstructor" class="menu-item">
+          <q-item-section avatar>
+            <q-icon name="fact_check" />
+          </q-item-section>
+          <q-item-section>Bitacoras</q-item-section>
+        </q-item>
+
+        <q-item v-if=" userRole !== 'ADMIN'" clickable to="/layouts/followupInstructor" class="menu-item">
           <q-item-section avatar>
             <q-icon name="contact_page" />
           </q-item-section>

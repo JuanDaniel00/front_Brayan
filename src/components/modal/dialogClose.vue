@@ -10,14 +10,31 @@
       <q-card-section>
         <slot>
           <div class="Observations">
-            <div v-for="(observation, index) in informationBinnacles" :key="index" class="observation-item">
-              <p class="observation-user"> usuario{{ observation.user }}</p>
+            <div class="q-pa-md row justify-center">
+    <div style="width: 100%; max-width: 400px" v-for="(observation, index) in informationBinnacles" :key="index" class="observation-item">
+      <q-chat-message
+        :name= "[observation.user]"
+        avatar="https://cdn.quasar.dev/img/avatar1.jpg"
+        :text="[observation.text]"
+        :stamp=[observation.date]
+        sent
+      />
+      <q-chat-message
+        name="Jane"
+        avatar="https://cdn.quasar.dev/img/avatar2.jpg"
+        :text="['doing fine, how r you?']"
+      />
+      <p class="observation-user"> usuario{{ observation.user }}</p>
               <p>{{ observation.text }}</p>
             <div class="observation-date" >
               <p>{{ observation.date }}</p>
             </div>
           </div>
-          </div>
+    </div>
+  </div>
+            <!-- <div v-for="(observation, index) in informationBinnacles" :key="index" class="observation-item"> -->
+            
+          <!-- </div> -->
         </slot>
       </q-card-section>
 
