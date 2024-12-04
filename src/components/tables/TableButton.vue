@@ -20,7 +20,7 @@
             </template>
 
             <!-- Slot para la columna 'opciones' con botón de acciones tipo FAB -->
-            <template v-slot:body-cell-opciones="props">
+            <template v-slot:body-cell-opciones="props" v-if="!props.rows.isReadOnly">
                 <q-td :props="props">
                     <q-fab v-model="fabStates[props.row._id]" color="#2E7D32" icon="keyboard_arrow_left"
                         direction="left" class="fab-button">
@@ -29,11 +29,11 @@
                             label="Editar" />
 
                         <!-- Acción de activar -->
-                        <q-fab-action class="fab-action-light-green" @click="activate(props.row._id)"
+                        <q-fab-action class="fab-action-light-green" @click="activate(props.row)"
                             v-if="props.row.status === 0" icon="check" label="Activar" />
 
                         <!-- Acción de desactivar -->
-                        <q-fab-action class="fab-action-red" @click="deactivate(props.row._id)" v-else icon="close"
+                        <q-fab-action class="fab-action-red" @click="deactivate(props.row)" v-else icon="close"
                             label="Desactivar" />
 
                         <!-- Acción de detalles -->
@@ -65,7 +65,7 @@
                         style="background-color: green; border-radius: 50%; padding: 3px; margin-left: 4px; cursor: pointer;" />
                 </q-td>
             </template>
-            
+
             <template v-slot:loading>
                 <q-inner-loading :showing="loading" color="primary" />
             </template>
