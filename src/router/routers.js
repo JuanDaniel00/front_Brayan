@@ -23,9 +23,17 @@ const auth = (to, from, next) => {
   const authStore = useAuthStore();
   const token = authStore.token;
   const rol = authStore.rol;
+  const email = authStore.email;
 
   console.log('token', token);
   console.log('rol', rol);
+  console.log('email', email);
+
+    // Verificar si el email está definido antes de continuar
+  if (!email) {
+    console.error("El email no está definido en el store");
+  
+  }
 
   if ((rol === "ADMIN" || rol === "INSTRUCTOR") && !token) {
     return next({ path: '/' });
