@@ -3,8 +3,6 @@
     <div id="container-buttons">
         <div class="searchButtons">
             <div class="allInputButtonsSearch">
-                <radioButtonInstructor v-model="radioButtonList" label="Instructor" val="instructor"
-                    @update:model-value="handleRadioChange" />
                 <radioButtonApprentice v-model="radioButtonList" label="Aprendiz" val="apprentice"
                     @update:model-value="handleRadioChange" />
             </div>
@@ -26,10 +24,13 @@
   />
         
 
-    <dialogSeeObservation v-model="isDialogVisibleObservation" title="OBSERVACIONES" labelClose="Cerrar" labelSend="Guardad"
-        :onclickClose="closeDialog" :onclickSend="saveChanges" :informationBinnacles="observationBinnacles">
-
-    </dialogSeeObservation>
+  <dialogSeeObservation
+    v-model="isChatOpen"
+    :messages="chatMessages"
+    title="OBSERVACIONES"
+    labelClose="Cerrar"
+  >
+  </dialogSeeObservation>
 
     <dialogCreateObservation v-model="isDialogVisibleCreateObservation" title="Añadir Observación" labelClose="Cerrar"
         labelSend="Enviar" :onclickClose="closeDialog" :onclickSend="handleSend" v-model:textValue="newObservation"
@@ -53,7 +54,6 @@ import { getData, postData, putData } from '../services/ApiClient';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/useAuth.js';
 import { formatDate } from '../utils/changeDateFormat.js';
-import CheckInputs from '../components/checks/CheckInputs.vue';
 let searchValue = ref('');
 let radioButtonList = ref('');
 let optionSearch = ref([]);
@@ -62,8 +62,11 @@ let filterOptionsSearch = ref([]);
 // 
 let observationBinnacles = ref('');
 let observationBinnaclesDate = ref([])
-const isDialogVisibleObservation = ref(false);
 const isDialogVisibleCreateObservation = ref(false);
+
+let isChatOpen = ref(false);
+
+const chatMessages = [];
 
 // observación
 let newObservation = ref('');
@@ -120,15 +123,9 @@ const columns = ref([
         sortable: true,
     },
     {
-    name: "detail",
+    name: "validateHours",
     label: "VALIDAR HORAS",
     align: "center",
-    field: (row) => ({
-      checkTechnicalInstructor: row.checkTechnicalInstructor,
-      checkProjectInstructor: row.checkProjectInstructor,
-      id: row._id,
-    }),
-    component: "CheckInputs",
   },
 ])
 async function loadDataBinnacles() {
@@ -160,6 +157,9 @@ async function loadDataBinnacles() {
         loading.value = false;
     }
 }
+
+
+
 async function updateCheck(id, field, value) {
   try {
     await putData(`/binnacles/updatecheck/${id}`, { [field]: value });
@@ -172,23 +172,33 @@ async function updateCheck(id, field, value) {
 
 
 async function openClickSeeObservation(row) {
-    isDialogVisibleObservation.value = true;
-    if (!row.observation || row.observation.length === 0) {
-        observationBinnacles.value = [{
-            user: 'usuario indefinido',
-            text: 'No hay observaciones',
-            date: 'fecha indefinida'
-        }];
+  isChatOpen.value = true;
 
-    } else {
-        observationBinnacles.value = row.observation.map(obs => ({
-            user: instructor.name,
-            text: obs.observation,
-            date: formatDate(obs.observationDate)
-        }));
-        // observationBinnacles.value = row.instructor.name
-    }
-    loadDataBinnacles();
+  // Si no hay observaciones, mostrar mensaje por defecto
+  if (!row.observation || row.observation.length === 0) {
+    chatMessages.splice(0, chatMessages.length); // Limpiar mensajes previos
+    chatMessages.push({
+      name: "Sistema",
+      avatar: "https://senasofiaplus.xyz/wp-content/uploads/2023/10/logo-del-sena-01.png",
+      text: ["No hay observaciones registradas para esta bitácora."],
+      stamp: new Date().toLocaleString(),
+      sent: false,
+      bgColor: "grey-6",
+    });
+  } else {
+    // Mapear las observaciones a mensajes
+    chatMessages.splice(0, chatMessages.length); // Limpiar mensajes previos
+    chatMessages.push(
+      ...row.observation.map((obs) => ({
+        name: row.instructor ? row.instructor.name : "Instructor desconocido",
+        text: [obs.observation],
+        stamp: formatDate(obs.observationDate),
+        sent: true,
+        bgColor: "green-7",
+        textColor: "white",
+      }))
+    );
+  }
 }
 
 async function openClickCreateObservation(row) {
@@ -242,7 +252,7 @@ async function onclickSelectOptions(row, value) {
         });
         const index = rows.value.findIndex(r => r._id === row._id);
         if (index !== -1) {
-            rows.value[index].status = value; // Actualiza solo el estado de la fila modificada
+            rows.value[index].status = value; 
         }
         console.log("Estado actualizado:", response.data);
     } catch (error) {
@@ -297,19 +307,20 @@ const handleRadioChange = async () => {
         filterOptionsSearch.value = optionSearch.value;
     } else if (radioButtonList.value === 'apprentice') {
         const response = await getData('/binnacles/listallbinnacles');
-        const uniqueApprentices = new Set();
-        optionSearch.value = response.map(option => {
-            const apprenticeId = option.register._id;
-            if (!uniqueApprentices.has(apprenticeId)) {
-                uniqueApprentices.add(apprenticeId);
-                return {
-                    _id: apprenticeId,
-                    label: `${option.register.idApprentice[0].firstName} ${option.register.idApprentice[0].lastName} - ${option.register.idApprentice[0].numDocument}`,
-                    numDocument: option.numDocument
-                };
-            }
-        }).filter(option => option !== undefined);
-        filterOptionsSearch.value = optionSearch.value;
+        const uniqueApprentices = new Map();
+response.forEach(option => {
+    const apprentice = option.register.idApprentice[0];
+    if (apprentice && !uniqueApprentices.has(apprentice._id)) {
+        uniqueApprentices.set(apprentice._id, {
+            _id: apprentice._id,
+            label: `${apprentice.firstName} ${apprentice.lastName} - ${apprentice.numDocument}`,
+            numDocument: apprentice.numDocument,
+        });
+    }
+});
+optionSearch.value = Array.from(uniqueApprentices.values());
+filterOptionsSearch.value = optionSearch.value;
+
     }
     clearSearch();
 }
@@ -329,16 +340,22 @@ function validationSearch() {
 }
 
 async function fetchDataSearch() {
-    handleRadioChange()
+    handleRadioChange();
+    // Asegúrate de que optionSearch tenga datos
+    console.log('Datos iniciales de optionSearch:', optionSearch.value);
 }
 
-fetchDataSearch()
+fetchDataSearch();
+
 async function filterFunctionSearch(val, update) {
+    console.log('Valor de búsqueda:', val);
+    console.log('Datos de optionSearch antes de filtrar:', optionSearch.value);
     update(() => {
         const needle = val.toLowerCase();
         filterOptionsSearch.value = optionSearch.value.filter((option) =>
             option.label.toLowerCase().includes(needle)
         );
+        console.log('Opciones filtradas:', filterOptionsSearch.value);
     });
 }
 
@@ -384,4 +401,3 @@ async function searchButton() {
     align-items: center;
 }
 </style>
-  

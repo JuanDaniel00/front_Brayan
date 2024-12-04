@@ -30,6 +30,12 @@
                 </q-td>
             </template>
 
+            <template v-slot:body-cell-validateHours="props">
+                <q-td :props="props" class="q-pa-xs ">
+                    <CheckButton></CheckButton>
+                </q-td>
+            </template>
+
 
             <template v-slot:body-cell-Num="props">
                 <q-td :props="props" class="q-pa-xs text-center">
@@ -47,6 +53,7 @@
 
 <script setup>
 import { ref } from "vue";
+import CheckButton from "./../checks/CheckInputs.vue"
 
 // const OptionsStatus = [
 //   { label: 'Pendiente', value: '3' },
