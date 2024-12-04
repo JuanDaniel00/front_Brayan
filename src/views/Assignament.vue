@@ -32,7 +32,7 @@
 <script setup>
 import { ref, onBeforeMount } from 'vue';
 import Header from '../components/header/header.vue';
-import TableOptions from "../components/tables/tableStatusSearchCreateEditAdd.vue";
+import TableOptions from "../components/tables/tableButtonsSearch.vue";
 import radioButtonApprentice from "../components/radioButtons/radioButton.vue";
 import radioButtonInsFollow from "../components/radioButtons/radioButton.vue";
 import radioButtonInstTechnical from "../components/radioButtons/radioButton.vue";
@@ -115,12 +115,18 @@ const columns = ref([
     field: row => row.assignment && row.assignment.length > 0 && row.assignment[0].projectInstructor && row.assignment[0].projectInstructor[0] ?
       row.assignment[0].projectInstructor[0].name : 'No Requerido',
     sortable: true,
-  },
-  {
-    name: "options",
-    label: "OPCIONES",
+  },{
+    name:"binnacles",
+    label: "BINNACLES",
     align: "center",
+    sortable:true
+  },{
+    name:"followup",
+    label: "FOLLOWUP",
+    align: "center",
+    sortable:true
   }
+
 ]);
 
 
@@ -316,7 +322,7 @@ async function searchDate() {
 }
 async function onclickSearchBinnacles(row) {
   try {
-    const response = await getData(`/followup/listBinnaclesByRegister/${row._id}`);
+    const response = await getData(`/binnacles/listBinnaclesByRegister/${row._id}`);
     if (response) {
       router.push({
         path: '/layouts/binnacles',

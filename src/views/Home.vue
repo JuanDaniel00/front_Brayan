@@ -84,14 +84,14 @@ const cards = ref([
     title: 'Bitácoras',
     buttonLink: '/layouts/binnacles',
     buttonText: 'Ver',
-    roles: ["ADMIN"],
+    roles: ["ADMIN", "INSTRUCTOR"],
   },
   {
     imageSrc: 'https://img.freepik.com/vector-gratis/marca-aprobacion-ventaja-producto-calificacion-resenas-requisitos-cumplimiento_335657-3106.jpg?t=st=1731033022~exp=1731036622~hmac=eab2ece2e35135bec4fa24b19bc45eb89b3915ecd571c5d293c1c809dbb39ad8&w=1380',
     title: 'Seguimiento',
     buttonLink: '/layouts/followup',
     buttonText: 'Ver',
-    roles: ["ADMIN"],
+    roles: ["ADMIN", "INSTRUCTOR"],
   },
   {
     imageSrc: 'https://img.freepik.com/vector-gratis/concepto-abstracto-toma-decisiones_335657-3039.jpg?t=st=1731033739~exp=1731037339~hmac=63230feb1f7f047fb1a4c7b66e0acff9bf3f57a4615aaf3d62c37d26143d5a55&w=826',
@@ -105,24 +105,17 @@ const cards = ref([
     title: 'Certificaciones',
     buttonLink: '/layouts/certificaciones',
     buttonText: 'Ver',
-    roles: ["ADMIN"],
+    roles: ["ADMIN", "INSTRUCTOR"],
   },
   {
     imageSrc: 'https://img.freepik.com/vector-gratis/hombre-que-sostiene-concepto-gestion-tiempo-reloj_23-2148823171.jpg?t=st=1731034266~exp=1731037866~hmac=affa79d2e7bbd24405045301eea838591c7d0569918c69c8abf7498b99a57820&w=826',
     title: 'Informe Horas Instructores EP',
     buttonLink: '/layouts/horas',
     buttonText: 'Ver',
-    roles: ["ADMIN"],
+    roles: ["ADMIN", "INSTRUCTOR"],
   }
 ]);
 
-// function filterCards(){
-//   if(rol === 'INSTRUCTOR'){
-//     return cards.filter(card => card.title !== 'Aprendices' && card.title !== 'Fichas' && card.title !== 'Registros' && card.title !== 'Asignaciones' && card.title !== 'Modalidad EP' );
-//   }else{
-//     return cards
-//   }
-// }
 
 const filteredCardData = computed(() => {
   return cards.value.filter(card => card.roles.includes(userRole));
