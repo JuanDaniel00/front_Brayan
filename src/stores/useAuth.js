@@ -7,6 +7,14 @@ export const useAuthStore = defineStore(
     const token = ref("");
     const user = ref(null);
     const rol = ref(""); // Declara el rol como estado
+    const email = ref(""); 
+
+
+    // Verificar si el email está definido antes de continuar
+  if (!email) {
+    console.error("El email no está definidooooo");
+
+  }
 
     // Función para establecer el token
     function setToken(newToken) {
@@ -36,8 +44,24 @@ export const useAuthStore = defineStore(
       return rol.value;
     }
 
+    function setEmail(newEmail) {
+      if (newEmail) {
+        email.value = newEmail || "";
+        console.log("Email asignado:", email.value); // Verifica que se haya asignado correctamente
+      } else {
+        console.log("No se recibió email:", newEmail);
+      }
+    }
+    
+
+    function getEmail() {
+      return email.value;
+    }
+
     function removeRol() {
       rol.value = "";
+      token.value = "";
+      email.value = "";
       localStorage.removeItem("auth");
     }
 
@@ -45,10 +69,13 @@ export const useAuthStore = defineStore(
       token,
       user,
       rol,
+      email,
       setToken,
       getToken,
       setRol,
       getRol,
+      setEmail,
+      getEmail,
       removeRol,
     };
   },
