@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="computedModelValue" transition-show="rotate" transition-hide="rotate" persistent>
+  <q-dialog :model-value="modelValue" transition-show="rotate" persistent>
     <q-card>
       <q-card-section class="title">
         <div class="text-h6 text-center">{{ title }}</div>
@@ -8,86 +8,63 @@
       <q-separator />
 
       <q-card-section>
-        <slot>
-          <div class="Observations">
-            <div class="q-pa-md row justify-center">
-    <div style="width: 100%; max-width: 400px" v-for="(observation, index) in informationBinnacles" :key="index" class="observation-item">
-      <q-chat-message
-        :name= "[observation.user]"
-        avatar="https://cdn.quasar.dev/img/avatar1.jpg"
-        :text="[observation.text]"
-        :stamp=[observation.date]
-        sent
-      />
-      <q-chat-message
-        name="Jane"
-        avatar="https://cdn.quasar.dev/img/avatar2.jpg"
-        :text="['doing fine, how r you?']"
-      />
-      <p class="observation-user"> usuario{{ observation.user }}</p>
-              <p>{{ observation.text }}</p>
-            <div class="observation-date" >
-              <p>{{ observation.date }}</p>
-            </div>
-          </div>
-    </div>
-  </div>
-            <!-- <div v-for="(observation, index) in informationBinnacles" :key="index" class="observation-item"> -->
-            
-          <!-- </div> -->
-        </slot>
+        <div style="width: 100%; max-width: 400px">
+          <q-chat-message
+            v-for="(message, index) in messages"
+            :key="index"
+            :name="message.name"
+            :avatar="message.avatar"
+            :text="message.text"
+            :stamp="message.stamp"
+            :sent="message.sent"
+            :bg-color="message.bgColor"
+            :text-color="message.textColor"
+            :size="message.size"
+          />
+        </div>
       </q-card-section>
 
       <q-separator />
 
       <q-card-actions align="right">
-        <q-btn class="close custom-btn" flat icon="cancel" color="grey-8" :label="labelClose" v-close-popup />
+        <q-btn flat class="custom-btn" @click="closeDialog" :label="labelClose" />
       </q-card-actions>
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { defineProps, defineEmits } from "vue";
+
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    required: true
+    required: true,
+  },
+  messages: {
+    type: Array,
+    required: true,
+    default: () => [],
   },
   title: {
     type: String,
-    required: true,
-    default: 'Título'
+    required: false,
+    default: "Observaciones",
   },
   labelClose: {
     type: String,
-    required: true,
-    default: 'Cerrar'
+    required: false,
+    default: "Cerrar",
   },
-  informationBinnacles: {
-    type: String,
-    required: true,
-    default: () => [{
-      user: 'usuario1',
-      text: 'No hay observaciones',
-      date: 'fecha'
-    }]
-  },
-
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(["update:modelValue"]);
 
-const computedModelValue = computed({
-  get() {
-    return props.modelValue;
-  },
-  set(value) {
-    emit('update:modelValue', value);
-  }
-});
-
+function closeDialog() {
+  emit("update:modelValue", false);
+}
 </script>
+
 
 <style>
 .title {
@@ -95,40 +72,14 @@ const computedModelValue = computed({
   color: white;
 }
 
-.q-card {
-  width: 400px;
-}
-
 .custom-btn {
-  background-color: #2f7d32;
-  font-weight: bold;
+  background-color: #ffffff !important;
+  font-weight: bold !important;
+  color: rgb(45, 42, 42) !important;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.observation-item {
-  display: grid;
-  align-items: center;
-  padding: 10px;
-  margin: 5px 0;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-}
-.observation-item p {
-  margin: 0;
-  padding: 0;
-}
-.observation-date {
-  display: flex;
-  justify-content: flex-end
-}
-.observation-user {
-  display: flex;
-  justify-content: flex-start;
-  font-weight: bold;
-  color: #2f7d32;
-  /* font-size: 1.2em; */
-  margin: 0;
-  padding: 0;
+.q-card__actions {
+  background-color: rgb(193, 189, 189);
 }
 </style>

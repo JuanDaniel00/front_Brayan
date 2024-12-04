@@ -3,76 +3,130 @@
   <div id="container-buttons">
     <div class="searchButtons">
       <div class="allInputButtonsSearch">
-        <radioButtonInstructor v-model="radioButtonList" label="Instructor" val="instructor"
-          @update:model-value="handleRadioChange" />
-        <radioButtonApprentice v-model="radioButtonList" label="Aprendiz" val="apprentice"
-          @update:model-value="handleRadioChange" />
+        <radioButtonInstructor
+          v-model="radioButtonList"
+          label="Instructor"
+          val="instructor"
+          @update:model-value="handleRadioChange"
+        />
+        <radioButtonApprentice
+          v-model="radioButtonList"
+          label="Aprendiz"
+          val="apprentice"
+          @update:model-value="handleRadioChange"
+        />
       </div>
       <div class="InputButtonsSearch">
-        <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
-          optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select" />
+        <inputSelect
+          v-model="searchValue"
+          label="Buscar"
+          :options="filterOptionsSearch"
+          optionLabel="label"
+          optionValue="_id"
+          :useInput="!Search"
+          :filter="filterFunctionSearch"
+          class="custom-select"
+        />
         <buttonSearch :onclickButton="searchButton" :loading="loadingSearch" />
       </div>
     </div>
   </div>
 
-  <tableSelect :rows="rows" :columns="columns" :options="OptionsStatus" :onClickSeeObservation="openClickSeeObservation"
-    :onClickCreateObservation="openClickCreateObservation" :onclickSelectOptions="onclickSelectOptions"
-    :loading="loading" />
+  <tableSelect
+    :rows="rows"
+    :columns="columns"
+    :options="OptionsStatus"
+    :onClickSeeObservation="openClickSeeObservation"
+    :onClickCreateObservation="openClickCreateObservation"
+    :onclickSelectOptions="onclickSelectOptions"
+    :loading="loading"
+  />
 
-  <dialogSeeObservation v-model="isDialogVisibleObservation" title="OBSERVACIONES" labelClose="Cerrar"
-    labelSend="Guardad" :onclickClose="closeDialog" :onclickSend="saveChanges"
-    :informationBinnacles="observationBinnacles">
-
+  <dialogSeeObservation
+    v-model="isChatOpen"
+    :messages="chatMessages"
+    title="OBSERVACIONES"
+    labelClose="Cerrar"
+  >
   </dialogSeeObservation>
 
-  <dialogCreateObservation v-model="isDialogVisibleCreateObservation" title="Añadir Observación" labelClose="Cerrar"
-    labelSend="Enviar" :onclickClose="closeDialog" :onclickSend="handleSend" v-model:textValue="newObservation"
-    :informationBinnacles="observationBinnacles" :informationBinnaclesDate="observationBinnaclesDate" labelTextArea="Escriba una Observacón para esta bitacoras" :loading="loadingCreateOdservation" >
+  <dialogCreateObservation
+    v-model="isDialogVisibleCreateObservation"
+    title="Añadir Observación"
+    labelClose="Cerrar"
+    labelSend="Enviar"
+    :onclickClose="closeDialog"
+    :onclickSend="handleSend"
+    v-model:textValue="newObservation"
+    :informationBinnacles="observationBinnacles"
+    :informationBinnaclesDate="observationBinnaclesDate"
+    labelTextArea="Escriba una Observacón para esta bitacoras"
+    :loading="loadingCreateOdservation"
+  >
   </dialogCreateObservation>
-
 </template>
 
 <script setup>
-import { ref, onBeforeMount, handleError } from 'vue';
-import Header from '../components/header/header.vue';
-import tableSelect from '../components/tables/tableSelect.vue'
-import dialogSeeObservation from '../components/modal/dialogClose.vue'
-import dialogCreateObservation from '../components/modal/dialogSaveClose.vue';
-import radioButtonInstructor from '../components/radioButtons/radioButton.vue';
-import radioButtonApprentice from '../components/radioButtons/radioButton.vue';
-import inputSelect from '../components/input/inputSelect.vue';
-import buttonSearch from '../components/buttons/buttonSearch.vue';
-import { notifyErrorRequest, notifySuccessRequest, notifyWarningRequest } from '../composables/useNotify.js';
-import { getData, postData, putData } from '../services/ApiClient';
-import { useRoute } from 'vue-router';
-import { formatDate } from '../utils/changeDateFormat.js';
-let searchValue = ref('');
-let radioButtonList = ref('');
+import { ref, onBeforeMount, handleError } from "vue";
+import Header from "../components/header/header.vue";
+import tableSelect from "../components/tables/tableSelect.vue";
+import dialogSeeObservation from "../components/modal/dialogClose.vue";
+import dialogCreateObservation from "../components/modal/dialogSaveClose.vue";
+import radioButtonInstructor from "../components/radioButtons/radioButton.vue";
+import radioButtonApprentice from "../components/radioButtons/radioButton.vue";
+import inputSelect from "../components/input/inputSelect.vue";
+import buttonSearch from "../components/buttons/buttonSearch.vue";
+import { notifyErrorRequest, notifySuccessRequest, notifyWarningRequest } from "../composables/useNotify.js";
+import { getData, postData, putData } from "../services/ApiClient";
+import { useRoute } from "vue-router";
+import senaAdminIcon from '../assets/images/senaAdminIcon.png';
+import { formatDate } from "../utils/changeDateFormat.js";
+let searchValue = ref("");
+let radioButtonList = ref("");
 let optionSearch = ref([]);
 let filterOptionsSearch = ref([]);
 
-// 
-let observationBinnacles = ref('');
-let observationBinnaclesDate = ref([])
-const isDialogVisibleObservation = ref(false);
+
+let observationBinnacles = ref("");
+let observationBinnaclesDate = ref([]);
 const isDialogVisibleCreateObservation = ref(false);
 
+let isChatOpen = ref(false);
+
 // observación
-let newObservation = ref('');
+let newObservation = ref("");
 
 onBeforeMount(async () => {
   await loadDataBinnacles();
-})
+});
 
-const id = ref('')
+const id = ref("");
 
 // spiner
 let loading = ref(false);
 let loadingSearch = ref(false);
-let loadingCreateOdservation = ref(false)
+let loadingCreateOdservation = ref(false);
 const route = useRoute();
 
+const chatMessages = [
+  // {
+  //   name: 'me',
+  //   text: ['hey, how are you?'],
+  //   stamp: '7 minutes ago',
+  //   sent: true,
+  //   bgColor: 'green-7'
+  // },
+  // {
+  //   name: 'Jane',
+  //   text: [
+  //     'doing fine, how r you?',
+  //   ],
+  //   stamp: '4 minutes ago',
+  //   textColor: 'white',
+  //   bgColor: 'green-6',
+  //   size: '6'
+  // }
+];
 
 const rows = ref([]);
 const columns = ref([
@@ -87,8 +141,14 @@ const columns = ref([
     name: "name",
     label: "ETAPA PRODUCTIVA ASIGNADA",
     align: "center",
-    field: row => row.register.idApprentice[0].firstName + ' ' + row.register.idApprentice[0].lastName ? 
-    row.register.idApprentice[0].firstName + ' ' + row.register.idApprentice[0].lastName : 'No asignado',
+    field: (row) =>
+      row.register.idApprentice[0].firstName +
+      " " +
+      row.register.idApprentice[0].lastName
+        ? row.register.idApprentice[0].firstName +
+          " " +
+          row.register.idApprentice[0].lastName
+        : "No asignado",
     sortable: true,
   },
   {
@@ -102,7 +162,7 @@ const columns = ref([
     name: "nameInstructor",
     label: "NOMBRE INSTRUCTOR",
     align: "center",
-    field: row => row.instructor ? row.instructor.name : 'No asignado',
+    field: (row) => (row.instructor ? row.instructor.name : "No asignado"),
     sortable: true,
   },
   {
@@ -111,125 +171,153 @@ const columns = ref([
     align: "center",
     field: "status",
     sortable: true,
-  }, {
+  },
+  {
     name: "observation",
     label: "OBSERVACIONES",
     align: "center",
     field: "observation",
     sortable: true,
-  },{
+  },
+  {
     name: "detail",
     label: "DETALLES",
     align: "center",
     field: "observation",
     sortable: true,
-  }
-])
+  },
+]);
 async function loadDataBinnacles() {
   loading.value = true;
-  const idRegister= route.query.id
-  console.log('listfollow',idRegister);
+  const idRegister = route.query.id;
+  console.log("listfollow", idRegister);
   try {
     if (idRegister) {
-      const response = await getData(`/binnacles/listBinnaclesByRegister/${idRegister}`);
-      console.log('Listar por Bitacoras', response);
-      rows.value = response.binnacles
+      const response = await getData(
+        `/binnacles/listBinnaclesByRegister/${idRegister}`
+      );
+      console.log("Listar por Bitacoras", response);
+      rows.value = response.binnacles;
     } else {
-      const response = await getData('/binnacles/listallbinnacles');
+      const response = await getData("/binnacles/listallbinnacles");
       console.log(response);
-      rows.value = response
+      rows.value = response;
     }
   } catch (error) {
     let messageError;
-    if(error.response && error.response.data && error.response.data.message){
-      messageError = 'no hay bitacoras para mostrar'
-      const response = await getData('/binnacles/listallbinnacles');
-      rows.value = response
-    }else if(error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].msg){
-      messageError = error.response.data.errors[0].msg || 'Error al cargar las bitacoras'
-    }else{
-      messageError = 'Error al cargar las bitacoras'
+    if (error.response && error.response.data && error.response.data.message) {
+      messageError = "no hay bitacoras para mostrar";
+      const response = await getData("/binnacles/listallbinnacles");
+      rows.value = response;
+    } else if (
+      error.response &&
+      error.response.data &&
+      error.response.data.errors &&
+      error.response.data.errors[0].msg
+    ) {
+      messageError =
+        error.response.data.errors[0].msg || "Error al cargar las bitacoras";
+    } else {
+      messageError = "Error al cargar las bitacoras";
     }
-    notifyErrorRequest(messageError)
-
+    notifyErrorRequest(messageError);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 async function openClickSeeObservation(row) {
-  isDialogVisibleObservation.value = true;
-  if (!row.observation || row.observation.length === 0) {
-    observationBinnacles.value = [{
-      user: 'usuario indefinido',
-      text: 'No hay observaciones',
-      date: 'fecha indefinida'
-    }];
+  isChatOpen.value = true;
 
+  // Si no hay observaciones, mostrar mensaje por defecto
+  if (!row.observation || row.observation.length === 0) {
+    chatMessages.splice(0, chatMessages.length); // Limpiar mensajes previos
+    chatMessages.push({
+      name: "Sistema",
+      avatar: "https://senasofiaplus.xyz/wp-content/uploads/2023/10/logo-del-sena-01.png",
+      text: ["No hay observaciones registradas para esta bitácora."],
+      stamp: new Date().toLocaleString(),
+      sent: false,
+      bgColor: "grey-5",
+    });
   } else {
-    observationBinnacles.value = row.observation.map(obs => ({
-      user: instructor.name,
-      text: obs.observation,
-      date: formatDate(obs.observationDate)
-    }));
-    // observationBinnacles.value = row.instructor.name
+    // Mapear las observaciones a mensajes
+    chatMessages.splice(0, chatMessages.length); // Limpiar mensajes previos
+    chatMessages.push(
+      ...row.observation.map((obs) => ({
+        name: row.instructor ? row.instructor.name : "Instructor desconocido",
+        text: [obs.observation],
+        stamp: formatDate(obs.observationDate),
+        sent: true,
+        bgColor: "green-7",
+        textColor: "white",
+      }))
+    );
   }
-  loadDataBinnacles();
 }
+
 
 async function openClickCreateObservation(row) {
   isDialogVisibleCreateObservation.value = true;
-  id.value = row._id
+  id.value = row._id;
 }
 
 async function handleSend() {
   loadingCreateOdservation.value = true;
   try {
-    const response = await putData(`/binnacles/addobservation/${id.value}`, { observation: newObservation.value });
-    notifySuccessRequest('La observación se ha añadido correctamente');
+    const response = await putData(`/binnacles/addobservation/${id.value}`, {
+      observation: newObservation.value,
+    });
+    notifySuccessRequest("La observación se ha añadido correctamente");
     isDialogVisibleCreateObservation.value = false;
     await loadDataBinnacles();
-    cleanObservaton()
+    cleanObservaton();
   } catch (error) {
-    if (newObservation.value === '') {
-      validationHandleSend()
+    if (newObservation.value === "") {
+      validationHandleSend();
     } else {
-      const messageError = error.response.data.errors[0].msg || error.response.data.message || 'Hubo un error al intentar añadir la asignación. Por favor, inténtalo nuevamente.'
+      const messageError =
+        error.response.data.errors[0].msg ||
+        error.response.data.message ||
+        "Hubo un error al intentar añadir la asignación. Por favor, inténtalo nuevamente.";
       notifyErrorRequest(messageError);
-      cleanObservaton()
+      cleanObservaton();
     }
-    await loadDataBinnacles()
-  }finally{
-    loadingCreateOdservation.value = false
+    await loadDataBinnacles();
+  } finally {
+    loadingCreateOdservation.value = false;
   }
 }
 
-
 function validationHandleSend() {
-  if (newObservation.value === '') {
-    notifyWarningRequest('El campo de observaciones no puede estar vacío. Por favor, ingresa una observación para continuar.');
+  if (newObservation.value === "") {
+    notifyWarningRequest(
+      "El campo de observaciones no puede estar vacío. Por favor, ingresa una observación para continuar."
+    );
     return;
   }
 }
-function cleanObservaton(){
-  newObservation.value = ''
+function cleanObservaton() {
+  newObservation.value = "";
 }
 function closeDialog() {
-  cleanObservaton()
+  cleanObservaton();
 }
 
 const OptionsStatus = [
-  { label: 'Pendiente', value: '3' },
-  { label: 'Verificado', value: '4' }
+  { label: "Pendiente", value: "3" },
+  { label: "Verificado", value: "4" },
 ];
 
 async function onclickSelectOptions(row, value) {
   try {
-    const response = await putData(`/binnacles/updatestatus/${row._id}/${value}`, {
-      status: row.value
-
-    });
-    const index = rows.value.findIndex(r => r._id === row._id);
+    const response = await putData(
+      `/binnacles/updatestatus/${row._id}/${value}`,
+      {
+        status: row.value,
+      }
+    );
+    const index = rows.value.findIndex((r) => r._id === row._id);
     if (index !== -1) {
       rows.value[index].status = value; // Actualiza solo el estado de la fila modificada
     }
@@ -239,89 +327,100 @@ async function onclickSelectOptions(row, value) {
   }
 }
 
-
 async function searchInstructor() {
   try {
-    const response = await getData(`/binnacles/listbinnaclesbyinstructor/${searchValue.value}`)
+    const response = await getData(
+      `/binnacles/listbinnaclesbyinstructor/${searchValue.value}`
+    );
     console.log(response);
-    rows.value = response
+    rows.value = response;
   } catch (error) {
-    if (searchValue.value === '') {
-      validationSearch()
+    if (searchValue.value === "") {
+      validationSearch();
     } else {
-      const messageError = error.response.data.error || 'Error al buscar ficha'
-      notifyErrorRequest(messageError)
+      const messageError = error.response.data.error || "Error al buscar ficha";
+      notifyErrorRequest(messageError);
     }
-    loadDataBinnacles()
-
+    loadDataBinnacles();
   }
 }
 
 async function searchApprentice() {
   try {
-    const response = await getData(`/binnacles/listBinnaclesByRegister/${searchValue.value}`)
+    const response = await getData(
+      `/binnacles/listBinnaclesByRegister/${searchValue.value}`
+    );
     console.log(response);
-    rows.value = response.binnacles
+    rows.value = response.binnacles;
   } catch (error) {
-    if (searchValue.value === '') {
-      validationSearch()
+    if (searchValue.value === "") {
+      validationSearch();
     } else {
-      const messageError = error.response.data.errors || error.response.data.error[0].msg || error.response.data.message || 'Error al buscar aprendiz'
+      const messageError =
+        error.response.data.errors ||
+        error.response.data.error[0].msg ||
+        error.response.data.message ||
+        "Error al buscar aprendiz";
       console.log(messageError);
-      notifyErrorRequest(messageError)
+      notifyErrorRequest(messageError);
     }
-    loadDataBinnacles()
+    loadDataBinnacles();
   }
-
 }
 
 const handleRadioChange = async () => {
-  if (radioButtonList.value === 'instructor') {
-    const response = await getData('/binnacles/listallbinnacles');
-    console.log(response)
-    optionSearch.value = response.map(option => ({
+  if (radioButtonList.value === "instructor") {
+    const response = await getData("/binnacles/listallbinnacles");
+    console.log(response);
+    optionSearch.value = response.map((option) => ({
       _id: option.instructor.idinstructor,
       label: `${option.instructor.name}`,
     }));
     filterOptionsSearch.value = optionSearch.value;
-  } else if (radioButtonList.value === 'apprentice') {
-    const response = await getData('/binnacles/listallbinnacles');
+  } else if (radioButtonList.value === "apprentice") {
+    const response = await getData("/binnacles/listallbinnacles");
     const uniqueApprentices = new Set();
-    optionSearch.value = response.map(option => {
-      const apprenticeId = option.register._id;
-      if (!uniqueApprentices.has(apprenticeId)) {
-        uniqueApprentices.add(apprenticeId);
-        return {
-          _id: apprenticeId,
-          label: `${option.register.idApprentice[0].firstName} ${option.register.idApprentice[0].lastName} - ${option.register.idApprentice[0].numDocument}`,
-          numDocument: option.numDocument
-        };
-      }
-    }).filter(option => option !== undefined);
+    optionSearch.value = response
+      .map((option) => {
+        const apprenticeId = option.register._id;
+        if (!uniqueApprentices.has(apprenticeId)) {
+          uniqueApprentices.add(apprenticeId);
+          return {
+            _id: apprenticeId,
+            label: `${option.register.idApprentice[0].firstName} ${option.register.idApprentice[0].lastName} - ${option.register.idApprentice[0].numDocument}`,
+            numDocument: option.numDocument,
+          };
+        }
+      })
+      .filter((option) => option !== undefined);
     filterOptionsSearch.value = optionSearch.value;
   }
   clearSearch();
-}
+};
 
 // limpiar campos de busqueda
 function clearSearch() {
-  searchValue.value = '';
+  searchValue.value = "";
 }
 
 function validationSearch() {
-  if (searchValue.value === '' || radioButtonList.value === '') {
-    notifyErrorRequest('Debes seleccionar una opción (Ficha, Aprendiz o Estado) antes de buscar.')
-  }else{
-    notifyWarningRequest('El campo de búsqueda no puede estar vacío. Por favor, ingrese un dato para continuar.');
+  if (searchValue.value === "" || radioButtonList.value === "") {
+    notifyErrorRequest(
+      "Debes seleccionar una opción (Ficha, Aprendiz o Estado) antes de buscar."
+    );
+  } else {
+    notifyWarningRequest(
+      "El campo de búsqueda no puede estar vacío. Por favor, ingrese un dato para continuar."
+    );
     return;
   }
 }
 
 async function fetchDataSearch() {
-  handleRadioChange()
+  handleRadioChange();
 }
 
-fetchDataSearch()
+fetchDataSearch();
 async function filterFunctionSearch(val, update) {
   update(() => {
     const needle = val.toLowerCase();
@@ -333,16 +432,19 @@ async function filterFunctionSearch(val, update) {
 
 async function searchButton() {
   // loadingSearch.value = true;
-  validationSearch()
+  validationSearch();
 
-  if (radioButtonList.value === 'instructor') {
-    await searchInstructor()
-  } else if (radioButtonList.value === 'apprentice') {
-    await searchApprentice()
+  if (radioButtonList.value === "instructor") {
+    await searchInstructor();
+  } else if (radioButtonList.value === "apprentice") {
+    await searchApprentice();
   }
   clearSearch();
   // loadingSearch.value = false;
 }
+
+
+
 </script>
 
 <style scoped>
@@ -356,7 +458,6 @@ async function searchButton() {
   display: flex;
   justify-content: flex-end;
   margin: 20px;
-
 }
 
 .searchButtons {

@@ -10,7 +10,7 @@
           <q-select v-model="formData.fiche" :options="filterOptions" label="Ficha" emit-value map-options
             option-label="label" option-value="_id" :use-input="!fiche" @filter="filterFunctionFiches" clearable
             class="custom-select" :key="fiche" filled :rules="[validateRequiredFiche]" lazy-rules>
-            <template v-slot:prepend class="custom-select">
+            <template v-slot:prepend>
               <q-icon name="abc" />
             </template>
           </q-select>
@@ -63,8 +63,8 @@
           <q-select v-model="formData.idmodality" :options="filterOptionsModality" label="Modalidad Etapa Productiva"
             emit-value map-options option-label="name" option-value="_id" :use-input="!fiche"
             @filter="filterFunctionModality" clearable class="custom-select" v-show="modality" filled
-            :rules="[validateRequiredIdModality]"lazy-rules >
-            <template v-slot:prepend class="custom-select">
+            :rules="[validateRequiredIdModality]" lazy-rules >
+            <template v-slot:prepend>
               <q-icon name="abc" />
             </template>
           </q-select>
