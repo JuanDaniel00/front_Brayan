@@ -12,12 +12,12 @@
               <span>DATOS DEL APRENDIZ</span>
             </div>
             <div id="card-aprendiz">
-            <q-img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWoms2HEy0ELPrZGRr001PN2sh5sq9dU_BWQ&s" class="sena-logo" />
+            <q-img src="https://senasofiaplus.xyz/wp-content/uploads/2023/10/logo-del-sena-01.png" class="sena-logo" />
             <div class="card-body1">
-              <div><strong>NOMBRE:</strong> NOMBRE COMPLETO APRENDIZ</div>
-              <div><strong>N° DOCUMENTO:</strong> 0.000.000.000</div>
-              <div><strong>FICHA:</strong> NOMBRE DE LA FICHA</div>
-              <div><strong>CÓDIGO FICHA:</strong> CÓDIGO DE LA FICHA</div>
+              <div><strong>NOMBRE:</strong> {{ apprenticeFullName }}</div>
+              <div><strong>N° DOCUMENTO:</strong> {{ appreticeDocument }}</div>
+              <div><strong>FICHA:</strong> {{ ficheName }}</div>
+              <div><strong>CÓDIGO FICHA:</strong> {{ ficheCode }}</div>
             </div>
           </div>
           </div>
@@ -28,11 +28,12 @@
               <span>INFORMACIÓN ETAPA PRODUCTIVA</span>
             </div>
             <div class="card-body1">
-              <div><strong>MODALIDAD:</strong> NOMBRE MODALIDAD</div>
-              <div><strong>FECHA INICIO:</strong> 00/00/00</div>
-              <div><strong>FECHA FIN:</strong> 00/00/00</div>
-              <div><strong>INSTRUCTOR DE SEGUIMIENTO:</strong> NOMBRE INSTRUCTOR DE SEGUIMIENTO</div>
-              <div><strong>ESTADO ETAPA PRODUCTIVA:</strong> ESTADO DEL APRENDIZ</div>
+              <div><strong>MODALIDAD:</strong>{{ modality }}</div>
+              <div><strong>FECHA INICIO:</strong>{{ startDate }}</div>
+              <div><strong>FECHA FIN:</strong>{{ endDate }}</div>
+              <div><strong>INSTRUCTOR DE SEGUIMIENTO:</strong>{{ followupInstructorName }}</div>
+              <div><strong>EMAIL DEL INSTRUCTOR DE SEGUIMIENTO:</strong>{{ followupInstructorEmail }}</div>
+              <div><strong>ESTADO ETAPA PRODUCTIVA:</strong>{{ productiveStageStatus }}</div>
             </div>
           </div>
         </div>
@@ -45,8 +46,8 @@
             </div>
             <div id="card-aprendiz">
             <div class="card-body1">
-              <div><strong>N° BITÁCORAS:</strong> 00</div>
-              <div><strong>N° SEGUIMIENTOS:</strong> 00</div>
+              <div><strong>N° BITÁCORAS:</strong>{{ binnaclesNumber }}</div>
+              <div><strong>N° SEGUIMIENTOS:</strong>{{ followupNumber }}</div>
             </div>
             <div class="card-body1">
               <div><strong>VER BITÁCORAS:</strong> <q-icon name="folder_open" color="green-7" /></div>
@@ -61,7 +62,7 @@
               <span>CERTIFICACIÓN</span>
             </div>
             <div class="card-body1">
-              <div><strong>ESTADO:</strong> ESTADO APRENDIZ</div>
+              <div><strong>ESTADO:</strong>{{ apprenticeStatus }}</div>
               <div><strong>VER CERTIFICACIÓN:</strong> <q-icon name="folder_open" color="green-7" /></div>
             </div>
           </div>
@@ -73,20 +74,32 @@
   </q-layout>
 </template>
 
-<script>
+<script setup>
 import { ref } from "vue";
 import Header from "../layouts/LayoutHeader.vue";
 
-export default {
-  components: { Header },
-  setup() {
-    const drawer = ref(false);
-    const toggleDrawer = () => {
-      drawer.value = !drawer.value;
-    };
-    return { drawer, toggleDrawer };
-  },
-};
+const drawer = ref(false);
+const toggleDrawer = () => {
+  drawer.value = !drawer.value;
+}
+
+const apprenticeFullName = ref("");
+const appreticeDocument = ref("");
+const ficheName = ref("");
+const ficheCode = ref("");
+
+const modality = ref("");
+const startDate = ref("");
+const endDate = ref("");
+const followupInstructorName = ref("");
+const followupInstructorEmail = ref("");
+const productiveStageStatus = ref("");
+
+const binnaclesNumber = ref("");
+const followupNumber = ref("");
+
+
+
 </script>
 
 <style scoped>

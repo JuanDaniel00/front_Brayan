@@ -12,7 +12,7 @@
       <div class="InputButtonsSearch">
         <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
           optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select" />
-        <buttonSearch :onclickButton="searchButtons":loading=loadingSearch />
+        <buttonSearch :onclickButton="searchButtons" :loading=loadingSearch />
       </div>
     </div>
   </div>
