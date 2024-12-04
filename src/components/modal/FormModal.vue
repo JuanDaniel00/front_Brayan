@@ -104,7 +104,7 @@ const handleSave = () => {
   /* top, right, bottom, left */
   padding: 10px 15px 5px 15px !important;
   text-align: center !important;
-  max-width: 450px !important;
+  width: 400px !important;
 }
 
 ::-webkit-scrollbar {
