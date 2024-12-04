@@ -4,22 +4,11 @@
       <Header title="Registro"></Header>
 
       <div class="table-container">
-        <CustomButton
-          label="CREAR"
-          :onClickFunction="openDialog"
-          icon="add_circle"
-        >
+        <CustomButton label="CREAR" :onClickFunction="openDialog" icon="add_circle">
         </CustomButton>
 
-        <Table
-          :rows="rows"
-          :columns="columns"
-          :onClickEdit="editRegister"
-          :deactivate="toggleStatus"
-          :activate="toggleStatus"
-          :showDetails="showDetails"
-          :loading="loading"
-        ></Table>
+        <Table :rows="rows" :columns="columns" :onClickEdit="editRegister" :deactivate="toggleStatus"
+          :activate="toggleStatus" :showDetails="showDetails" :loading="loading"></Table>
       </div>
 
       <TableModal v-model="TableModalDialog" :row="selectedRow">
@@ -27,199 +16,65 @@
           <div class="table-container">
             <h5>{{ title2 }}</h5>
             <hr id="hr" color="primary" />
-            <Table
-              :rows="rows2"
-              :columns="columns2"
-              :onClickView="openDialogWithRow"
-            ></Table>
+            <Table :rows="rows2" :columns="columns2" :onClickView="openDialogWithRow"></Table>
           </div>
         </template>
       </TableModal>
 
-      <FormModal
-        :modelValue="dialog"
-        :title="modalityDialogTitle"
-        @update:modelValue="dialog = $event"
-        :next="nextFormModal"
-      >
+      <FormModal :modelValue="dialog" :title="modalityDialogTitle" @update:modelValue="dialog = $event"
+        :next="nextFormModal">
         <template #content>
           <div class="input-grid">
-            <CustomSelect
-              map-options
-              label="Seleccionar modalidad"
-              v-model="modalityId"
-              required
-              :options="modalitiesOptions"
-              optionLabel="name"
-              optionValue="_id"
-              errorMessage="Modalidad requerida"
-              icon="shapes"
-              type="text"
-            >
+            <CustomSelect map-options label="Seleccionar modalidad" v-model="modalityId" required
+              :options="modalitiesOptions" optionLabel="name" optionValue="_id" errorMessage="Modalidad requerida"
+              icon="shapes" type="text">
             </CustomSelect>
           </div>
         </template>
       </FormModal>
 
-      <FormModal
-        :modelValue="secondModaldialog"
-        :title="dialogTitle"
-        :onSave="saveRegister"
-        @update:modelValue="secondModaldialog = $event"
-      >
+      <FormModal :modelValue="secondModaldialog" :title="dialogTitle" :onSave="saveRegister"
+        @update:modelValue="secondModaldialog = $event">
         <template #content>
           <div class="input-grid">
-            <CustomSelect
-              map-options
-              label="Aprendiz"
-              v-model="apprentice"
-              @filter="filterApprentice"
-              required
-              :options="apprenticeOptions"
-              optionLabel="apprenticeName"
-              optionValue="apprenticeId"
-              errorMessage="Aprendiz requerido"
-              icon="users-line"
-              type="text"
-            >
+            <CustomSelect map-options label="Aprendiz" v-model="apprentice" @filter="filterApprentice" required
+              :options="apprenticeOptions" optionLabel="apprenticeName" optionValue="apprenticeId"
+              errorMessage="Aprendiz requerido" icon="users-line" type="text">
             </CustomSelect>
 
-            <CustomSelect
-              filled
-              label="Instructor de Seguimiento"
-              v-model="followupInstructor"
-              @filter="filtroInstructores"
-              required
-              :options="instructoresFiltrados"
-              optionLabel="instructorName"
-              optionValue="instructorId"
-              errorMessage="Instructor de seguimiento requerido"
-              icon="chalkboard-user"
-              type="text"
-            ></CustomSelect>
+            <CustomSelect filled label="Instructor de Seguimiento" v-model="followupInstructor"
+              @filter="filtroInstructores" required :options="instructoresFiltrados" optionLabel="instructorName"
+              optionValue="instructorId" errorMessage="Instructor de seguimiento requerido" icon="chalkboard-user"
+              type="text"></CustomSelect>
 
-            <Input
-              id="startDate"
-              filled
-              label="Fecha de Inicio"
-              v-model="startDate"
-              required
-              errorMessage="Fecha requerida"
-              icon="calendar-days"
-              type="date"
-            />
-            <Input
-              id="endDate"
-              filled
-              label="Fecha de Fin"
-              v-model="endDate"
-              required
-              errorMessage="Fecha requerida"
-              icon="calendar-days"
-              type="date"
-            />
-            <Input
-              id="company"
-              filled
-              label="Nombre de la Empresa"
-              v-model="company"
-              required
-              errorMessage="Empresa requerida"
-              icon="spell-check"
-              type="text"
-            />
-            <Input
-              id="phoneCompany"
-              filled
-              label="Teléfono de la empresa"
-              v-model="phoneCompany"
-              required
-              errorMessage="Número de contacto requerido"
-              icon="phone"
-              type="text"
-            />
-            <Input
-              id="addressCompany"
-              filled
-              label="Dirección de la empresa"
-              v-model="addressCompany"
-              required
-              errorMessage="Dirección requerida"
-              icon="map-location-dot"
-              type="text"
-            />
-            <Input
-              id="owner"
-              filled
-              label="Dueño de la Empresa"
-              v-model="owner"
-              required
-              errorMessage="Dueño requerido"
-              icon="user-tie"
-              type="text"
-            />
-            <Input
-              id="docAlternative"
-              filled
-              label="Documento Alternativo"
-              v-model="docAlternative"
-              required
-              errorMessage="Documento requerido"
-              icon="file-invoice"
-              type="text"
-            />
-            <Input
-              id="hour"
-              filled
-              label="Horas"
-              v-model="hour"
-              required
-              errorMessage="Horas requeridas"
-              icon="clock"
-              type="text"
-            />
-            <Input
-              id="businessProyectHour"
-              filled
-              label="Horas del Proyecto de Negocio"
-              v-model="businessProyectHour"
-              required
-              errorMessage="Horas requeridas"
-              icon="stopwatch"
-              type="text"
-            />
-            <Input
-              id="productiveProjectHour"
-              filled
-              label="Horas del Proyecto Productivo"
-              v-model="productiveProjectHour"
-              required
-              errorMessage="Horas requeridas"
-              icon="stopwatch"
-              type="text"
-            />
-            <Input
-              id="mailCompany"
-              filled
-              label="Email de la empresa"
-              v-model="mailCompany"
-              required
-              errorMessage="Email de la empresa requerido"
-              icon="envelope"
-              type="text"
-            />
+            <Input id="startDate" filled label="Fecha de Inicio" v-model="startDate" required
+              errorMessage="Fecha requerida" icon="calendar-days" type="date" />
+            <Input id="endDate" filled label="Fecha de Fin" v-model="endDate" required errorMessage="Fecha requerida"
+              icon="calendar-days" type="date" />
+            <Input id="company" filled label="Nombre de la Empresa" v-model="company" required
+              errorMessage="Empresa requerida" icon="spell-check" type="text" />
+            <Input id="phoneCompany" filled label="Teléfono de la empresa" v-model="phoneCompany" required
+              errorMessage="Número de contacto requerido" icon="phone" type="text" />
+            <Input id="addressCompany" filled label="Dirección de la empresa" v-model="addressCompany" required
+              errorMessage="Dirección requerida" icon="map-location-dot" type="text" />
+            <Input id="owner" filled label="Dueño de la Empresa" v-model="owner" required errorMessage="Dueño requerido"
+              icon="user-tie" type="text" />
+            <Input id="docAlternative" filled label="Documento Alternativo" v-model="docAlternative" required
+              errorMessage="Documento requerido" icon="file-invoice" type="text" />
+            <Input id="hour" filled label="Horas" v-model="hour" required errorMessage="Horas requeridas" icon="clock"
+              type="text" />
+            <Input id="businessProyectHour" filled label="Horas del Proyecto de Negocio" v-model="businessProyectHour"
+              required errorMessage="Horas requeridas" icon="stopwatch" type="text" />
+            <Input id="productiveProjectHour" filled label="Horas del Proyecto Productivo"
+              v-model="productiveProjectHour" required errorMessage="Horas requeridas" icon="stopwatch" type="text" />
+            <Input id="mailCompany" filled label="Email de la empresa" v-model="mailCompany" required
+              errorMessage="Email de la empresa requerido" icon="envelope" type="text" />
           </div>
         </template>
       </FormModal>
     </q-page-container>
-    <q-dialog
-      v-model="dialogFull"
-      persistent
-      :maximized="maximizedToggle"
-      transition-show="slide-up"
-      transition-hide="slide-down"
-      @hide="clearForm"
-    >
+    <q-dialog v-model="dialogFull" persistent :maximized="maximizedToggle" transition-show="slide-up"
+      transition-hide="slide-down" @hide="clearForm">
       <q-card class="text-dark">
         <q-bar class="bg-primary text-white">
           <q-space />
@@ -231,13 +86,11 @@
           <!-- Formulario de datos planos -->
           <div class="titulo">
             <div>
-              <div
-                style="
+              <div style="
                   margin: 50px;
                   border-bottom: 4px solid green;
                   font-size: 4em;
-                "
-              >
+                ">
                 {{ tituloRegistro }}
               </div>
             </div>
@@ -246,89 +99,51 @@
             <div class="contFormFila">
               <h5>Datos</h5>
               <div class="contInput">
-                <q-input
-                  v-model="ownerModal"
-                  label="Jefe inmediato"
-                  label-color="primary"
-                  label-class="customLabel"
-                  class="long"
-                  :rules="[
+                <q-input v-model="ownerModal" label="Jefe inmediato" label-color="primary" label-class="customLabel"
+                  class="long" :rules="[
                     (val) => !!val || 'Campo requerido',
                     (val) =>
                       val.trim().length > 0 || 'No se permiten espacios vacíos',
-                  ]"
-                  :readonly="isReadOnly"
-                >
+                  ]" :readonly="isReadOnly">
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="person" />
                   </template>
                 </q-input>
-                <q-input
-                  v-model="docAlternativeModal"
-                  label="Documentos alternativos"
-                  label-color="primary"
-                  label-class="customLabel"
-                  class="long"
-                  :rules="[
+                <q-input v-model="docAlternativeModal" label="Documentos alternativos" label-color="primary"
+                  label-class="customLabel" class="long" :rules="[
                     (val) => !!val || 'Campo requerido',
                     (val) =>
                       val.trim().length > 0 || 'No se permiten espacios vacíos',
-                  ]"
-                  :readonly="isReadOnly"
-                >
+                  ]" :readonly="isReadOnly">
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="description" />
                   </template>
                 </q-input>
-                <q-input
-                  v-model="hourProductiveStageApprenticeModal"
-                  label="Horas etapa productiva"
-                  label-color="primary"
-                  label-class="customLabel"
-                  class="short"
-                  type="number"
-                  :rules="[
+                <q-input v-model="hourProductiveStageApprenticeModal" label="Horas etapa productiva"
+                  label-color="primary" label-class="customLabel" class="short" type="number" :rules="[
                     (val) => !!val || 'Campo requerido',
                     (val) => /^\d+$/.test(val) || 'Solo números',
-                  ]"
-                  :readonly="isReadOnly"
-                >
+                  ]" :readonly="isReadOnly">
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="schedule" />
                   </template>
                 </q-input>
-                <q-input
-                  v-model="startDateModal"
-                  label="Fecha de inicio"
-                  type="date"
-                  label-class="customLabel"
-                  label-color="primary"
-                  class="short"
-                  :rules="[
+                <q-input v-model="startDateModal" label="Fecha de inicio" type="date" label-class="customLabel"
+                  label-color="primary" class="short" :rules="[
                     (val) => !!val || 'Campo requerido',
                     (val) =>
                       val.trim().length > 0 || 'No se permiten espacios vacíos',
-                  ]"
-                  :readonly="isReadOnly"
-                >
+                  ]" :readonly="isReadOnly">
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="event" />
                   </template>
                 </q-input>
-                <q-input
-                  v-model="endDateModal"
-                  label="Fecha final"
-                  type="date"
-                  label-class="customLabel"
-                  label-color="primary"
-                  class="short"
-                  :rules="[
+                <q-input v-model="endDateModal" label="Fecha final" type="date" label-class="customLabel"
+                  label-color="primary" class="short" :rules="[
                     (val) => !!val || 'Campo requerido',
                     (val) =>
                       val.trim().length > 0 || 'No se permiten espacios vacíos',
-                  ]"
-                  :readonly="isReadOnly"
-                >
+                  ]" :readonly="isReadOnly">
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="event" />
                   </template>
@@ -338,73 +153,44 @@
             <div class="contFormFila">
               <h5>Datos empresa</h5>
               <div class="contInput">
-                <q-input
-                  v-model="companyModal"
-                  label="Nombre Empresa"
-                  label-color="primary"
-                  label-class="customLabel"
-                  class="long"
-                  :rules="[
+                <q-input v-model="companyModal" label="Nombre Empresa" label-color="primary" label-class="customLabel"
+                  class="long" :rules="[
                     (val) => !!val || 'Campo requerido',
                     (val) =>
                       val.trim().length > 0 || 'No se permiten espacios vacíos',
-                  ]"
-                  :readonly="isReadOnly"
-                >
+                  ]" :readonly="isReadOnly">
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="business" />
                   </template>
                 </q-input>
-                <q-input
-                  v-model="mailCompanyModal"
-                  label="Correo Empresa"
-                  label-color="primary"
-                  label-class="customLabel"
-                  class="long"
-                  type="email"
-                  :rules="[
+                <q-input v-model="mailCompanyModal" label="Correo Empresa" label-color="primary"
+                  label-class="customLabel" class="long" type="email" :rules="[
                     (val) => !!val || 'Campo requerido',
                     (val) => /.+@.+\..+/.test(val) || 'Correo inválido',
                     (val) =>
                       val.trim().length > 0 || 'No se permiten espacios vacíos',
-                  ]"
-                  :readonly="isReadOnly"
-                >
+                  ]" :readonly="isReadOnly">
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="email" />
                   </template>
                 </q-input>
-                <q-input
-                  v-model="addressCompanyModal"
-                  label="Dirección Empresa"
-                  label-color="primary"
-                  label-class="customLabel"
-                  class="long"
-                  :rules="[
+                <q-input v-model="addressCompanyModal" label="Dirección Empresa" label-color="primary"
+                  label-class="customLabel" class="long" :rules="[
                     (val) => !!val || 'Campo requerido',
                     (val) =>
                       val.trim().length > 0 || 'No se permiten espacios vacíos',
-                  ]"
-                  :readonly="isReadOnly"
-                >
+                  ]" :readonly="isReadOnly">
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="location_on" />
                   </template>
                 </q-input>
-                <q-input
-                  v-model="phoneCompanyModal"
-                  label="Número Empresa"
-                  label-color="primary"
-                  label-class="customLabel"
-                  type="tel"
-                  :rules="[
+                <q-input v-model="phoneCompanyModal" label="Número Empresa" label-color="primary"
+                  label-class="customLabel" type="tel" :rules="[
                     (val) => !!val || 'Campo requerido',
                     (val) => /^\d+$/.test(val) || 'Solo números',
                     (val) =>
                       val.trim().length > 0 || 'No se permiten espacios vacíos',
-                  ]"
-                  :readonly="isReadOnly"
-                >
+                  ]" :readonly="isReadOnly">
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="phone" />
                   </template>
@@ -415,81 +201,46 @@
           <!-- Fin de Formulario de datos planos -->
           <div>
             <!--Tabla aprendices  -->
-            <div>
-              <div
-                style="
+            <div class="tablaAprendices">
+              <div style="
                   margin: 50px;
                   border-bottom: 4px solid green;
                   font-size: 4em;
                   text-align: center;
-                "
-              >
+                ">
                 Aprendices
               </div>
             </div>
             <div style="padding: 40px">
               <div style="display: flex; justify-content: end; gap: 10px">
-                <q-select
-                  filled
-                  clearable
-                  v-model="busquedaAprendiz"
-                  use-input
-                  input-debounce="0"
-                  label="Buscar aprendiz por nombre..."
-                  :options="aprendicesFiltrados"
-                  :option-label="
-                    (option) =>
-                      `${option.firstName} ${option.lastName} - ${option.numDocument}`
-                  "
-                  @filter="filtroAprendices"
-                  style="width: 40%"
-                  transition-show="flip-up"
-                  transition-hide="flip-down"
-                  :disable="isReadOnly"
-                >
+                <q-select filled clearable v-model="busquedaAprendiz" use-input input-debounce="0"
+                  label="Buscar aprendiz por nombre..." :options="aprendicesFiltrados" :option-label="(option) =>
+                    `${option.firstName} ${option.lastName} - ${option.numDocument}`
+                    " @filter="filtroAprendices" style="width: 40%" transition-show="flip-up"
+                  transition-hide="flip-down" :disable="isReadOnly" v-if="!isReadOnly">
                   <template v-slot:no-option>
                     <q-item>
                       <q-item-section class="text-grey">
-                        <q-btn
-                          style="width: 20%"
-                          @click="open = true"
-                          icon="add"
-                          color="primary"
-                          :disable="isReadOnly"
-                        ></q-btn>
+                        <q-btn style="width: 20%" @click="open = true" icon="add" color="primary"
+                          :disable="isReadOnly"></q-btn>
                       </q-item-section>
                     </q-item>
                   </template>
                 </q-select>
-                <q-btn
-                  @click="listaAprendices"
-                  icon="add"
-                  color="primary"
-                  :disable="isReadOnly"
-                />
+                <q-btn @click="listaAprendices" icon="add" color="primary" :disable="isReadOnly" v-if="!isReadOnly" />
               </div>
               <div>
-                <q-table
-                  :rows="aprendicesAgregados"
-                  :columns="columnsAprendices"
-                  row-key="id"
-                  flat
-                  bordered
-                >
+                <q-table :rows="aprendicesAgregados" :columns="columnsAprendices" row-key="id" flat bordered>
                   <template v-slot:body-cell-no="props">
                     <q-td :props="props">
                       {{ props.pageIndex + 1 }}
                     </q-td>
                   </template>
-                  <template v-slot:body-cell-options="props">
+                  <template v-slot:body-cell-options="props" v-if="!isReadOnly">
                     <q-td>
                       <div class="divBorrarFila">
-                        <q-btn
-                          @click="() => borrarFilaAprendiz(props.row)"
-                          icon="delete"
-                          color="negative"
-                          :disable="isReadOnly"
-                        />
+                        <q-btn @click="() => borrarFilaAprendiz(props.row)" icon="delete" color="negative"
+                          :disable="isReadOnly" />
                       </div>
                     </q-td>
                   </template>
@@ -499,50 +250,27 @@
             <!-- Tabla instructores -->
             <div class="contTablaInstructor">
               <div>
-                <div
-                  style="
+                <div style="
                     margin: 50px;
                     border-bottom: 4px solid green;
                     font-size: 4em;
                     text-align: center;
-                  "
-                >
+                  ">
                   Instructores
                 </div>
               </div>
               <div style="padding: 40px">
                 <div style="display: flex; justify-content: end; gap: 10px">
-                  <q-select
-                    filled
-                    clearable
-                    v-model="busquedaInstructor"
-                    use-input
-                    input-debounce="0"
-                    label="Buscar instructor por nombre..."
-                    :options="instructoresFiltrados"
-                    option-label="name"
-                    @filter="filtroInstructores"
-                    style="width: 40%"
-                    transition-show="flip-up"
-                    transition-hide="flip-down"
-                    :disable="isReadOnly"
-                  >
+                  <q-select filled clearable v-model="busquedaInstructor" use-input input-debounce="0"
+                    label="Buscar instructor por nombre..." :options="instructoresFiltrados" option-label="name"
+                    @filter="filtroInstructores" style="width: 40%" transition-show="flip-up"
+                    transition-hide="flip-down" :disable="isReadOnly" v-if="!isReadOnly">
                   </q-select>
-                  <q-btn
-                    @click="listaInstructores"
-                    icon="add"
-                    color="primary"
-                    :disable="isReadOnly"
-                  />
+                  <q-btn @click="listaInstructores" icon="add" color="primary" :disable="isReadOnly"
+                    v-if="!isReadOnly" />
                 </div>
                 <div>
-                  <q-table
-                    :rows="instructoresAgregados"
-                    :columns="columnsInstructores"
-                    row-key="id"
-                    flat
-                    bordered
-                  >
+                  <q-table :rows="instructoresAgregados" :columns="columnsInstructores" row-key="id" flat bordered>
                     <template v-slot:body-cell-no="props">
                       <q-td :props="props">
                         {{ props.pageIndex + 1 }}
@@ -551,25 +279,16 @@
                     <template v-slot:body-cell-tipo="props">
                       <q-td>
                         <div class="contTypeSelect">
-                          <q-select
-                            class="typeSelect"
-                            borderless
-                            v-model="props.row.tipo"
-                            :options="tipos"
-                            :disable="isReadOnly"
-                          />
+                          <q-select class="typeSelect" borderless v-model="props.row.tipo" :options="tipos"
+                            :disable="isReadOnly" />
                         </div>
                       </q-td>
                     </template>
-                    <template v-slot:body-cell-options="props">
+                    <template v-slot:body-cell-options="props" v-if="!isReadOnly">
                       <q-td>
                         <div class="divBorrarFila">
-                          <q-btn
-                            @click="() => borrarFilaInstructor(props.row)"
-                            icon="delete"
-                            color="negative"
-                            :disable="isReadOnly"
-                          />
+                          <q-btn @click="() => borrarFilaInstructor(props.row)" icon="delete" color="negative"
+                            :disable="isReadOnly" />
                         </div>
                       </q-td>
                     </template>
@@ -580,14 +299,8 @@
             </div>
           </div>
         </div>
-        <q-card-actions align="right" class="bg-white text-teal">
-          <q-btn
-            color="primary"
-            :loading="isSaving"
-            label="Guardar"
-            @click="saveFunction"
-            :disable="isReadOnly"
-          />
+        <q-card-actions align="right" class="bg-white text-teal" v-if="!isReadOnly">
+          <q-btn color="primary" :loading="isSaving" label="Guardar" @click="saveFunction" :disable="isReadOnly" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -686,7 +399,7 @@ const assignment = ref([
 let busquedaInstructor = ref(null);
 
 const selectedRow = ref(null);
-const saveFunction = ref(() => {});
+const saveFunction = ref(() => { });
 
 const rows = ref([]);
 const instructores = ref([]);
@@ -898,9 +611,7 @@ async function getInstructores() {
 // Función para listar instructores
 function listaInstructores() {
   const maxInstructores = (() => {
-    if (modalityId.value.name?.toLowerCase() === "proyecto productivo  i+d") {
-      return 1;
-    } else if (
+    if (
       modalityId.value.name?.toLowerCase() === "proyecto productivo" ||
       modalityId.value.name?.toLowerCase() === "proyecto social" ||
       modalityName.value?.toLowerCase() === "proyecto productivo" ||
@@ -1143,21 +854,24 @@ function nextFormModal() {
     // PROYECTO SOCIAL y PROYECTO PRODUCTIVO:
     // Requieren los instructores: followUpInstructor, technicalInstructor.
 
-    if (modalityId.value.name?.toLowerCase() == "proyecto productivo  i+d") {
-      tipos.value = ["Seguimiento"];
-    } else if (
-      modalityId.value.name?.toLowerCase() == "proyecto productivo" ||
-      modalityId.value.name?.toLowerCase() == "proyecto social"
-    ) {
-      tipos.value = ["Seguimiento", "Tecnico"];
-    } else {
-      tipos.value = ["Seguimiento", "Tecnico", "Proyecto"];
-    }
+  } if (
+    modalityId.value.name?.toLowerCase() == "proyecto productivo" ||
+    modalityId.value.name?.toLowerCase() == "proyecto social"
+  ) {
+    tipos.value = ["Seguimiento", "Tecnico"];
+  } else {
+    tipos.value = ["Seguimiento", "Tecnico", "Proyecto"];
   }
 }
 
+
 const confirmClose = () => {
-  confirmDialog.value = true;
+  if (isReadOnly.value) {
+    dialogFull.value = false;
+    clearForm();
+  } else {
+    confirmDialog.value = true;
+  }
 };
 
 const closeWithoutSaving = () => {
@@ -1543,6 +1257,14 @@ const showDetails = (row) => {
       fiche: apprentice.fiche.name,
     };
   });
+
+  // Desplazarse a la sección de aprendices
+  setTimeout(() => {
+    const aprendizSection = document.querySelector('.tablaAprendices');
+    if (aprendizSection) {
+      aprendizSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, 100);
 };
 
 // Función para añadir asignación
@@ -1611,7 +1333,7 @@ const addAssignment = async () => {
       assignmentData
     );
     // Si la respuesta es exitosa, actualizamos la tabla y cerramos el modal
-    // dialogFull.value = false;
+    dialogFull.value = false;
     getDataForTable();
     console.log(response);
 
@@ -1625,14 +1347,14 @@ const addAssignment = async () => {
 // Función para alternar el estado de un registro
 async function toggleStatus(row) {
   try {
-    console.log(row);
+    console.log("row" + row);
 
     const url =
       row.status === 0
-        ? `register/enableregister/${row}`
-        : `register/disableregister/${row}`;
-    res = await putData(url, {});
-    await getRegisters();
+        ? `register/enableregister/${row._id}`
+        : `register/disableregister/${row._id}`;
+    const res = await putData(url, {}); // Definir la variable res aquí
+    await getDataForTable();
     notifySuccessRequest("Estado cambiado exitosamente");
     getDataForTable();
     console.log(res);
