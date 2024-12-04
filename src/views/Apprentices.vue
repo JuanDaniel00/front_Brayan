@@ -405,13 +405,13 @@ function handleClose() {
 }
 function isFormEmpty() {
   return !formData.value.firstName &&
-         !formData.value.lastName &&
-         !formData.value.emailPersonal &&
-         !formData.value.emailIntitutional &&
-         !formData.value.phone &&
-         !formData.value.tpDocument &&
-         !formData.value.numDocument &&
-         !formData.value.fiche;
+    !formData.value.lastName &&
+    !formData.value.emailPersonal &&
+    !formData.value.emailIntitutional &&
+    !formData.value.phone &&
+    !formData.value.tpDocument &&
+    !formData.value.numDocument &&
+    !formData.value.fiche;
 }
 
 
@@ -421,64 +421,68 @@ const handleSend = async () => {
     const selectedFiche = filterOptions.value.find((opt) => opt._id === formData.value.fiche);
     if (ismodalType.value) {
       if (isFormEmpty()) {
-    notifyWarningRequest('Por favor, ingrese datos en el formulario.');
-    return;
-  }
-    const  response = await postData('/apprendice/addapprentice', {
-        firstName: formData.value.firstName,
-        lastName: formData.value.lastName,
-        personalEmail: formData.value.emailPersonal,
-        institutionalEmail: formData.value.emailIntitutional,
-        phone: formData.value.phone,
-        tpDocument: formData.value.tpDocument,
-        numDocument: formData.value.numDocument,
-        fiche: {
-          idFiche: formData.value.fiche,
-          name: selectedFiche.name,
-          number: selectedFiche.number,
-        },
-        idModality: formData.value.idmodality
-      });
-    } else {
-      const response = await putData(`/apprendice/updateapprenticebyid/${row_id.value}`, {
-        firstName: formData.value.firstName,
-        lastName: formData.value.lastName,
-        personalEmail: formData.value.emailPersonal,
-        institutionalEmail: formData.value.emailIntitutional,
-        phone: formData.value.phone,
-        tpDocument: formData.value.tpDocument,
-        numDocument: formData.value.numDocument,
-        fiche: {
-          idFiche: formData.value.fiche,
-          name: selectedFiche.name,
-          number: selectedFiche.number,
-        },
-      });
-
-      const hasChanges =
-        formData.value.firstName !== originalValues.value.firstName ||
-        formData.value.lastName !== originalValues.value.lastName ||
-        formData.value.emailPersonal !== originalValues.value.personalEmail ||
-        formData.value.emailIntitutional !== originalValues.value.institutionalEmail ||
-        formData.value.phone !== originalValues.value.phone ||
-        formData.value.tpDocument !== originalValues.value.tpDocument ||
-        formData.value.numDocument !== originalValues.value.numDocument ||
-        formData.value.fiche !== originalValues.value.fiche 
-
-      if (!hasChanges) {
-        notifyWarningRequest('No se han realizado cambios en la información del aprendiz.');
-        resetForm();
-        isDialogVisibleModal.value = false;
-        await loadData()
-        return
+        notifyWarningRequest('Por favor, ingrese datos en el formulario.');
+        return;
       }
+      if (formRef.value.validate()) {
+        const response = await postData('/apprendice/addapprentice', {
+          firstName: formData.value.firstName,
+          lastName: formData.value.lastName,
+          personalEmail: formData.value.emailPersonal,
+          institutionalEmail: formData.value.emailIntitutional,
+          phone: formData.value.phone,
+          tpDocument: formData.value.tpDocument,
+          numDocument: formData.value.numDocument,
+          fiche: {
+            idFiche: formData.value.fiche,
+            name: selectedFiche.name,
+            number: selectedFiche.number,
+          },
+          idModality: formData.value.idmodality
+        });
+      } else {
+        const response = await putData(`/apprendice/updateapprenticebyid/${row_id.value}`, {
+          firstName: formData.value.firstName,
+          lastName: formData.value.lastName,
+          personalEmail: formData.value.emailPersonal,
+          institutionalEmail: formData.value.emailIntitutional,
+          phone: formData.value.phone,
+          tpDocument: formData.value.tpDocument,
+          numDocument: formData.value.numDocument,
+          fiche: {
+            idFiche: formData.value.fiche,
+            name: selectedFiche.name,
+            number: selectedFiche.number,
+          },
+        });
 
+        const hasChanges =
+          formData.value.firstName !== originalValues.value.firstName ||
+          formData.value.lastName !== originalValues.value.lastName ||
+          formData.value.emailPersonal !== originalValues.value.personalEmail ||
+          formData.value.emailIntitutional !== originalValues.value.institutionalEmail ||
+          formData.value.phone !== originalValues.value.phone ||
+          formData.value.tpDocument !== originalValues.value.tpDocument ||
+          formData.value.numDocument !== originalValues.value.numDocument ||
+          formData.value.fiche !== originalValues.value.fiche
+
+        if (!hasChanges) {
+          notifyWarningRequest('No se han realizado cambios en la información del aprendiz.');
+          resetForm();
+          isDialogVisibleModal.value = false;
+          await loadData()
+          return
+        }
+
+      }
+      notifySuccessRequest(ismodalType.value ? 'El aprendiz se ha creado exitosamente.' : 'La información del aprendiz se ha actualizado correctamente.');
+
+      isDialogVisibleModal.value = false;
+      resetForm();
+      await loadData();
+    } else {
+      notifyErrorRequest('Los campos son Obligatorios')
     }
-    notifySuccessRequest(ismodalType.value ? 'El aprendiz se ha creado exitosamente.' : 'La información del aprendiz se ha actualizado correctamente.');
-
-    isDialogVisibleModal.value = false;
-    resetForm();
-    await loadData();
   } catch (error) {
     console.log(error);
 
