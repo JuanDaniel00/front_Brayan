@@ -79,7 +79,6 @@ import buttonSearch from "../components/buttons/buttonSearch.vue";
 import { notifyErrorRequest, notifySuccessRequest, notifyWarningRequest } from "../composables/useNotify.js";
 import { getData, postData, putData } from "../services/ApiClient";
 import { useRoute } from "vue-router";
-import senaAdminIcon from '../assets/images/senaAdminIcon.png';
 import { formatDate } from "../utils/changeDateFormat.js";
 let searchValue = ref("");
 let radioButtonList = ref("");
@@ -108,25 +107,7 @@ let loadingSearch = ref(false);
 let loadingCreateOdservation = ref(false);
 const route = useRoute();
 
-const chatMessages = [
-  // {
-  //   name: 'me',
-  //   text: ['hey, how are you?'],
-  //   stamp: '7 minutes ago',
-  //   sent: true,
-  //   bgColor: 'green-7'
-  // },
-  // {
-  //   name: 'Jane',
-  //   text: [
-  //     'doing fine, how r you?',
-  //   ],
-  //   stamp: '4 minutes ago',
-  //   textColor: 'white',
-  //   bgColor: 'green-6',
-  //   size: '6'
-  // }
-];
+const chatMessages = [];
 
 const rows = ref([]);
 const columns = ref([
@@ -238,14 +219,14 @@ async function openClickSeeObservation(row) {
       text: ["No hay observaciones registradas para esta bitácora."],
       stamp: new Date().toLocaleString(),
       sent: false,
-      bgColor: "grey-5",
+      bgColor: "grey-6",
     });
   } else {
     // Mapear las observaciones a mensajes
     chatMessages.splice(0, chatMessages.length); // Limpiar mensajes previos
     chatMessages.push(
       ...row.observation.map((obs) => ({
-        name: row.instructor ? row.instructor.name : "Instructor desconocido",
+        name: "ADMIN",
         text: [obs.observation],
         stamp: formatDate(obs.observationDate),
         sent: true,
