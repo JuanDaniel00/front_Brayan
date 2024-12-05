@@ -11,8 +11,11 @@
       </div>
       <div class="InputButtonsSearch">
         <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
-          optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select" />
-        <buttonSearch :onclickButton="searchButtons" :loading=loadingSearch />
+        
+          optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select" 
+          :rules="[validateRequieredSearch]" lazy-rules ref="inputSearch"  />
+        <buttonSearch :onclickButton="searchButtons":loading=loadingSearch />
+
       </div>
     </div>
   </div>
@@ -63,6 +66,7 @@ let loading = ref(false);
 let loadingSearch = ref(false);
 let loadingCreateOdservation = ref(false);
 
+const inputSearch = ref(null)
 
 // observación
 let observationFollowup = ref('');
@@ -74,6 +78,16 @@ onBeforeMount(() => {
 });
 const rows = ref([])
 let id = ref('')
+
+const validateRequieredSearch = (v) => {
+  if (radioButtonList.value === '') {
+    return 'Debes seleccionar una opción (Seguimiento, Aprendiz) antes de buscar.'
+  }
+  if (!v) {
+    return 'El campo de búsqueda es obligatorio';
+  }
+  return true;
+}
 
 const columns = ref([
   {
@@ -303,10 +317,15 @@ function clearSearch() {
 }
 
 function validationSearch() {
+  if (radioButtonList.value === '') {
+    notifyWarningRequest('Debes seleccionar una opción (Seguimiento, Aprendiz) antes de buscar.');
+    return false; 
+  }
   if (searchValue.value === '') {
     notifyWarningRequest('El campo de búsqueda no puede estar vacío. Por favor, ingrese un dato para continuar.');
-    return;
+    return false;
   }
+  return true; 
 }
 
 async function fetchDataSearch() {
@@ -324,9 +343,16 @@ async function filterFunctionSearch(val, update) {
 }
 
 async function searchButtons() {
+  const isvalid = await inputSearch.value.validate()
+  if(!isvalid){
+    return
+  }
   loadingSearch.value = true; 
+  if(!validationSearch()){
+    loadingSearch.value = false
+    return
+  }
   try{
-  validationSearch()
   if (radioButtonList.value === 'instructor') {
     await searchInstructor()
   } else if (radioButtonList.value === 'apprentice') {
