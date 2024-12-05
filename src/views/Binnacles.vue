@@ -17,16 +17,11 @@
         />
       </div>
       <div class="InputButtonsSearch">
-        <inputSelect
-          v-model="searchValue"
-          label="Buscar"
-          :options="filterOptionsSearch"
-          optionLabel="label"
-          optionValue="_id"
-          :useInput="!Search"
-          :filter="filterFunctionSearch"
-          class="custom-select"
-        />
+
+        <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
+          optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select"
+          :rules="[validateRequieredSearch]" lazy-rules />
+
         <buttonSearch :onclickButton="searchButton" :loading="loadingSearch" />
       </div>
     </div>
@@ -108,25 +103,18 @@ let loadingSearch = ref(false);
 let loadingCreateOdservation = ref(false);
 const route = useRoute();
 
-const chatMessages = [
-  // {
-  //   name: 'me',
-  //   text: ['hey, how are you?'],
-  //   stamp: '7 minutes ago',
-  //   sent: true,
-  //   bgColor: 'green-7'
-  // },
-  // {
-  //   name: 'Jane',
-  //   text: [
-  //     'doing fine, how r you?',
-  //   ],
-  //   stamp: '4 minutes ago',
-  //   textColor: 'white',
-  //   bgColor: 'green-6',
-  //   size: '6'
-  // }
-];
+
+// validacions de input e busqueda
+const validateRequieredSearch = (v) => {
+  if (radioButtonList.value === '') {
+    return 'Debes seleccionar una opción (Seguimiento, Aprendiz) antes de buscar.'
+  }
+  if (!v) {
+    return 'El campo de búsqueda es obligatorio';
+  }
+  return true;
+}
+
 
 const rows = ref([]);
 const columns = ref([
@@ -404,16 +392,17 @@ function clearSearch() {
 }
 
 function validationSearch() {
-  if (searchValue.value === "" || radioButtonList.value === "") {
-    notifyErrorRequest(
-      "Debes seleccionar una opción (Ficha, Aprendiz o Estado) antes de buscar."
-    );
-  } else {
-    notifyWarningRequest(
-      "El campo de búsqueda no puede estar vacío. Por favor, ingrese un dato para continuar."
-    );
-    return;
+
+  if (radioButtonList.value === '') {
+    notifyWarningRequest('Debes seleccionar una opción (Seguimiento, Aprendiz) antes de buscar.');
+    return false; 
   }
+  if (searchValue.value === '') {
+    notifyWarningRequest('El campo de búsqueda no puede estar vacío. Por favor, ingrese un dato para continuar.');
+    return false;
+
+  }
+  return true; 
 }
 
 async function fetchDataSearch() {
@@ -431,8 +420,18 @@ async function filterFunctionSearch(val, update) {
 }
 
 async function searchButton() {
-  // loadingSearch.value = true;
-  validationSearch();
+
+  if(!validationSearch()){
+    loadingSearch.value = false
+    return
+  }
+  loadingSearch.value = true;
+  try{
+    // const validationResult = validateRequieredSearch(searchValue.value);
+    // if (!validationResult ) {
+    //   notifyWarningRequest(validationResult);
+    //   return;
+    // }
 
   if (radioButtonList.value === "instructor") {
     await searchInstructor();
@@ -440,7 +439,10 @@ async function searchButton() {
     await searchApprentice();
   }
   clearSearch();
-  // loadingSearch.value = false;
+}finally{
+  loadingSearch.value = false;
+}
+ 
 }
 
 

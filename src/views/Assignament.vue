@@ -18,7 +18,8 @@
 
       <div class="InputButtonsSearch">
         <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
-          optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select" />
+          optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select"
+          :rules="[validateRequieredSearch]" lazy-rules />
         <buttonSearch :onclickButton="searchDate" :loading="loadingSearch"/>
       </div>
 
@@ -30,7 +31,7 @@
 </template>
 
 <script setup>
-import { ref, onBeforeMount } from 'vue';
+import { ref, onBeforeMount, TransitionGroup } from 'vue';
 import Header from '../components/header/header.vue';
 import TableOptions from "../components/tables/tableButtonsSearch.vue";
 import radioButtonApprentice from "../components/radioButtons/radioButton.vue";
@@ -56,6 +57,17 @@ let filterOptionsSearch = ref([]);
 // spiner
 let loading = ref(false);
 let loadingSearch = ref(false);
+
+// validacions de input e busqueda
+const validateRequieredSearch = (v) => {
+  if (radioButtonList.value === '') {
+    return 'Debes seleccionar una opción (Aprendiz, Inst. Seguimiento, Inst. Tecnico, o Inst. Proyecto) antes de buscar.'
+  }
+  if (!v) {
+    return 'El campo de búsqueda es obligatorio';
+  }
+  return true;
+}
 
 const rows = ref([]);
 const columns = ref([
@@ -277,10 +289,15 @@ function clearSearch() {
 }
 
 function validationSearch() {
+  if (radioButtonList.value === '') {
+    notifyWarningRequest('Debes seleccionar una opción (Aprendiz, Inst. Seguimiento, Inst. Tecnico, o Inst. Proyecto) antes de buscar.');
+    return false; 
+  }
   if (searchValue.value === '') {
     notifyWarningRequest('El campo de búsqueda no puede estar vacío. Por favor, ingrese un dato para continuar.');
-    return;
+    return false;
   }
+  return true; 
 }
 
 async function fetchDataSearch() {
@@ -307,7 +324,10 @@ async function filterFunctionSearch(val, update) {
 
 async function searchDate() {
   loadingSearch.value = true
-  validationSearch()
+  if(!validationSearch()){
+    loadingSearch.value = false
+    return
+  }
   if (radioButtonList.value === 'apprentice') {
     await searchApprentice()
   } else if (radioButtonList.value === 'instFollowup') {

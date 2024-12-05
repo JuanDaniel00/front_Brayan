@@ -53,14 +53,14 @@ const columns = ref([
     },
     {
         name: 'name',
-        label: 'NOMBRE FICHA',
+        label: 'PROGRAMA',
         field: row => row.program.name,
         align: 'center',
         sortable: true,
     },
     {
         name: 'code',
-        label: 'COD.FICHA',
+        label: 'FICHA',
         field: row => row.program.code,
         align: 'center',
         sortable: true,

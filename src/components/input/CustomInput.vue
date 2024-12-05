@@ -1,7 +1,7 @@
 <template>
     <div class="input-container">
-        <q-input filled :id="id" :rules="[val => !!val || errorMessage || 'Este campo es obligatorio']"
-            :type="showPassword ? 'text' : type" v-model="internalValue" :placeholder="placeholder" :label="label"
+        <q-input filled :id="id" :rules ="rules"
+         :type="showPassword ? 'text' : type" v-model="internalValue" :placeholder="placeholder" :label="label"
             :class="['input-styled', { 'input-error': hasError }]">
             <template v-slot:prepend>
                 <font-awesome-icon :icon="icon" />
@@ -11,10 +11,8 @@
                     @click="togglePasswordVisibility" class="cursor-pointer" />
             </template>
         </q-input>
-
-
         <span v-if="hasError" class="input-error-message">
-            {{ errorMessage }}
+            {{ errorMessage}}
         </span>
     </div>
 </template>

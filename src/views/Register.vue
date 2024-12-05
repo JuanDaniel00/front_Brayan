@@ -36,40 +36,88 @@
       <FormModal :modelValue="secondModaldialog" :title="dialogTitle" :onSave="saveRegister"
         @update:modelValue="secondModaldialog = $event">
         <template #content>
-          <div class="input-grid">
-            <CustomSelect map-options label="Aprendiz" v-model="apprentice" @filter="filterApprentice" required
-              :options="apprenticeOptions" optionLabel="apprenticeName" optionValue="apprenticeId"
-              errorMessage="Aprendiz requerido" icon="users-line" type="text">
-            </CustomSelect>
+            <div class="input-grid">
+              <CustomSelect map-options label="Aprendiz" v-model="apprentice" @filter="filterApprentice" required
+                :options="apprenticeOptions" optionLabel="apprenticeName" optionValue="apprenticeId"
+                errorMessage="Aprendiz requerido" icon="users-line" type="text">
+              </CustomSelect>
 
-            <CustomSelect filled label="Instructor de Seguimiento" v-model="followupInstructor"
-              @filter="filtroInstructores" required :options="instructoresFiltrados" optionLabel="instructorName"
-              optionValue="instructorId" errorMessage="Instructor de seguimiento requerido" icon="chalkboard-user"
-              type="text"></CustomSelect>
+              <CustomSelect filled label="Instructor de Seguimiento" v-model="followupInstructor"
+                @filter="filtroInstructores" required :options="instructoresFiltrados" optionLabel="instructorName"
+                optionValue="instructorId" errorMessage="Instructor de seguimiento requerido" icon="chalkboard-user"
+                type="text"></CustomSelect>
 
-            <Input id="startDate" filled label="Fecha de Inicio" v-model="startDate" required
-              errorMessage="Fecha requerida" icon="calendar-days" type="date" />
-            <Input id="endDate" filled label="Fecha de Fin" v-model="endDate" required errorMessage="Fecha requerida"
-              icon="calendar-days" type="date" />
-            <Input id="company" filled label="Nombre de la Empresa" v-model="company" required
-              errorMessage="Empresa requerida" icon="spell-check" type="text" />
-            <Input id="phoneCompany" filled label="Teléfono de la empresa" v-model="phoneCompany" required
-              errorMessage="Número de contacto requerido" icon="phone" type="text" />
-            <Input id="addressCompany" filled label="Dirección de la empresa" v-model="addressCompany" required
-              errorMessage="Dirección requerida" icon="map-location-dot" type="text" />
-            <Input id="owner" filled label="Dueño de la Empresa" v-model="owner" required errorMessage="Dueño requerido"
-              icon="user-tie" type="text" />
-            <Input id="docAlternative" filled label="Documento Alternativo" v-model="docAlternative" required
-              errorMessage="Documento requerido" icon="file-invoice" type="text" />
-            <Input id="hour" filled label="Horas" v-model="hour" required errorMessage="Horas requeridas" icon="clock"
-              type="text" />
-            <Input id="businessProyectHour" filled label="Horas del Proyecto de Negocio" v-model="businessProyectHour"
-              required errorMessage="Horas requeridas" icon="stopwatch" type="text" />
-            <Input id="productiveProjectHour" filled label="Horas del Proyecto Productivo"
-              v-model="productiveProjectHour" required errorMessage="Horas requeridas" icon="stopwatch" type="text" />
-            <Input id="mailCompany" filled label="Email de la empresa" v-model="mailCompany" required
-              errorMessage="Email de la empresa requerido" icon="envelope" type="text" />
-          </div>
+              <Input id="startDate" filled label="Fecha de Inicio" v-model="startDate" required
+                errorMessage="Fecha requerida" icon="calendar-days" type="date" :rules="[
+                  (val) => validateRequired(val, 'La fecha de inicio es requerido'),
+                  (val) => validateNoSpaces(val)
+                ]" />
+              <Input id="endDate" filled label="Fecha de Fin" v-model="endDate" required errorMessage="Fecha requerida"
+                icon="calendar-days" type="date" :rules="[
+                  (val) => validateRequired(val, 'La fecha de fin es requerido'),
+                  (val) => validateNoSpaces(val)
+                ]" />
+              <Input id="company" filled label="Nombre de la Empresa" v-model="company" required
+                errorMessage="Empresa requerida" icon="spell-check" type="text" :rules="[
+                  (val) => validateRequired(val, 'El nombre de la empresa es requerido '),
+                  (val) => validateNoSpaces(val),
+                  (val) => validateNoLeadingTrailingSpaces(val)
+                ]" />
+              <Input id="phoneCompany" filled label="Teléfono de la empresa" v-model="phoneCompany" required
+                errorMessage="Número de contacto requerido" icon="phone" type="text" :rules="[
+                  (val) => validateRequired(val, 'El teléfono de la empresa es requerido'),
+                  (val) => validateNoAnySpaces(val),
+                  (val) => validateNoSpaces(val),
+                  (val) => validateNoLetters(val)
+                ]" />
+              <Input id="addressCompany" filled label="Dirección de la empresa" v-model="addressCompany" required
+                errorMessage="Dirección requerida" icon="map-location-dot" type="text" :rules="[
+                  (val) => validateRequired(val, 'La dirección de la empresa es requerido'),
+                  (val) => validateNoSpaces(val),
+                ]" />
+              <Input id="owner" filled label="Dueño de la Empresa" v-model="owner" required
+                errorMessage="Dueño requerido" icon="user-tie" type="text" :rules="[
+                  (val) => validateRequired(val, 'El dueño de la empresa es requerido'),
+                  (val) => validateNoSpaces(val),
+                  (val) => validateNoNumbers(val),
+                  (val) => validateMaxLengthTen(val)
+                ]" />
+              <Input id="docAlternative" filled label="Documento Alternativo" v-model="docAlternative" required
+                errorMessage="Documento requerido" icon="file-invoice" type="text" :rules="[
+                  (val) => validateRequired(val, 'El documento alternativo es requerido'),
+                  (val) => validateNoSpaces(val),
+                  (val) => validateGoogleDriveLink(val)
+                ]" />
+              <Input id="hour" filled label="Horas" v-model="hour" required errorMessage="Horas requeridas" icon="clock"
+                type="text" :rules="[
+                  (val) => validateRequired(val, 'Las horas son requeridas'),
+                  (val) => validateNoAnySpaces(val),
+                  (val) => validateNoSpaces(val),
+                  (val) => validateNoLetters(val)
+                ]" />
+              <Input id="businessProyectHour" filled label="Horas del Proyecto de Negocio" v-model="businessProyectHour"
+                required errorMessage="Horas requeridas" icon="stopwatch" type="text" :rules="[
+                  (val) => validateRequired(val, 'Las horas del proyecto de negocio son requeridas'),
+                  (val) => validateNoSpaces(val),
+                  (val) => validateNoAnySpaces(val),
+                  (val) => validateNoLetters(val)   
+                ]" />
+              <Input id="productiveProjectHour" filled label="Horas del Proyecto Productivo"
+                v-model="productiveProjectHour" required errorMessage="Horas requeridas" icon="stopwatch" type="text"
+                :rules="[
+                  (val) => validateRequired(val, 'Las horas del proyecto productivo son requeridas'),
+                  (val) => validateNoAnySpaces(val),
+                  (val) => validateNoSpaces(val),
+                  (val) => validateNoLetters(val)
+                  
+                ]" />
+              <Input id="mailCompany" filled label="Email de la empresa" v-model="mailCompany" required
+                errorMessage="Email de la empresa requerido" icon="envelope" type="text" :rules="[
+                  (val) => validateRequired(val, 'El email de la empresa es requerido'),
+                  (val) => validateEmail(val),
+                  (val) => validateNoSpaces(val)
+                ]" />
+            </div>
         </template>
       </FormModal>
     </q-page-container>
@@ -98,57 +146,60 @@
           <div class="formulario" filled>
             <div class="contFormFila">
               <h5>Datos</h5>
-              <div class="contInput">
-                <q-input v-model="ownerModal" label="Jefe inmediato" label-color="primary" label-class="customLabel"
-                  class="long" :rules="[
-                    (val) => !!val || 'Campo requerido',
-                    (val) =>
-                      val.trim().length > 0 || 'No se permiten espacios vacíos',
-                  ]" :readonly="isReadOnly">
-                  <template v-slot:prepend>
-                    <q-icon color="green-10" name="person" />
-                  </template>
-                </q-input>
-                <q-input v-model="docAlternativeModal" label="Documentos alternativos" label-color="primary"
-                  label-class="customLabel" class="long" :rules="[
-                    (val) => !!val || 'Campo requerido',
-                    (val) =>
-                      val.trim().length > 0 || 'No se permiten espacios vacíos',
-                  ]" :readonly="isReadOnly">
-                  <template v-slot:prepend>
-                    <q-icon color="green-10" name="description" />
-                  </template>
-                </q-input>
-                <q-input v-model="hourProductiveStageApprenticeModal" label="Horas etapa productiva"
-                  label-color="primary" label-class="customLabel" class="short" type="number" :rules="[
-                    (val) => !!val || 'Campo requerido',
-                    (val) => /^\d+$/.test(val) || 'Solo números',
-                  ]" :readonly="isReadOnly">
-                  <template v-slot:prepend>
-                    <q-icon color="green-10" name="schedule" />
-                  </template>
-                </q-input>
-                <q-input v-model="startDateModal" label="Fecha de inicio" type="date" label-class="customLabel"
-                  label-color="primary" class="short" :rules="[
-                    (val) => !!val || 'Campo requerido',
-                    (val) =>
-                      val.trim().length > 0 || 'No se permiten espacios vacíos',
-                  ]" :readonly="isReadOnly">
-                  <template v-slot:prepend>
-                    <q-icon color="green-10" name="event" />
-                  </template>
-                </q-input>
-                <q-input v-model="endDateModal" label="Fecha final" type="date" label-class="customLabel"
-                  label-color="primary" class="short" :rules="[
-                    (val) => !!val || 'Campo requerido',
-                    (val) =>
-                      val.trim().length > 0 || 'No se permiten espacios vacíos',
-                  ]" :readonly="isReadOnly">
-                  <template v-slot:prepend>
-                    <q-icon color="green-10" name="event" />
-                  </template>
-                </q-input>
-              </div>
+                <div class="contInput">
+                  <q-input v-model="ownerModal" label="Jefe inmediato" label-color="primary" label-class="customLabel"
+                    class="long" :rules="[
+                      (val) => !!val || 'Campo requerido',
+                      (val) =>
+                        val.trim().length > 0 || 'No se permiten espacios vacíos',
+                      (val) => /^[^\s].*[^\s]$/.test(val) || 'No puede empezar ni terminar con espacios.',
+                      (val) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(val) || 'No puede incluir numeros'
+                    ]" :readonly="isReadOnly">
+                    <template v-slot:prepend>
+                      <q-icon color="green-10" name="person" />
+                    </template>
+                  </q-input>
+                  <q-input v-model="docAlternativeModal" label="Documentos alternativos" label-color="primary"
+                    label-class="customLabel" class="long" :rules="[
+                      (val) => !!val || 'Campo requerido',
+                      (val) =>
+                        val.trim().length > 0 || 'No se permiten espacios vacíos',
+                      (val) => /^https:\/\/drive\.google\.com\/file\/d\/[a-zA-Z0-9_-]+\/view\?usp=sharing$/.test(val) || 'Enlace de Google Drive no válido'
+                    ]" :readonly="isReadOnly">
+                    <template v-slot:prepend>
+                      <q-icon color="green-10" name="description" />
+                    </template>
+                  </q-input>
+                  <q-input v-model="hourProductiveStageApprenticeModal" label="Horas etapa productiva"
+                    label-color="primary" label-class="customLabel" class="short" type="number" :rules="[
+                      (val) => !!val || 'Campo requerido',
+                      (val) => val >= 0 || 'No puede ser un valor negativo'
+                    ]" :readonly="isReadOnly">
+                    <template v-slot:prepend>
+                      <q-icon color="green-10" name="schedule" />
+                    </template>
+                  </q-input>
+                  <q-input v-model="startDateModal" label="Fecha de inicio" type="date" label-class="customLabel"
+                    label-color="primary" class="short" :rules="[
+                      (val) => !!val || 'Campo requerido',
+                      (val) =>
+                        val.trim().length > 0 || 'No se permiten espacios vacíos',
+                    ]" :readonly="isReadOnly">
+                    <template v-slot:prepend>
+                      <q-icon color="green-10" name="event" />
+                    </template>
+                  </q-input>
+                  <q-input v-model="endDateModal" label="Fecha final" type="date" label-class="customLabel"
+                    label-color="primary" class="short" :rules="[
+                      (val) => !!val || 'Campo requerido',
+                      (val) =>
+                        val.trim().length > 0 || 'No se permiten espacios vacíos',
+                    ]" :readonly="isReadOnly">
+                    <template v-slot:prepend>
+                      <q-icon color="green-10" name="event" />
+                    </template>
+                  </q-input>
+                </div>
             </div>
             <div class="contFormFila">
               <h5>Datos empresa</h5>
@@ -158,6 +209,8 @@
                     (val) => !!val || 'Campo requerido',
                     (val) =>
                       val.trim().length > 0 || 'No se permiten espacios vacíos',
+                    (val) => /^[^\s].*[^\s]$/.test(val) || 'No puede empezar ni terminar con espacios.',
+                    (val) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(val) || 'No puede incluir numeros'
                   ]" :readonly="isReadOnly">
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="business" />
@@ -179,6 +232,7 @@
                     (val) => !!val || 'Campo requerido',
                     (val) =>
                       val.trim().length > 0 || 'No se permiten espacios vacíos',
+                    (val) => /^[a-zA-Z0-9\s.,-]+$/.test(val) || 'La dirección contiene caracteres no válidos.',
                   ]" :readonly="isReadOnly">
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="location_on" />
@@ -190,6 +244,7 @@
                     (val) => /^\d+$/.test(val) || 'Solo números',
                     (val) =>
                       val.trim().length > 0 || 'No se permiten espacios vacíos',
+                      (val) => val.length <= 10 || 'No puede ser mayor a 10 dígitos'
                   ]" :readonly="isReadOnly">
                   <template v-slot:prepend>
                     <q-icon color="green-10" name="phone" />
@@ -395,6 +450,21 @@ const assignment = ref([
     projectInstructor: [],
   },
 ]);
+
+// validateInput
+const validateRequired = (val, message = 'Este campo es obligatorio') => !!val || message;
+const validateNoSpaces = (val, message = 'No se permiten espacios vacíos') => val.trim().length > 0 || message;
+const validateNoNumbers = (val, message = 'No puede incluir números') => /^[^0-9]*$/.test(val) || message;
+const validateMaxLengthTen = (val, message = 'No puede ser mayor a 10 dígitos') => val.length <= 10 || message;
+const validateNoLeadingTrailingSpaces = (val, message = 'No puede empezar ni terminar con espacios.') => /^[^\s].*[^\s]$/.test(val) || message;
+const validateEmail = (val, message = 'Correo inválido') => /.+@.+\..+/.test(val) || message;
+// const validateAddress = (val, message = 'La dirección contiene caracteres no válidos.') => /^[a-zA-Z0-9\s.,-]+$/.test(val) || message;
+const validateNoLetters = (val, message = 'Solo puede contener números') => /^[0-9]*$/.test(val) || message;
+const validateNoAnySpaces = (val, message = 'No se permiten espacios vacíos en ningún lugar') => !/\s/.test(val) || message;
+const validateGoogleDriveLink = (val, message = 'Enlace de Google Drive inválido') => {
+  const drivePattern = /^https:\/\/drive\.google\.com\/file\/d\/[a-zA-Z0-9_-]+\/view\?usp=sharing$/;
+  return drivePattern.test(val) || message;
+};
 
 let busquedaInstructor = ref(null);
 
@@ -1028,6 +1098,8 @@ const saveRegister = async () => {
 };
 
 const saveRegisterModal = async () => {
+
+
   // Verificar que todos los campos estén llenos
   if (
     !startDateModal.value ||

@@ -122,12 +122,11 @@ const handleSubmit = async () => {
       password: formData.value.password,
       ...(formData.value.rol === 'CONSULTOR' && { numDocument: formData.value.document })
     };
-
-    console.log('requestData', requestData);
     const response = await postData(loginUrl, requestData);
     authStore.setToken(response.token);
     authStore.setRol(formData.value.rol);
-    localStorage.setItem("userEmail", formData.value.email);
+    // authStore.setEmail(formData.value.email)
+    localStorage.setItem("userEmail", response.email);
 
     notifySuccessRequest('Inicio de sesión exitoso');
 
