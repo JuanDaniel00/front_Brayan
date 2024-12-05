@@ -11,8 +11,6 @@
                     @click="togglePasswordVisibility" class="cursor-pointer" />
             </template>
         </q-input>
-
-
         <span v-if="hasError" class="input-error-message">
             {{ errorMessage}}
         </span>
