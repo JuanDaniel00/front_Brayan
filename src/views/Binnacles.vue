@@ -80,12 +80,14 @@ import { notifyErrorRequest, notifySuccessRequest, notifyWarningRequest } from "
 import { getData, postData, putData } from "../services/ApiClient";
 import { useRoute } from "vue-router";
 import { formatDate } from "../utils/changeDateFormat.js";
+
+
 let searchValue = ref("");
 let radioButtonList = ref("");
 let optionSearch = ref([]);
 let filterOptionsSearch = ref([]);
 
-
+//Variables de observaciones
 let observationBinnacles = ref("");
 let observationBinnaclesDate = ref([]);
 const isDialogVisibleCreateObservation = ref(false);
@@ -95,9 +97,7 @@ let isChatOpen = ref(false);
 // observación
 let newObservation = ref("");
 
-onBeforeMount(async () => {
-  await loadDataBinnacles();
-});
+
 
 const id = ref("");
 
@@ -168,6 +168,11 @@ const columns = ref([
     sortable: true,
   },
 ]);
+
+onBeforeMount(async () => {
+  await loadDataBinnacles();
+});
+
 async function loadDataBinnacles() {
   loading.value = true;
   const idRegister = route.query.id;
@@ -209,9 +214,11 @@ async function loadDataBinnacles() {
 
 async function openClickSeeObservation(row) {
   isChatOpen.value = true;
+  console.log("row.observation", row.observation);
+
 
   // Si no hay observaciones, mostrar mensaje por defecto
-  if (!row.observation || row.observation.length === 0) {
+  if (!row.observation || row.observation.length === 0) {  
     chatMessages.splice(0, chatMessages.length); // Limpiar mensajes previos
     chatMessages.push({
       name: "Sistema",

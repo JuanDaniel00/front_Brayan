@@ -132,7 +132,6 @@ async function loadDataBinnacles() {
     loading.value = true;
 
     const email = authStore.email;
-    console.log(authStore.email);
     if (!email) {
         notifyErrorRequest('No se pudo obtener el correo del usuario. Por favor, verifica tu sesión.');
         loading.value = false;
@@ -169,10 +168,12 @@ async function updateCheck(id, field, value) {
   }
 }
 
-
-
 async function openClickSeeObservation(row) {
   isChatOpen.value = true;
+
+  const currentInstructorEmail = authStore.email;
+  console.log('currentInstructorEmail', currentInstructorEmail);
+  
 
   // Si no hay observaciones, mostrar mensaje por defecto
   if (!row.observation || row.observation.length === 0) {
@@ -186,6 +187,7 @@ async function openClickSeeObservation(row) {
       bgColor: "grey-6",
     });
   } else {
+    console.log('row.observation', row.observation);
     // Mapear las observaciones a mensajes
     chatMessages.splice(0, chatMessages.length); // Limpiar mensajes previos
     chatMessages.push(
@@ -193,6 +195,7 @@ async function openClickSeeObservation(row) {
         name: row.instructor ? row.instructor.name : "Instructor desconocido",
         text: [obs.observation],
         stamp: formatDate(obs.observationDate),
+        // sent: obs.instructor.email === currentInstructorEmail,
         sent: true,
         bgColor: "green-7",
         textColor: "white",
@@ -200,7 +203,6 @@ async function openClickSeeObservation(row) {
     );
   }
 }
-
 async function openClickCreateObservation(row) {
     isDialogVisibleCreateObservation.value = true;
     id.value = row._id
@@ -209,7 +211,7 @@ async function openClickCreateObservation(row) {
 async function handleSend() {
     loadingCreateOdservation.value = true;
     try {
-        const response = await putData(`/binnacles/addobservation/${id.value}`, { observation: newObservation.value });
+        const response = await putData(`/binnacles/addobservation/${id.value}`, { observation: newObservation.value});
         notifySuccessRequest('La observación se ha añadido correctamente');
         isDialogVisibleCreateObservation.value = false;
         await loadDataBinnacles();
