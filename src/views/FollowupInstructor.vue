@@ -44,6 +44,7 @@
   import buttonSearch from '../components/buttons/buttonSearch.vue';
   import { notifyErrorRequest, notifySuccessRequest, notifyWarningRequest } from '../composables/useNotify';
   import { useRoute } from 'vue-router';
+  import { useAuthStore } from '../stores/useAuth.js';
   import radioButtonInstructor from '../components/radioButtons/radioButton.vue';
   import radioButtonApprentice from '../components/radioButtons/radioButton.vue';
   import { Loading } from 'quasar';
@@ -67,6 +68,7 @@
   // observación
   let observationFollowup = ref('');
   let newObservation = ref('')
+  const authStore = useAuthStore();
   
   let route = useRoute();
   onBeforeMount(() => {
@@ -117,12 +119,6 @@
       align: "center",
       field: "observation",
       sortable: true,
-    },{
-      name: "detail",
-      label: "DETALLES",
-      align: "center",
-      field: "observation",
-      sortable: true,
     },
     {
       name: "observationDate",
@@ -133,44 +129,45 @@
     },
   
   ])
-  
+
+
   async function loadDataFollowup() {
     loading.value = true;
-    const idInstructor = route.query.id
-    console.log('idInstructor:', idInstructor);
-    try {
-      if (idInstructor) {
-        const response = await getData(`/followup/listFollowupByRegister/${idInstructor}`);
-        console.log(response);
-        rows.value = response.followup
-      } else {
-        const response = await getData('/followup/listallfollowup');
-        console.log(response)
-        rows.value = response
-      }
-    } catch (error) {
-      let messageError;
-      if (error.response && error.response.data && error.response.data.message) {
-        messageError = error.response.data.message;
-      } else if(error.response && error.response.data && error.response.data.error){
-        messageError = 'No hay seguimientos para mostrar';
-      }else if (error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].msg) {
-       messageError = error.response.data.errors[0].msg;
-      } else {
-        messageError = 'Error al cargar los seguimientos';
-      }
-      notifyErrorRequest(messageError);
-    } finally {
-      loading.value = false;
+
+    const email = authStore.email;
+    console.log(authStore.email);
+    if (!email) {
+        notifyErrorRequest('No se pudo obtener el correo del usuario. Por favor, verifica tu sesión.');
+        loading.value = false;
+        return;
     }
-  
-  }
+
+    try {
+        const response = await getData(`/followup/listfollowupbyinstructoremail/${email}`);
+        console.log('seguimientos listados:', response);
+        rows.value = response; // Asignar los datos de las bitácoras
+    } catch (error) {
+        console.log(error.response);
+
+        let messageError;
+        if (error.response && error.response.data && error.response.data.message) {
+            messageError = error.response.data.message;
+        } else if (error.response && error.response.data && error.response.data.errors) {
+            messageError = error.response.data.errors[0].msg || 'Error al cargar los seguimientos';
+        } else {
+            messageError = 'Error al cargar los seguimiento';
+        }
+        notifyErrorRequest(messageError);
+    } finally {
+        loading.value = false;
+    }
+}
   
   
   async function openClickSeeObservation(row) {
     isDialogVisibleObservation.value = true;
     if (!row.observation || row.observation.length === 0) {
-      observationFollowup.value = [' No hay observaciones para esta bitacora'];
+      observationFollowup.value = [' No hay observaciones para este seguimiento'];
     } else {
       observationFollowup.value = row.observation.map(obs => obs.observation);
     }
