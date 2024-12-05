@@ -1,6 +1,5 @@
 <template>
   <Header title="Asignaciones"></Header>
-
   <div id="buttons-container">
     <div class="AllButtonsSearch">
       <div class="filterButtons">
@@ -13,16 +12,15 @@
           @update:model-value="handleRadioChange" />
         <radioButtonInstProject v-model="radioButtonList" label="Inst. Proyecto" val="instProject"
           @update:model-value="handleRadioChange" />
-
       </div>
-
-      <div class="InputButtonsSearch">
-        <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
-          optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select"
-          :rules="[validateRequieredSearch]" lazy-rules />
-        <buttonSearch :onclickButton="searchDate" :loading="loadingSearch"/>
-      </div>
-
+      <q-form ref="formRef" @submit.prevent="searchDate">
+        <div class="InputButtonsSearch">
+          <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
+            optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select"
+            :rules="[validateRequieredSearch]" lazy-rules />
+          <buttonSearch :onclickButton="searchDate" :loading="loadingSearch" />
+        </div>
+      </q-form>
     </div>
   </div>
   <TableOptions :rows="rows" :columns="columns" :onClickEdit="onclickButtonEdit" :onClickAdd="onclickButtonAdd"
@@ -31,7 +29,7 @@
 </template>
 
 <script setup>
-import { ref, onBeforeMount, TransitionGroup } from 'vue';
+import { ref, onBeforeMount } from 'vue';
 import Header from '../components/header/header.vue';
 import TableOptions from "../components/tables/tableButtonsSearch.vue";
 import radioButtonApprentice from "../components/radioButtons/radioButton.vue";
@@ -40,7 +38,7 @@ import radioButtonInstTechnical from "../components/radioButtons/radioButton.vue
 import radioButtonInstProject from "../components/radioButtons/radioButton.vue";
 import inputSelect from "../components/input/inputSelect.vue";
 import buttonSearch from "../components/buttons/buttonSearch.vue";
-import { getData, putData, postData } from "../services/ApiClient.js";
+import { getData } from "../services/ApiClient.js";
 import { notifyErrorRequest, notifySuccessRequest, notifyWarningRequest } from '../composables/useNotify.js';
 import { router } from '../router/routers.js';
 
@@ -53,6 +51,8 @@ let searchValue = ref('');
 let radioButtonList = ref('');
 let optionSearch = ref([]);
 let filterOptionsSearch = ref([]);
+// validaciosn de busqueda
+const formRef = ref(null);
 
 // spiner
 let loading = ref(false);
@@ -89,7 +89,6 @@ const columns = ref([
     label: "N° APREDIZ",
     field: row => row.idApprentice ? row.idApprentice.length : 0,
     align: "center",
-
   },
   {
     name: "program",
@@ -111,36 +110,62 @@ const columns = ref([
     name: "projectInstructor",
     label: "INS. SEGUIMIENTO",
     align: "center",
-    field: row => row.assignment && row.assignment.length > 0 && row.assignment[0].followUpInstructor ?
-      row.assignment[0].followUpInstructor[0].name : 'No Requerido',
-    sortable: true,
+    field: row => {
+      const requiredModalities = ['MONITORIAS', 'PASANTIA', 'VICULO LABORAL', 'UNIDAD PRODUCTIVA FAMILIAR', 'CONTRATO DE APRENDIZAJE'];
+      if (requiredModalities.includes(row.idModality.name)) {
+        return row.assignment && row.assignment.length > 0 && row.assignment[0].followUpInstructor[0]
+          ? row.assignment[0].followUpInstructor[0].name
+          : 'Requerido';
+      } else {
+        return row.assignment && row.assignment.length > 0 && row.assignment[0].followUpInstructor[0]
+          ? row.assignment[0].followUpInstructor[0].name
+          : 'Requerido';
+      }
+    },
   },
   {
     name: "instTechnical",
     label: "INS. TECNICO",
-    field: row => row.assignment && row.assignment.length > 0 && row.assignment[0].technicalInstructor && row.assignment[0].technicalInstructor[0] ?
-      row.assignment[0].technicalInstructor[0].name : 'No Requerido',
+    align: "center",
+    field: row => {
+      const requiredModalities = ['MONITORIAS', 'PASANTIA', 'VICULO LABORAL', 'UNIDAD PRODUCTIVA FAMILIAR', 'CONTRATO DE APRENDIZAJE'];
+      if (requiredModalities.includes(row.idModality.name)) {
+        return row.assignment && row.assignment.length > 0 && row.assignment[0].technicalInstructor[0] ?
+          row.assignment[0].technicalInstructor[0].name : 'No Requerido'
+      } else {
+        return row.assignment && row.assignment.length > 0 && row.assignment[0].technicalInstructor[0] ?
+          row.assignment[0].technicalInstructor[0].name : 'Requerido';
+      }
+    },
   }, {
     name: "instProject",
     label: "INS. PROYECTO",
     align: "center",
-    field: row => row.assignment && row.assignment.length > 0 && row.assignment[0].projectInstructor && row.assignment[0].projectInstructor[0] ?
-      row.assignment[0].projectInstructor[0].name : 'No Requerido',
+    field: row => {
+      const requiredModalities = ['MONITORIAS', 'PASANTIA', 'VICULO LABORAL', 'UNIDAD PRODUCTIVA FAMILIAR', 'CONTRATO DE APRENDIZAJE'];
+      if (requiredModalities.includes(row.idModality.name)) {
+        return row.assignment && row.assignment.length > 0 && row.assignment[0].projectInstructor[0]
+          ? row.assignment[0].projectInstructor[0].name
+          : 'No Requerido';
+      } else {
+        return row.assignment && row.assignment.length > 0 && row.assignment[0].projectInstructor[0]
+          ? row.assignment[0].projectInstructor[0].name
+          : 'Requerido';
+      }
+    },
     sortable: true,
-  },{
-    name:"binnacles",
-    label: "BINNACLES",
+  }, {
+    name: "binnacles",
+    label: "BITACORAS",
     align: "center",
-    sortable:true
-  },{
-    name:"followup",
-    label: "FOLLOWUP",
+    sortable: true
+  }, {
+    name: "followup",
+    label: "SEGUIMIENTO",
     align: "center",
-    sortable:true
+    sortable: true
   }
-
 ]);
-
 
 async function loadDataAssignament() {
   loading.value = true;
@@ -155,7 +180,6 @@ async function loadDataAssignament() {
   }
 }
 
-
 async function searchApprentice() {
   try {
     const response = await getData(`/register/listregisterbyapprentice/${searchValue.value}`);
@@ -169,6 +193,7 @@ async function searchApprentice() {
     }
   }
 }
+
 async function searchinstFollowup() {
   try {
     const response = await getData(`/register/listassigmentbyfollowupinstructor/${searchValue.value}`);
@@ -213,9 +238,7 @@ async function searchInstProject() {
   }
 }
 
-
 const handleRadioChange = async () => {
-
   if (radioButtonList.value === 'apprentice') {
     const response = await getData('/apprendice/listallapprentice');
     optionSearch.value = response.map(option => ({
@@ -224,7 +247,6 @@ const handleRadioChange = async () => {
       numDocument: option.numDocument
     })).filter(Boolean)
     filterOptionsSearch.value = optionSearch.value;
-
   } else if (radioButtonList.value === 'instFollowup') {
     const response = await getData('/register/listallregister');
     console.log('resgister Follow', response)
@@ -242,7 +264,6 @@ const handleRadioChange = async () => {
       }
     }).filter(option => option !== undefined);
     filterOptionsSearch.value = optionSearch.value;
-
   } else if (radioButtonList.value === 'instTechnical') {
     const response = await getData('/register/listallregister');
     console.log('info Techenical', response)
@@ -282,7 +303,6 @@ const handleRadioChange = async () => {
   }
 }
 
-
 // limpiar campos de busqueda
 function clearSearch() {
   searchValue.value = '';
@@ -291,13 +311,13 @@ function clearSearch() {
 function validationSearch() {
   if (radioButtonList.value === '') {
     notifyWarningRequest('Debes seleccionar una opción (Aprendiz, Inst. Seguimiento, Inst. Tecnico, o Inst. Proyecto) antes de buscar.');
-    return false; 
+    return false;
   }
   if (searchValue.value === '') {
     notifyWarningRequest('El campo de búsqueda no puede estar vacío. Por favor, ingrese un dato para continuar.');
     return false;
   }
-  return true; 
+  return true;
 }
 
 async function fetchDataSearch() {
@@ -306,7 +326,6 @@ async function fetchDataSearch() {
 
 fetchDataSearch()
 async function filterFunctionSearch(val, update) {
-
   if (val === '') {
     update(() => {
       filterOptionsSearch.value = filterOptionsSearch.value
@@ -323,8 +342,12 @@ async function filterFunctionSearch(val, update) {
 }
 
 async function searchDate() {
+  const isvalid = await formRef.value.validate();
+  if (!isvalid) {
+    return;
+  }
   loadingSearch.value = true
-  if(!validationSearch()){
+  if (!validationSearch()) {
     loadingSearch.value = false
     return
   }
@@ -340,6 +363,7 @@ async function searchDate() {
   clearSearch();
   loadingSearch.value = false
 }
+
 async function onclickSearchBinnacles(row) {
   try {
     const response = await getData(`/binnacles/listBinnaclesByRegister/${row._id}`);
@@ -353,7 +377,6 @@ async function onclickSearchBinnacles(row) {
     notifyErrorRequest('No se encontro Bitácora registrada para el aprendiz.');
   }
 }
-
 async function onclickSearchFollow(row) {
   try {
     const response = await getData(`/followup/listFollowupByRegister/${row._id}`);
@@ -368,6 +391,7 @@ async function onclickSearchFollow(row) {
   }
 }
 </script>
+
 <style scoped>
 * {
   margin: 0px;
@@ -380,15 +404,14 @@ async function onclickSearchFollow(row) {
   justify-content: flex-end;
   align-items: center;
   margin: 20px;
-
 }
 
 .filterButtons p {
   font-weight: bold;
+  color: green;
   font-size: 11px;
   margin: 0px;
 }
-
 
 .formAssinament {
   display: flex;

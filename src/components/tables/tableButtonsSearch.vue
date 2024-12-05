@@ -66,7 +66,7 @@
                     <q-btn @click="onClickSearchBinnacle(props.row)" icon="search" color="primary" round size="md"
                         aria-label="Edit Square" :loading="loadingBinnacles[props.row._id]">
                         <q-tooltip anchor="top middle" self="bottom middle" :offset="[10, 10]">
-                            <strong>Seguimiento</strong>
+                            <strong>Bitacoras</strong>
                         </q-tooltip>
                     </q-btn>
                 </q-td>
