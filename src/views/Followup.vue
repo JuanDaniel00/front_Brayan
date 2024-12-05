@@ -11,9 +11,11 @@
       </div>
       <div class="InputButtonsSearch">
         <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
+        
           optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select" 
           :rules="[validateRequieredSearch]" lazy-rules ref="inputSearch"  />
         <buttonSearch :onclickButton="searchButtons":loading=loadingSearch />
+
       </div>
     </div>
   </div>
