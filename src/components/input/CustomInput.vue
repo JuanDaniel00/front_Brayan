@@ -1,7 +1,7 @@
 <template>
     <div class="input-container">
-        <q-input filled :id="id" :rules="[val => !!val || errorMessage || 'Este campo es obligatorio']"
-            :type="showPassword ? 'text' : type" v-model="internalValue" :placeholder="placeholder" :label="label"
+        <q-input filled :id="id" :rules ="rules"
+         :type="showPassword ? 'text' : type" v-model="internalValue" :placeholder="placeholder" :label="label"
             :class="['input-styled', { 'input-error': hasError }]">
             <template v-slot:prepend>
                 <font-awesome-icon :icon="icon" />
@@ -14,7 +14,7 @@
 
 
         <span v-if="hasError" class="input-error-message">
-            {{ errorMessage }}
+            {{ errorMessage}}
         </span>
     </div>
 </template>
@@ -50,6 +50,38 @@ const props = defineProps({
     errorMessage: {
         type: String,
         default: '',
+    },
+    validateNoSpaces: {
+        type: String,
+        default: '',
+    },
+    validateNoNumbers: {
+        type: String,
+        default: '',
+    },
+    validateMaxLengthTen: {
+        type: String,
+        default: '',
+    },
+    validateNoLeadingTrailingSpaces: {
+        type: String,
+        default: '',
+    },
+    validateEmail: {
+        type: String,
+        default: '',
+    },
+    validateAddress: {
+        type: String,
+        default: '',
+    },
+    validateNoLetters:{
+        type: String,
+        default: '',  
+    },
+    validiteAnySpaces:{
+        type: String,
+        default: '',  
     },
     rules: {
         type: Array,
