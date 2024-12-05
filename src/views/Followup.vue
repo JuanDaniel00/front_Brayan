@@ -4,19 +4,20 @@
   <div id="container-buttons">
     <div class="searchButtons">
       <div class="allInputButtonsSearch">
+        <p>Seleccione una opción:</p>
         <radioButtonInstructor v-model="radioButtonList" label="Instructor" val="instructor"
           @update:model-value="handleRadioChange" />
         <radioButtonApprentice v-model="radioButtonList" label="Aprendiz" val="apprentice"
           @update:model-value="handleRadioChange" />
       </div>
-      <div class="InputButtonsSearch">
-        <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
-        
-          optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select" 
-          :rules="[validateRequieredSearch]" lazy-rules ref="inputSearch"  />
-        <buttonSearch :onclickButton="searchButtons":loading=loadingSearch />
-
-      </div>
+      <q-form ref="formRef" @submit.prevent="searchButtons">
+        <div class="InputButtonsSearch">
+          <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
+            optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select"
+            :rules="[validateRequieredSearch]" lazy-rules ref="inputSearch" />
+          <buttonSearch type="submit" :onclickButton="searchButtons" :loading=loadingSearch />
+        </div>
+      </q-form>
     </div>
   </div>
 
@@ -31,7 +32,8 @@
 
   <dialogCreateObservation v-model="isDialogVisibleCreateObservation" title="AÑADIR ODSERVACIONES" labelClose="close"
     labelSend="guardar" :onclickClose="closeDialog" :onclickSend="handleSend"
-    labelTextArea="Escriba esta observación para este Seguimiento" v-model:textValue="newObservation" :loading="loadingCreateOdservation">
+    labelTextArea="Escriba esta observación para este Seguimiento" v-model:textValue="newObservation"
+    :loading="loadingCreateOdservation">
   </dialogCreateObservation>
 </template>
 
@@ -79,6 +81,8 @@ onBeforeMount(() => {
 const rows = ref([])
 let id = ref('')
 
+// validaciones de input de vusqueda
+const formRef = ref(null)
 const validateRequieredSearch = (v) => {
   if (radioButtonList.value === '') {
     return 'Debes seleccionar una opción (Seguimiento, Aprendiz) antes de buscar.'
@@ -131,7 +135,7 @@ const columns = ref([
     align: "center",
     field: "observation",
     sortable: true,
-  },{
+  }, {
     name: "detail",
     label: "DETALLES",
     align: "center",
@@ -166,10 +170,10 @@ async function loadDataFollowup() {
     let messageError;
     if (error.response && error.response.data && error.response.data.message) {
       messageError = error.response.data.message;
-    } else if(error.response && error.response.data && error.response.data.error){
+    } else if (error.response && error.response.data && error.response.data.error) {
       messageError = 'No hay seguimientos para mostrar';
-    }else if (error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].msg) {
-     messageError = error.response.data.errors[0].msg;
+    } else if (error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].msg) {
+      messageError = error.response.data.errors[0].msg;
     } else {
       messageError = 'Error al cargar los seguimientos';
     }
@@ -217,7 +221,7 @@ async function handleSend() {
       }
       notifyErrorRequest(messageError);
     }
-  }finally{
+  } finally {
     loadingCreateOdservation.value = false;
   }
 }
@@ -241,18 +245,18 @@ function closeDialog() {
 async function searchInstructor() {
   try {
     const response = await getData(`/followup/listfollowupbyinstructor/${searchValue.value}`)
-    console.log('Instlist',response);
+    console.log('Instlist', response);
     rows.value = response
   } catch (error) {
     if (searchValue.value === '') {
       validationSearch()
     } else {
       let messageError;
-      if(error.response && error.response.data && error.response.data.message){
+      if (error.response && error.response.data && error.response.data.message) {
         messageError = error.response.data.message;
-      }else if( error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].msg){
+      } else if (error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].msg) {
         messageError = error.response.data.errors[0].msg;
-      }else{
+      } else {
         messageError = 'No se encontró ningún aprendiz por el instructor seleccionado.';
       }
       notifyErrorRequest(messageError);
@@ -263,7 +267,7 @@ async function searchInstructor() {
 async function searchApprentice() {
   try {
     const response = await getData(`/followup/listFollowupByRegister/${searchValue.value}`)
-    console.log('aprendiz',response);
+    console.log('aprendiz', response);
     rows.value = response.followup
 
   } catch (error) {
@@ -271,11 +275,11 @@ async function searchApprentice() {
       validationSearch()
     } else {
       let messageError;
-      if(error.response.data && error.response.data.message){
+      if (error.response.data && error.response.data.message) {
         messageError = error.response.data.message;
-      }else if( error.response && error.response.data.errors && error.response.data.errors[0].msg){
+      } else if (error.response && error.response.data.errors && error.response.data.errors[0].msg) {
         messageError = error.response.data.errors[0].msg;
-      }else{
+      } else {
         messageError = 'No se encontró ningún aprendiz con la información seleccionada.';
       }
       notifyErrorRequest(messageError);
@@ -285,12 +289,19 @@ async function searchApprentice() {
 
 const handleRadioChange = async () => {
   if (radioButtonList.value === 'instructor') {
-    const response = await getData('/Repfora/instructors');
-    console.log('apprentice',response)
-    optionSearch.value = response.map(option => ({
-      _id: option._id,
-      label: `${option.name} - ${option.numdocument}`,
-    }));
+    const response = await getData('/followup/listallfollowup');
+    const uniqueInstructors = new Set();
+    console.log('apprentice', response)
+    optionSearch.value = response.map(option => {
+      const instructorId = option.instructor.idinstructor;
+      if(!uniqueInstructors.has(instructorId)){
+        uniqueInstructors.add(instructorId);
+        return {
+          _id:  option.instructor.idinstructor,
+          label: `${option.instructor.name}`,
+        };
+      }
+    }).filter(Boolean);
     filterOptionsSearch.value = optionSearch.value;
   } else if (radioButtonList.value === 'apprentice') {
     const response = await getData('/followup/listallfollowup');
@@ -319,13 +330,13 @@ function clearSearch() {
 function validationSearch() {
   if (radioButtonList.value === '') {
     notifyWarningRequest('Debes seleccionar una opción (Seguimiento, Aprendiz) antes de buscar.');
-    return false; 
+    return false;
   }
   if (searchValue.value === '') {
     notifyWarningRequest('El campo de búsqueda no puede estar vacío. Por favor, ingrese un dato para continuar.');
     return false;
   }
-  return true; 
+  return true;
 }
 
 async function fetchDataSearch() {
@@ -343,25 +354,25 @@ async function filterFunctionSearch(val, update) {
 }
 
 async function searchButtons() {
-  const isvalid = await inputSearch.value.validate()
-  if(!isvalid){
-    return
+  const isvalid = await formRef.value.validate();
+  if (!isvalid) {
+    return;
   }
-  loadingSearch.value = true; 
-  if(!validationSearch()){
+  loadingSearch.value = true;
+  if (!validationSearch()) {
     loadingSearch.value = false
     return
   }
-  try{
-  if (radioButtonList.value === 'instructor') {
-    await searchInstructor()
-  } else if (radioButtonList.value === 'apprentice') {
-    await searchApprentice()
+  try {
+    if (radioButtonList.value === 'instructor') {
+      await searchInstructor()
+    } else if (radioButtonList.value === 'apprentice') {
+      await searchApprentice()
+    }
+    clearSearch();
+  } finally {
+    loadingSearch.value = false
   }
-  clearSearch();
-}finally{
-  loadingSearch.value = false
-}
 }
 
 </script>
@@ -387,6 +398,12 @@ async function searchButtons() {
 
 }
 
+.allInputButtonsSearch p {
+  font-weight: bold;
+  color: green;
+  font-size: 11px;
+  margin: 0px;
+}
 .searchButtons {
   display: flex;
   gap: 20px;

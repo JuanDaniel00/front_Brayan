@@ -89,13 +89,12 @@
         </div>
       </div>
     </div>
-
-    <div class="InputButtonsSearch">
+    <q-form ref="formRef" @submit.prevent="searchButton" class="InputButtonsSearch">
       <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
         optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select"
         :rules="[validateRequieredSearch]" lazy-rules />
       <buttonSearch :onclickButton="searchButton" :loading="loadingSearch" />
-    </div>
+    </q-form>
   </div>
   <CustomTable :rows="rows" :columns="columns" :onClickEdit="openDialogEdit" class="class"
     :onclickStatus="changestatusIcon" :loading="loading">
@@ -155,7 +154,6 @@ let radiobuttonlist = ref('');
 let searchValue = ref('')
 let filterOptionsSearch = ref([])
 let optionSearch = ref([])
-let firstNameError = ref(false)
 
 // Modal
 let isDialogVisibleModal = ref(false)
@@ -196,10 +194,9 @@ const validateNumericDocument = (v) => {
   if (/[^0-9]/.test(v)) {
     return 'El número de documento solo puede contener números';
   }
-  if (v.length !== 10) {
-    return 'El número de documento debe tener 10 dígitos';
+  if (v.length > 10) {
+    return 'El número de documento no puede contener mas de 10 dígitos';
   }
-  // return true;
 };
 
 const validateNumericPhone = (v) => {
@@ -212,7 +209,6 @@ const validateNumericPhone = (v) => {
   if (v.length !== 10) {
     return 'El Teléfono debe tener 10 dígitos';
   }
-  // return true;
 }
 
 // validar el input de busqueda
@@ -220,10 +216,12 @@ const validateRequieredSearch = (v) => {
   if (radiobuttonlist.value === '') {
     return 'Debes seleccionar una opción (Ficha, Aprendiz o Estado) antes de buscar'
   }
+  if (radiobuttonlist.value === 'Status' && (v === 0 || v === 1)) {
+    return true;
+  }
   if (!v) {
     return 'El campo de búsqueda es obligatorio';
   }
-  return true;
 }
 
 const loadData = async () => {
@@ -648,6 +646,7 @@ const handleRadioChange = async () => {
       { label: 'Activo', _id: 1 },
       { label: 'Inactivo', _id: 0 }
     ];
+    console.log(optionSearch.value);
     filterOptionsSearch.value = optionSearch.value;
   }
   clearSearch();
@@ -688,10 +687,14 @@ async function filterFunctionSearch(val, update) {
 }
 
 async function searchButton() {
-  loadingSearch.value = true
+  const isvalid = await formRef.value.validate();
+  if(!isvalid){
+    return
+  }
   if (!validationSearch()) {
     return;
   }
+  loadingSearch.value = true
   if (radiobuttonlist.value === 'Fiche') {
     await listApprenticeForFiches();
   } else if (radiobuttonlist.value === 'Appretice') {

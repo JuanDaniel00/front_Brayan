@@ -1,48 +1,51 @@
 <template>
   <Header title="Modalidad EP"></Header>
   <div id="buttons-container">
-    <modalDialog  :title="modalTitle" v-model="isDialogVisibleModal" nameButton="Crear"
-      labelClose="Cerrar" labelSend="Guardar" :onclickClose="handleClose" :onclickSend="handleSend"
-      :openModalButton="openButtonCreate" :loading="loadingSend">
-      
-      <q-form ref="formRef" @submit="handleSubmit" class="formModality" >
-      <q-select v-model="formData.modality" :options="filterOptionsModality" label="Nombre de la modalidad" emit-value
-        map-options option-label="label" option-value="_id" :use-input="!modalitytp" @filter="filterFunctionModality"
-        clearable class="custom-select" filled :rules="[validateRequiredModality]">
-        <template v-slot:prepend class="custom-select">
-          <q-icon name="abc" />
-        </template>
-      </q-select>
+    <modalDialog :title="modalTitle" v-model="isDialogVisibleModal" nameButton="Crear" labelClose="Cerrar"
+      labelSend="Guardar" :onclickClose="handleClose" :onclickSend="handleSend" :openModalButton="openButtonCreate"
+      :loading="loadingSend">
 
-      <q-input v-model="formData.hourInstFollowup" label="Horas Instructor de Seguimiento" filled
-        :rules="[validateRequieredHourFollowup]">
-        <template v-slot:prepend>
-          <q-icon name="abc" />
-        </template>
-      </q-input>
+      <q-form ref="formRef" @submit="handleSubmit" class="formModality">
+        <q-select v-model="formData.modality" :options="filterOptionsModality" label="Nombre de la modalidad" emit-value
+          map-options option-label="label" option-value="_id" :use-input="!modalitytp" @filter="filterFunctionModality"
+          clearable class="custom-select" filled :rules="[validateRequiredModality]">
+          <template v-slot:prepend class="custom-select">
+            <q-icon name="abc" />
+          </template>
+        </q-select>
 
-      <q-input v-model="formData.hourInstTechnical" label="Horas Instructor Técnico"filled
-        :rules="[validateRequiredHourTechinical]" >
-        <template v-slot:prepend>
-          <q-icon name="abc" />
-        </template>
-      </q-input>
+        <q-input v-model="formData.hourInstFollowup" label="Horas Instructor de Seguimiento" filled
+          :rules="[validateRequieredHourFollowup]">
+          <template v-slot:prepend>
+            <q-icon name="abc" />
+          </template>
+        </q-input>
 
-      <q-input v-model="formData.hourInstProyect" label="Horas instructor de Proyecto" filled
-        :rules="[validateRequiredHuorProyect]">
-        <template v-slot:prepend>
-          <q-icon name="abc" />
-        </template>
-      </q-input>
+        <q-input v-model="formData.hourInstTechnical" label="Horas Instructor Técnico" filled
+          :rules="[validateRequiredHourTechinical]">
+          <template v-slot:prepend>
+            <q-icon name="abc" />
+          </template>
+        </q-input>
+
+        <q-input v-model="formData.hourInstProyect" label="Horas instructor de Proyecto" filled
+          :rules="[validateRequiredHuorProyect]">
+          <template v-slot:prepend>
+            <q-icon name="abc" />
+          </template>
+        </q-input>
       </q-form>
     </modalDialog>
-    <div class="InputButtonsSearch">
-      <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
-        optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select" />
-      <buttonSearch :onclickButton="searchModality" :loading="loadingSearch" />
-    </div>
+    <q-form ref="formRef" @submit="searchModality" class="formModality">
+      <div class="InputButtonsSearch">
+        <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
+          optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select"
+          :rules="[(val) => !!val || 'El campo de búsqueda es obligatorio']" />
+        <buttonSearch :onclickButton="searchModality" :loading="loadingSearch" />
+      </div>
+    </q-form>
   </div>
-  
+
   <tableModalityEp :rows="rows" :columns="columns" :onclickEdit="openDialogEdit" :loading="loading" />
 </template>
 
@@ -70,9 +73,9 @@ const filterOptionsModality = ref([]);
 
 const formRef = ref(null)
 const formData = ref({
-  modality : '',
-  hourInstFollowup : '',
-  hourInstProyect :'',
+  modality: '',
+  hourInstFollowup: '',
+  hourInstProyect: '',
   hourInstTechnical: ''
 })
 let id = ref('')
@@ -87,43 +90,52 @@ let loading = ref(false)
 let loadingSearch = ref(false)
 let loadingSend = ref(false)
 
+const modalityInstructorUno = ['MONITORIAS', 'PASANTIA', 'VICULO LABORAL', 'UNIDAD PRODUCTIVA FAMILIAR', 'CONTRATO DE APRENDIZAJE']
 const validateRequiredModality = (v) => !!v || 'La modalidad es obligatorio';
+
 const validateRequieredHourFollowup = (v) => {
-  if(!v){
+  if (ismodalType.value === true && !v) {
     return 'La hora del instructor de seguimiento es obligatorio'
   }
-  if(/\s/.test(v)){
+  if (!modalityInstructorUno.includes(formData.value.modality) && !v || modalityInstructorUno.includes(formData.value.modality) && !v) {
+    return 'La hora del instructor de seguimiento es requerida'
+  }
+  if (/\s/.test(v)) {
     return 'La hora de instructor de seguimiento no puede contener espacios en blanco'
   }
-  if(/[^0-9]/.test(v)){
+  if (/[^0-9]/.test(v)) {
     return 'La hora  de instructor de seguimiento solo puede contener numeros'
   }
 }
 
 const validateRequiredHourTechinical = (v) => {
-  if(!v){
+  if (ismodalType.value === true && !v) {
     return 'La hora del instructor técnico es obligatorio'
   }
-  if(/\s/.test(v)){
+  if (!modalityInstructorUno.includes(formData.value.modality) && !v) {
+    return 'La hora del instructor de técnico es requerida'
+  }
+  if (/\s/.test(v)) {
     return 'La hora de instructor técnico no puede contener espacios en blanco'
   }
-  if(/[^0-9]/.test(v)){
+  if (/[^0-9]/.test(v)) {
     return 'La hora  de instructor técnico solo puede contener numeros'
   }
 }
 const validateRequiredHuorProyect = (v) => {
-  if(!v){
+  if (ismodalType.value === true && !v) {
     return 'La hora del instructor de proyecto es obligatorio'
   }
-  if(/\s/.test(v)){
+  if (!modalityInstructorUno.includes(formData.value.modality) && !v) {
+    return 'La hora del instructor de proyecto es requerida'
+  }
+  if (/\s/.test(v)) {
     return 'La hora de instructor de proyecto no puede contener espacios en blanco'
   }
-  if(/[^0-9]/.test(v)){
+  if (/[^0-9]/.test(v)) {
     return 'La hora  de instructor de proyecto solo puede contener numeros'
   }
 }
-
-
 
 const rows = ref([
 ]);
@@ -220,14 +232,14 @@ function openDialogEdit(row) {
   }
 
 }
-function handleClose(){
+function handleClose() {
   cleanForm()
 }
 
 
 async function handleSend() {
   const isValid = await formRef.value.validate();
-  if(!isValid){
+  if (!isValid) {
     return
   }
   loadingSend.value = true
@@ -276,26 +288,15 @@ async function handleSend() {
     }
     console.log('error', messageError);
     notifyErrorRequest(messageError)
-  }finally{
+  } finally {
     loadingSend.value = false
   }
 }
 
-
-// function validationsForm() {
-//   if (!modality.valu || hourInstFollowup.value === '' || hourInstFollowup.value === null ||
-//     hourInstTechnical.value === '' || hourInstTechnical.value === null ||
-//     hourInstProyect.value === '' || hourInstProyect.value === null) {
-//     notifyWarningRequest('Por favor, completa todos los campos para poder continuar.')
-//     return false
-//   }
-//   return true
-// }
-
 function cleanForm() {
   formData.value.modality = ''
   formData.value.hourInstFollowup = ''
-  formData.value.hourInstTechnical= ''
+  formData.value.hourInstTechnical = ''
   formData.value.hourInstProyect = ''
 }
 
@@ -359,6 +360,10 @@ function filterFunctionSearch(val, update) {
 }
 
 async function searchModality() {
+  const isvalid = await formRef.value.validate()
+  if (!isvalid) {
+    return
+  }
   loadingSearch.value = true
   try {
     validationSearch()
