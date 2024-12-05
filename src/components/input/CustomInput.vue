@@ -49,38 +49,6 @@ const props = defineProps({
         type: String,
         default: '',
     },
-    validateNoSpaces: {
-        type: String,
-        default: '',
-    },
-    validateNoNumbers: {
-        type: String,
-        default: '',
-    },
-    validateMaxLengthTen: {
-        type: String,
-        default: '',
-    },
-    validateNoLeadingTrailingSpaces: {
-        type: String,
-        default: '',
-    },
-    validateEmail: {
-        type: String,
-        default: '',
-    },
-    validateAddress: {
-        type: String,
-        default: '',
-    },
-    validateNoLetters:{
-        type: String,
-        default: '',  
-    },
-    validiteAnySpaces:{
-        type: String,
-        default: '',  
-    },
     rules: {
         type: Array,
         default: () => [],
