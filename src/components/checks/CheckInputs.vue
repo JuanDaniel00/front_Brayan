@@ -1,11 +1,15 @@
-<!-- components/checks/CheckInputs.vue -->
 <template>
-    <div>
+  <div class="check-inputs">
+    <label class="checkbox-container">
       <input
         type="checkbox"
         :checked="checkTechnicalInstructor"
         @change="$emit('update-check', id, 'checkTechnicalInstructor', $event.target.checked)"
       />
+      <span class="checkmark"></span>
+      Técnico
+    </label>
+    <label class="checkbox-container">
       <input
         type="checkbox"
         :checked="checkProjectInstructor"
