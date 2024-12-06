@@ -1,18 +1,15 @@
 <template>
     <Header title="Bitácoras"></Header>
     <div id="container-buttons">
-        <div class="searchButtons">
-            <div class="allInputButtonsSearch">
-                <radioButtonApprentice v-model="radioButtonList" label="Aprendiz" val="apprentice"
-                    @update:model-value="handleRadioChange" />
-            </div>
-            <div class="InputButtonsSearch">
-                <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
-                    optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select" />
-                <buttonSearch :onclickButton="searchButton" :loading="loadingSearch" />
-            </div>
-        </div>
+    <div class="searchButtons">
+      <div class="InputButtonsSearch">
+        <inputSelect v-model="searchValue" label="Buscar Aprendiz" :options="filterOptionsSearch" optionLabel="label"
+          optionValue="_id" :filter="filterFunctionSearch" class="custom-select" />
+        <buttonSearch :onclickButton="searchApprentice" :loading="loadingSearch" />
+      </div>
     </div>
+
+  </div>
 
     <TableBinnacle
     :rows="rows"
@@ -78,6 +75,7 @@ onBeforeMount(async () => {
 
 const id = ref('')
 
+
 // spiner
 let loading = ref(false);
 let loadingSearch = ref(false);
@@ -110,12 +108,13 @@ const columns = ref([
         sortable: true,
     },
     {
-        name: "status",
-        label: "ESTADO",
-        align: "center",
-        field: "status",
-        sortable: true,
-    }, {
+    name: "status",
+    label: "ESTADO",
+    align: "center",
+    field: (row) => (row.status === '1' ? 'Programada' : row.status === '2' ? 'Ejecutada' : 'Desconocido'),
+    sortable: true,
+  }, 
+    {
         name: "observation",
         label: "OBSERVACIONES",
         align: "center",
@@ -261,69 +260,32 @@ async function onclickSelectOptions(row, value) {
 }
 
 
-async function searchInstructor() {
-    try {
-        const response = await getData(`/binnacles/listbinnaclesbyinstructor/${searchValue.value}`)
-        console.log(response);
-        rows.value = response
-    } catch (error) {
-        if (searchValue.value === '') {
-            validationSearch()
-        } else {
-            const messageError = error.response.data.error || 'Error al buscar ficha'
-            notifyErrorRequest(messageError)
-        }
-        loadDataBinnacles()
-
-    }
-}
 
 async function searchApprentice() {
-    try {
-        const response = await getData(`/binnacles/listBinnaclesByRegister/${searchValue.value}`)
-        console.log(response);
-        rows.value = response.binnacles
-    } catch (error) {
-        if (searchValue.value === '') {
-            validationSearch()
-        } else {
-            const messageError = error.response.data.errors || error.response.data.error[0].msg || error.response.data.message || 'Error al buscar aprendiz'
-            console.log(messageError);
-            notifyErrorRequest(messageError)
-        }
-        loadDataBinnacles()
-    }
+  try {
+    // Llama al backend usando el valor seleccionado
+    const response = await getData(`/followup/listFollowupByRegister/${searchValue.value}`);
+    console.log('aprendiz', response);
 
+    // Asigna los datos obtenidos a las filas de la tabla
+    rows.value = response.followup;
+  } catch (error) {
+    if (searchValue.value === '') {
+      validationSearch();
+    } else {
+      let messageError;
+      if (error.response?.data?.message) {
+        messageError = error.response.data.message;
+      } else if (error.response?.data?.errors?.[0]?.msg) {
+        messageError = error.response.data.errors[0].msg;
+      } else {
+        messageError = 'No se encontró ningún aprendiz con la información seleccionada.';
+      }
+      notifyErrorRequest(messageError);
+    }
+  }
 }
 
-const handleRadioChange = async () => {
-    if (radioButtonList.value === 'instructor') {
-        const response = await getData('/binnacles/listallbinnacles');
-        console.log(response)
-        optionSearch.value = response.map(option => ({
-            _id: option.instructor.idinstructor,
-            label: `${option.instructor.name}`,
-        }));
-        filterOptionsSearch.value = optionSearch.value;
-    } else if (radioButtonList.value === 'apprentice') {
-        const response = await getData('/binnacles/listallbinnacles');
-        const uniqueApprentices = new Map();
-response.forEach(option => {
-    const apprentice = option.register.idApprentice[0];
-    if (apprentice && !uniqueApprentices.has(apprentice._id)) {
-        uniqueApprentices.set(apprentice._id, {
-            _id: apprentice._id,
-            label: `${apprentice.firstName} ${apprentice.lastName} - ${apprentice.numDocument}`,
-            numDocument: apprentice.numDocument,
-        });
-    }
-});
-optionSearch.value = Array.from(uniqueApprentices.values());
-filterOptionsSearch.value = optionSearch.value;
-
-    }
-    clearSearch();
-}
 
 // limpiar campos de busqueda
 function clearSearch() {
@@ -339,38 +301,36 @@ function validationSearch() {
     }
 }
 
-async function fetchDataSearch() {
-    handleRadioChange();
-    // Asegúrate de que optionSearch tenga datos
-    console.log('Datos iniciales de optionSearch:', optionSearch.value);
+// Función para cargar opciones de búsqueda de aprendices
+async function fetchApprenticeOptions() {
+  try {
+    // Llama a la ruta para obtener los aprendices
+    const response = await getData('/apprendice/listallapprentice');
+
+    // Formatea las opciones para el filtro
+    optionSearch.value = response.map(option => ({
+      _id: option._id, // Asegúrate de usar el ID correcto
+      label: `${option.firstName} ${option.lastName} - ${option.numDocument}`
+    }));
+
+    filterOptionsSearch.value = optionSearch.value; // Asigna las opciones al filtro
+  } catch (error) {
+    console.error('Error al cargar opciones de aprendiz:', error);
+    notifyErrorRequest('Error al cargar las opciones de búsqueda de aprendices.');
+  }
 }
 
-fetchDataSearch();
-
+// Filtro dinámico en el input
 async function filterFunctionSearch(val, update) {
-    console.log('Valor de búsqueda:', val);
-    console.log('Datos de optionSearch antes de filtrar:', optionSearch.value);
-    update(() => {
-        const needle = val.toLowerCase();
-        filterOptionsSearch.value = optionSearch.value.filter((option) =>
-            option.label.toLowerCase().includes(needle)
-        );
-        console.log('Opciones filtradas:', filterOptionsSearch.value);
-    });
+  update(() => {
+    const needle = val.toLowerCase();
+    filterOptionsSearch.value = optionSearch.value.filter(option =>
+      option.label.toLowerCase().includes(needle)
+    );
+  });
 }
 
-async function searchButton() {
-    // loadingSearch.value = true;
-    validationSearch()
-
-    if (radioButtonList.value === 'instructor') {
-        await searchInstructor()
-    } else if (radioButtonList.value === 'apprentice') {
-        await searchApprentice()
-    }
-    clearSearch();
-    // loadingSearch.value = false;
-}
+fetchApprenticeOptions();
 </script>
   
 <style scoped>
