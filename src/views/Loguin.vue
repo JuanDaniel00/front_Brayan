@@ -127,7 +127,7 @@ const handleSubmit = async () => {
     authStore.setRol(formData.value.rol);
     authStore.setEmail(formData.value.email); 
     localStorage.setItem("apprenticeDocument", formData.value.document);
-    localStorage.setItem("userEmail", response.email);
+    localStorage.setItem("userEmail", formData.value.email);
 
     notifySuccessRequest('Inicio de sesión exitoso');
 

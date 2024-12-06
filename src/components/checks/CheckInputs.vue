@@ -19,15 +19,12 @@
     props: {
       checkTechnicalInstructor: {
         type: Boolean,
-        required: true,
       },
       checkProjectInstructor: {
         type: Boolean,
-        required: true,
       },
       id: {
         type: String,
-        required: true,
       },
     },
   };
