@@ -40,14 +40,14 @@
           </q-input>
 
           <q-input v-model="formData.emailPersonal" label="Email Personal Aprendiz" filled
-            :rules="[validateRequieredEmailPersonal, validateEmailPersonal]" lazy-rules >
+            :rules="[validateRequieredEmailPersonal, validateEmailPersonal,validateEmail]" lazy-rules >
             <template v-slot:prepend>
               <q-icon name="mail" />
             </template>
           </q-input>
 
           <q-input v-model="formData.emailIntitutional" label="Email Institucional Aprendiz" filled
-            :rules="[validateRequiredEmailInstitutional, validateEmailInstitutional]" lazy-rules>
+            :rules="[validateRequiredEmailInstitutional, validateEmail]" lazy-rules>
             <template v-slot:prepend>
               <q-icon name="mail" />
             </template>
@@ -180,7 +180,7 @@ const validateRequiredTpDocument = (v) => !!v || 'El  tipo de Documento es oblig
 const validateRequieredEmailPersonal = (v) => !!v || 'El email Personal es obligatorio';
 const validateEmailPersonal = (v) => /.+@.+\..+/.test(v) || 'Correo electrónico no válido';
 const validateRequiredEmailInstitutional = (v) => !!v || 'El email Institucional es obligatorio';
-const validateEmailInstitutional = (v) => /.+@.+\..+/.test(v) || 'Correo electrónico no válido';
+const validateEmail = (v) => /.+@.+\..+/.test(v) || 'Correo electrónico no válido';
 const validateRequiredPhone = (v) => !!v || 'El teléfono es obligatorio';
 const validateRequiredFiche = (v) => !!v || 'La ficha es obligatorio';
 const validateRequiredIdModality = (v) => !!v || 'La modalidad Etapa Productiva es obligatorio';

@@ -6,13 +6,12 @@
       :loading="loadingSend">
 
       <q-form ref="formRef" @submit="handleSubmit" class="formModality">
-        <q-select v-model="formData.modality" :options="filterOptionsModality" label="Nombre de la modalidad" emit-value
-          map-options option-label="label" option-value="_id" :use-input="!modalitytp" @filter="filterFunctionModality"
-          clearable class="custom-select" filled :rules="[validateRequiredModality]">
+        <q-input v-model="formData.modality" label="Nombre de la modalidad" filled
+          :rules="[validateRequiredModality, validateUniqueModality]">
           <template v-slot:prepend class="custom-select">
             <q-icon name="abc" />
           </template>
-        </q-select>
+        </q-input>
 
         <q-input v-model="formData.hourInstFollowup" label="Horas Instructor de Seguimiento" filled
           :rules="[validateRequieredHourFollowup]">
@@ -22,14 +21,14 @@
         </q-input>
 
         <q-input v-model="formData.hourInstTechnical" label="Horas Instructor Técnico" filled
-          :rules="[validateRequiredHourTechinical]">
+          :rules="[validateRequiredHourTechinical]" :disable="isModalityInstructorUno" >
           <template v-slot:prepend>
             <q-icon name="abc" />
           </template>
         </q-input>
 
         <q-input v-model="formData.hourInstProyect" label="Horas instructor de Proyecto" filled
-          :rules="[validateRequiredHuorProyect]">
+          :rules="[validateRequiredHuorProyect]" :disable="isModalityInstructorUno" >
           <template v-slot:prepend>
             <q-icon name="abc" />
           </template>
@@ -50,7 +49,7 @@
 </template>
 
 <script setup>
-import { ref, onBeforeMount, TransitionGroup } from 'vue';
+import { ref, onBeforeMount, computed } from 'vue';
 import Header from '../components/header/header.vue';
 import tableModalityEp from '../components/tables/tableModalityEp.vue';
 import modalDialog from '../components/modal/modal.vue';
@@ -58,6 +57,7 @@ import inputSelect from '../components/input/inputSelect.vue';
 import buttonSearch from '../components/buttons/buttonSearch.vue';
 import { notifyErrorRequest, notifySuccessRequest, notifyWarningRequest } from '../composables/useNotify';
 import { getData, postData, putData } from '../services/ApiClient';
+
 onBeforeMount(() => {
   loadDataModality()
 })
@@ -65,7 +65,7 @@ onBeforeMount(() => {
 // modal
 const isDialogVisibleModal = ref(false);
 let ismodalType = ref(false)
-let modalTitle = ref(ismodalType.value ? 'Crear Aprendiz' : 'Editar Aprendiz')
+let modalTitle = ref(ismodalType.value ? 'Crear Modalidad' : 'Editar Modalidad')
 
 // select modality
 const optionsModality = ref([]);
@@ -90,8 +90,24 @@ let loading = ref(false)
 let loadingSearch = ref(false)
 let loadingSend = ref(false)
 
+// Lista de modalidades existentes
+let existingModalities = ref([])
 const modalityInstructorUno = ['MONITORIAS', 'PASANTIA', 'VICULO LABORAL', 'UNIDAD PRODUCTIVA FAMILIAR', 'CONTRATO DE APRENDIZAJE']
-const validateRequiredModality = (v) => !!v || 'La modalidad es obligatorio';
+const isModalityInstructorUno = computed(() => {
+  return modalityInstructorUno.includes(formData.value.modality);
+});
+
+const validateRequiredModality = (v) => {
+  if (!v) {
+    return 'La modalidad es obligatorio'
+  }
+}
+
+const validateUniqueModality = (v) => {
+  if (existingModalities.value.includes(v) && (ismodalType.value || v !== originalDataValues.value.modality)) {
+    return 'Ya existe una modalidad con este nombre'
+  }
+}
 
 const validateRequieredHourFollowup = (v) => {
   if (ismodalType.value === true && !v) {
@@ -122,6 +138,7 @@ const validateRequiredHourTechinical = (v) => {
     return 'La hora  de instructor técnico solo puede contener numeros'
   }
 }
+
 const validateRequiredHuorProyect = (v) => {
   if (ismodalType.value === true && !v) {
     return 'La hora del instructor de proyecto es obligatorio'
@@ -137,8 +154,7 @@ const validateRequiredHuorProyect = (v) => {
   }
 }
 
-const rows = ref([
-]);
+const rows = ref([]);
 const columns = ref([
   {
     name: 'Num',
@@ -196,13 +212,14 @@ async function loadDataModality() {
     const response = await getData('/modality/listallmodality')
     console.log(response);
     rows.value = response
+    existingModalities.value = response.map(modality => modality.name)
   } catch (error) {
     notifyErrorRequest('Error al cargar los datos')
   } finally {
     loading.value = false
   }
-
 }
+
 function openButtonCreate() {
   isDialogVisibleModal.value = true;
   ismodalType.value = true
@@ -215,10 +232,11 @@ const originalDataValues = ref({
   hourInstTechnical: '',
   hourInstProyect: ''
 })
+
 function openDialogEdit(row) {
   isDialogVisibleModal.value = true;
   ismodalType.value = false
-  modalTitle = 'Editar Modalidad'
+  modalTitle.value = 'Editar Modalidad'
   formData.value.modality = row.name
   formData.value.hourInstFollowup = row.hourInstructorFollow
   formData.value.hourInstTechnical = row.hourInstructorTechnical
@@ -230,12 +248,11 @@ function openDialogEdit(row) {
     hourInstTechnical: row.hourInstructorTechnical,
     hourInstProyect: row.hourInstructorProject
   }
-
 }
+
 function handleClose() {
   cleanForm()
 }
-
 
 async function handleSend() {
   const isValid = await formRef.value.validate();
@@ -299,34 +316,6 @@ function cleanForm() {
   formData.value.hourInstTechnical = ''
   formData.value.hourInstProyect = ''
 }
-
-async function fetchDataModality() {
-  const response = await getData('/modality/listallmodality')
-  optionsModality.value = response.map(options => ({
-    _id: options.name,
-    label: options.name,
-  }))
-  filterOptionsModality.value = optionsModality.value
-}
-
-fetchDataModality()
-
-function filterFunctionModality(val, update) {
-  if (val === '') {
-    update(() => {
-      filterOptionsModality.value = optionsModality.value
-    })
-    return
-  }
-  update(() => {
-    const needle = val.toLowerCase();
-    filterOptions.value = options.value.filter((option) =>
-      option.label.toLowerCase().includes(needle)
-    );
-  });
-}
-
-
 async function fectchDateSearch() {
   const response = await getData('/modality/listallmodality')
   const uniqueModality = new Set()
@@ -377,7 +366,6 @@ async function searchModality() {
   } finally {
     loadingSearch.value = false
   }
-
 }
 
 function validationSearch() {
@@ -385,12 +373,7 @@ function validationSearch() {
     notifyWarningRequest('El campo de busqueda no puede estar vacio')
   }
 }
-
-
-
-
 </script>
-
 
 <style scoped>
 * {
