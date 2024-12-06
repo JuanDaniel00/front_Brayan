@@ -8,6 +8,7 @@ export const useAuthStore = defineStore(
     const user = ref(null);
     const rol = ref(""); // Declara el rol como estado
     const email = ref(""); 
+    const document = ref("");
 
 
     // Verificar si el email está definido antes de continuar
@@ -44,6 +45,13 @@ export const useAuthStore = defineStore(
       return rol.value;
     }
 
+    function removeRol() {
+      rol.value = "";
+      token.value = "";
+      email.value = "";
+      localStorage.removeItem("auth");
+    }
+
     function setEmail(newEmail) {
       if (newEmail) {
         email.value = newEmail || "";
@@ -53,16 +61,8 @@ export const useAuthStore = defineStore(
       }
     }
     
-
     function getEmail() {
       return email.value;
-    }
-
-    function removeRol() {
-      rol.value = "";
-      token.value = "";
-      email.value = "";
-      localStorage.removeItem("auth");
     }
 
     return {
@@ -74,9 +74,9 @@ export const useAuthStore = defineStore(
       getToken,
       setRol,
       getRol,
+      removeRol,
       setEmail,
       getEmail,
-      removeRol,
     };
   },
   {

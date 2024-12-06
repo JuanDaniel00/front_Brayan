@@ -103,6 +103,8 @@ let loadingCreateOdservation = ref(false);
 const route = useRoute();
 
 
+const chatMessages = [];
+
 // validacions de input e busqueda
 const validateRequieredSearch = (v) => {
   if (radioButtonList.value === '') {
@@ -261,6 +263,7 @@ async function handleSend() {
   try {
     const response = await putData(`/binnacles/addobservation/${id.value}`, {
       observation: newObservation.value,
+      // user
     });
     notifySuccessRequest("La observación se ha añadido correctamente");
     isDialogVisibleCreateObservation.value = false;

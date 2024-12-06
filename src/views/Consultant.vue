@@ -77,17 +77,22 @@
 <script setup>
 import { ref } from "vue";
 import Header from "../layouts/LayoutHeader.vue";
+import { getData } from "../services/ApiClient";
+import { onBeforeMount } from "vue";
+import { formatDate } from '../utils/changeDateFormat.js';
 
 const drawer = ref(false);
-const toggleDrawer = () => {
-  drawer.value = !drawer.value;
-}
+const numDocument = localStorage.getItem("apprenticeDocument");
 
+const currentApprenticeId = ref("");
+
+//Card 1
 const apprenticeFullName = ref("");
 const appreticeDocument = ref("");
 const ficheName = ref("");
 const ficheCode = ref("");
 
+//Card 2
 const modality = ref("");
 const startDate = ref("");
 const endDate = ref("");
@@ -95,11 +100,93 @@ const followupInstructorName = ref("");
 const followupInstructorEmail = ref("");
 const productiveStageStatus = ref("");
 
+//Card 3
 const binnaclesNumber = ref("");
 const followupNumber = ref("");
+const apprenticeStatus = ref("");
 
 
+//funciones
+onBeforeMount(async () => {
+  await getCurrentApprentice();
+});
 
+const getCurrentApprentice = async () => {
+  try {
+  const apprentices = await getData("/apprendice/listallapprentice");
+
+  currentApprenticeId.value = apprentices.find((apprentice) => 
+  apprentice.numDocument === numDocument)?._id;
+
+  await getApprenticeInfo();
+  await getBinnaclesAndFollowup();
+
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const getApprenticeInfo = async () => {
+  const apprentice = await getData(`/apprendice/listapprenticebyid/${currentApprenticeId.value}`);
+  const registers = await getData(`/register/listregisterbyapprentice/${currentApprenticeId.value}`);
+
+  console.log('registers', registers);
+  console.log('apprentice', apprentice);
+
+  //card 1
+  apprenticeFullName.value = apprentice.firstName + ' ' + apprentice.lastName;
+  appreticeDocument.value = apprentice.numDocument;
+  ficheName.value = apprentice.fiche.name;
+  ficheCode.value = apprentice.fiche.number;
+
+  //card 2
+  modality.value = " " + registers.data[0].idModality.name;
+  startDate.value = " " + formatDate(registers.data[0].startDate);
+  endDate.value = " " + formatDate(registers.data[0].endDate);
+  followupInstructorName.value = " " + registers.data[0].assignment[0].followUpInstructor.at(-1)?.name;
+  followupInstructorEmail.value = " " + registers.data[0].assignment[0].followUpInstructor.at(-1)?.email;
+
+  switch (apprentice.status) {
+    case 0:
+      productiveStageStatus.value = " " + "Inactivo";
+      break;
+    case 1:
+      productiveStageStatus.value = " " + "Activo";
+      break;
+    case 3:
+      productiveStageStatus.value = " " + "En Etapa Práctica";
+      break;
+    case 4:
+      productiveStageStatus.value = " " + "Por Certificar";
+      break;
+    case 5:
+      productiveStageStatus.value = " " + "Certificado";
+      break;
+    default:
+      productiveStageStatus.value = " " + "Estado Desconocido";
+  }
+
+  //card 4
+  switch (apprentice.status) {
+  case 5:
+    apprenticeStatus.value = " " + "Certificado";
+    break;
+  default:
+    apprenticeStatus.value = " " + "Sin Certificar";
+}
+
+};
+
+const getBinnaclesAndFollowup = async () => {
+  const binnaclesAndFollowups = await getData(`/apprendice/listBinnaclesAndFollowup/${currentApprenticeId.value}`);
+  //card 3
+  binnaclesNumber.value = " " + binnaclesAndFollowups.counts.binnacles
+  followupNumber.value = " " + binnaclesAndFollowups.counts.followups
+};
+
+const toggleDrawer = () => {
+  drawer.value = !drawer.value;
+};
 </script>
 
 <style scoped>
@@ -158,7 +245,7 @@ const followupNumber = ref("");
 
 .card-body div {
   font-size: 0.9em;
-  color: #2F7D32;
+  color: #637d2f;
   margin-bottom: 4px;
 }
 
@@ -169,7 +256,7 @@ const followupNumber = ref("");
   flex-grow: 1; 
 }
 
-.card-body1 div {
+.card-body1 div strong {
   font-size: 0.9em;
   color: #2F7D32;
   margin-bottom: 4px;

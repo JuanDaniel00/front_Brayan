@@ -65,7 +65,7 @@
             @filter="filterFunctionModality" clearable class="custom-select" v-show="modality" filled
 
             :rules="[validateRequiredIdModality]" lazy-rules>
-            <template v-slot:prepend class="custom-select">
+            <template v-slot:prepend>
 
               <q-icon name="abc" />
             </template>
