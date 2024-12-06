@@ -36,6 +36,7 @@
       <FormModal :modelValue="secondModaldialog" :title="dialogTitle" :onSave="saveRegister"
         @update:modelValue="secondModaldialog = $event">
         <template #content>
+          <q-form ref="formRef" @submit="saveRegister" class="formModality" >
             <div class="input-grid">
               <CustomSelect map-options label="Aprendiz" v-model="apprentice" @filter="filterApprentice" required
                 :options="apprenticeOptions" optionLabel="apprenticeName" optionValue="apprenticeId"
@@ -86,7 +87,7 @@
                 errorMessage="Documento requerido" icon="file-invoice" type="text" :rules="[
                   (val) => validateRequired(val, 'El documento alternativo es requerido'),
                   (val) => validateNoSpaces(val),
-                  (val) => validateGoogleDriveLink(val)
+                  (val) =>validateGoogleDriveLink(val)
                 ]" />
               <Input id="hour" filled label="Horas" v-model="hour" required errorMessage="Horas requeridas" icon="clock"
                 type="text" :rules="[
@@ -118,6 +119,7 @@
                   (val) => validateNoSpaces(val)
                 ]" />
             </div>
+          </q-form>
         </template>
       </FormModal>
     </q-page-container>
@@ -143,6 +145,7 @@
               </div>
             </div>
           </div>
+          <q-form ref="formRef" @submit="saveRegister" class="formModality" >
           <div class="formulario" filled>
             <div class="contFormFila">
               <h5>Datos</h5>
@@ -164,7 +167,7 @@
                       (val) => !!val || 'Campo requerido',
                       (val) =>
                         val.trim().length > 0 || 'No se permiten espacios vacíos',
-                      (val) => /^https:\/\/drive\.google\.com\/file\/d\/[a-zA-Z0-9_-]+\/view\?usp=sharing$/.test(val) || 'Enlace de Google Drive no válido'
+                      (val) => /^https:\/\/(?:drive|docs)\.google\.com\/(?:file\/d\/|document\/d\/|spreadsheets\/d\/|presentation\/d\/|forms\/d\/|drive\/folders\/|open\?id=)[a-zA-Z0-9_-]+(?:\/.*)?(?:\?.*)?$/.test(val) || 'Enlace de Google Drive no válido'
                     ]" :readonly="isReadOnly">
                     <template v-slot:prepend>
                       <q-icon color="green-10" name="description" />
@@ -174,7 +177,9 @@
                     label-color="primary" label-class="customLabel" class="short" type="number" :rules="[
                       (val) => !!val || 'Campo requerido',
                       (val) => val >= 0 || 'No puede ser un valor negativo'
-                    ]" :readonly="isReadOnly">
+                    ]"   :readonly="isReadOnly"
+  min="0"
+  step="1">
                     <template v-slot:prepend>
                       <q-icon color="green-10" name="schedule" />
                     </template>
@@ -253,6 +258,7 @@
               </div>
             </div>
           </div>
+          </q-form>
           <!-- Fin de Formulario de datos planos -->
           <div>
             <!--Tabla aprendices  -->
@@ -462,9 +468,12 @@ const validateEmail = (val, message = 'Correo inválido') => /.+@.+\..+/.test(va
 const validateNoLetters = (val, message = 'Solo puede contener números') => /^[0-9]*$/.test(val) || message;
 const validateNoAnySpaces = (val, message = 'No se permiten espacios vacíos en ningún lugar') => !/\s/.test(val) || message;
 const validateGoogleDriveLink = (val, message = 'Enlace de Google Drive inválido') => {
-  const drivePattern = /^https:\/\/drive\.google\.com\/file\/d\/[a-zA-Z0-9_-]+\/view\?usp=sharing$/;
+  const drivePattern = /^https:\/\/(?:drive|docs)\.google\.com\/(?:file\/d\/|document\/d\/|spreadsheets\/d\/|presentation\/d\/|forms\/d\/|drive\/folders\/|open\?id=)[a-zA-Z0-9_-]+(?:\/.*)?(?:\?.*)?$/;
   return drivePattern.test(val) || message;
 };
+
+
+
 
 let busquedaInstructor = ref(null);
 
@@ -1083,8 +1092,13 @@ const editRegister = (row) => {
     }
   }
 };
+const formRef = ref(null);
+
 // Función para guardar un registro
 const saveRegister = async () => {
+  if (!formRef.value.validate()) {
+  return
+}
   try {
     let response = await postData("register/addregister", registerData);
 
@@ -1097,8 +1111,11 @@ const saveRegister = async () => {
   }
 };
 
-const saveRegisterModal = async () => {
 
+const saveRegisterModal = async () => {
+if (!formRef.value.validate()) {
+  return
+}
 
   // Verificar que todos los campos estén llenos
   if (

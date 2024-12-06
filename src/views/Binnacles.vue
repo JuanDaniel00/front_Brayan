@@ -3,61 +3,34 @@
   <div id="container-buttons">
     <div class="searchButtons">
       <div class="allInputButtonsSearch">
-        <radioButtonInstructor
-          v-model="radioButtonList"
-          label="Instructor"
-          val="instructor"
-          @update:model-value="handleRadioChange"
-        />
-        <radioButtonApprentice
-          v-model="radioButtonList"
-          label="Aprendiz"
-          val="apprentice"
-          @update:model-value="handleRadioChange"
-        />
+        <p>Seleccione una opción:</p>
+        <radioButtonInstructor v-model="radioButtonList" label="Instructor" val="instructor"
+          @update:model-value="handleRadioChange" />
+        <radioButtonApprentice v-model="radioButtonList" label="Aprendiz" val="apprentice"
+          @update:model-value="handleRadioChange" />
       </div>
-      <div class="InputButtonsSearch">
-
-        <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
-          optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select"
-          :rules="[validateRequieredSearch]" lazy-rules />
-
-        <buttonSearch :onclickButton="searchButton" :loading="loadingSearch" />
-      </div>
+      <q-form ref="formRef" @submit.prevent="searchButton">
+        <div class="InputButtonsSearch">
+          <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
+            optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select"
+            :rules="[validateRequieredSearch]" lazy-rules />
+          <buttonSearch :onclickButton="searchButton" :loading="loadingSearch" />
+        </div>
+      </q-form>
     </div>
   </div>
 
-  <tableSelect
-    :rows="rows"
-    :columns="columns"
-    :options="OptionsStatus"
-    :onClickSeeObservation="openClickSeeObservation"
-    :onClickCreateObservation="openClickCreateObservation"
-    :onclickSelectOptions="onclickSelectOptions"
-    :loading="loading"
-  />
+  <tableSelect :rows="rows" :columns="columns" :options="filteredOptionsStatus" :onClickSeeObservation="openClickSeeObservation"
+    :onClickCreateObservation="openClickCreateObservation" :onclickSelectOptions="onclickSelectOptions"
+    :loading="loading" />
 
-  <dialogSeeObservation
-    v-model="isChatOpen"
-    :messages="chatMessages"
-    title="OBSERVACIONES"
-    labelClose="Cerrar"
-  >
+  <dialogSeeObservation v-model="isChatOpen" :messages="chatMessages" title="OBSERVACIONES" labelClose="Cerrar">
   </dialogSeeObservation>
 
-  <dialogCreateObservation
-    v-model="isDialogVisibleCreateObservation"
-    title="Añadir Observación"
-    labelClose="Cerrar"
-    labelSend="Enviar"
-    :onclickClose="closeDialog"
-    :onclickSend="handleSend"
-    v-model:textValue="newObservation"
-    :informationBinnacles="observationBinnacles"
-    :informationBinnaclesDate="observationBinnaclesDate"
-    labelTextArea="Escriba una Observacón para esta bitacoras"
-    :loading="loadingCreateOdservation"
-  >
+  <dialogCreateObservation v-model="isDialogVisibleCreateObservation" title="Añadir Observación" labelClose="Cerrar"
+    labelSend="Enviar" :onclickClose="closeDialog" :onclickSend="handleSend" v-model:textValue="newObservation"
+    :informationBinnacles="observationBinnacles" :informationBinnaclesDate="observationBinnaclesDate"
+    labelTextArea="Escriba una Observacón para esta bitacoras" :loading="loadingCreateOdservation">
   </dialogCreateObservation>
 </template>
 
@@ -106,6 +79,7 @@ const route = useRoute();
 const chatMessages = [];
 
 // validacions de input e busqueda
+const formRef = ref(null);
 const validateRequieredSearch = (v) => {
   if (radioButtonList.value === '') {
     return 'Debes seleccionar una opción (Seguimiento, Aprendiz) antes de buscar.'
@@ -132,11 +106,11 @@ const columns = ref([
     align: "center",
     field: (row) =>
       row.register.idApprentice[0].firstName +
-      " " +
-      row.register.idApprentice[0].lastName
+        " " +
+        row.register.idApprentice[0].lastName
         ? row.register.idApprentice[0].firstName +
-          " " +
-          row.register.idApprentice[0].lastName
+        " " +
+        row.register.idApprentice[0].lastName
         : "No asignado",
     sortable: true,
   },
@@ -201,8 +175,6 @@ async function loadDataBinnacles() {
     let messageError;
     if (error.response && error.response.data && error.response.data.message) {
       messageError = "no hay bitacoras para mostrar";
-      const response = await getData("/binnacles/listallbinnacles");
-      rows.value = response;
     } else if (
       error.response &&
       error.response.data &&
@@ -302,9 +274,14 @@ function closeDialog() {
 }
 
 const OptionsStatus = [
+
+{ label: "Programado", value: "1" },
+{ label: "Ejecutado", value: "2" },
   { label: "Pendiente", value: "3" },
   { label: "Verificado", value: "4" },
 ];
+
+const filteredOptionsStatus = OptionsStatus.filter(option => option.value !== "1" && option.value !== "2");
 
 async function onclickSelectOptions(row, value) {
   try {
@@ -368,11 +345,18 @@ async function searchApprentice() {
 const handleRadioChange = async () => {
   if (radioButtonList.value === "instructor") {
     const response = await getData("/binnacles/listallbinnacles");
+    const uniqueInstructors = new Set();
     console.log(response);
-    optionSearch.value = response.map((option) => ({
-      _id: option.instructor.idinstructor,
-      label: `${option.instructor.name}`,
-    }));
+    optionSearch.value = response.map((option) => {
+    const instructorId =  option.instructor.idinstructor
+    if(!uniqueInstructors.has(instructorId)){
+      uniqueInstructors.add(instructorId)
+      return {
+        _id:  option.instructor.idinstructor,
+        label: `${option.instructor.name}`,
+      }
+    }
+    }).filter(Boolean);
     filterOptionsSearch.value = optionSearch.value;
   } else if (radioButtonList.value === "apprentice") {
     const response = await getData("/binnacles/listallbinnacles");
@@ -404,14 +388,14 @@ function validationSearch() {
 
   if (radioButtonList.value === '') {
     notifyWarningRequest('Debes seleccionar una opción (Seguimiento, Aprendiz) antes de buscar.');
-    return false; 
+    return false;
   }
   if (searchValue.value === '') {
     notifyWarningRequest('El campo de búsqueda no puede estar vacío. Por favor, ingrese un dato para continuar.');
     return false;
 
   }
-  return true; 
+  return true;
 }
 
 async function fetchDataSearch() {
@@ -429,33 +413,27 @@ async function filterFunctionSearch(val, update) {
 }
 
 async function searchButton() {
-
-  if(!validationSearch()){
+  const isvalid = await formRef.value.validate();
+  if (!isvalid) {
+    return;
+  }
+  if (!validationSearch()) {
     loadingSearch.value = false
     return
   }
   loadingSearch.value = true;
-  try{
-    // const validationResult = validateRequieredSearch(searchValue.value);
-    // if (!validationResult ) {
-    //   notifyWarningRequest(validationResult);
-    //   return;
-    // }
-
-  if (radioButtonList.value === "instructor") {
-    await searchInstructor();
-  } else if (radioButtonList.value === "apprentice") {
-    await searchApprentice();
+  try {
+    if (radioButtonList.value === "instructor") {
+      await searchInstructor();
+    } else if (radioButtonList.value === "apprentice") {
+      await searchApprentice();
+    }
+    clearSearch();
+  } finally {
+    loadingSearch.value = false;
   }
-  clearSearch();
-}finally{
-  loadingSearch.value = false;
+
 }
- 
-}
-
-
-
 </script>
 
 <style scoped>
@@ -471,12 +449,19 @@ async function searchButton() {
   margin: 20px;
 }
 
+
+.allInputButtonsSearch p {
+  font-weight: bold;
+  color: green;
+  font-size: 11px;
+  margin: 0px;
+}
+
 .searchButtons {
   display: flex;
   gap: 20px;
-  justify-content: space-between;
-  align-items: center;
 }
+
 
 .InputButtonsSearch {
   display: flex;
