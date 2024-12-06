@@ -20,7 +20,7 @@
     </div>
   </div>
 
-  <tableSelect :rows="rows" :columns="columns" :options="OptionsStatus" :onClickSeeObservation="openClickSeeObservation"
+  <tableSelect :rows="rows" :columns="columns" :options="filteredOptionsStatus" :onClickSeeObservation="openClickSeeObservation"
     :onClickCreateObservation="openClickCreateObservation" :onclickSelectOptions="onclickSelectOptions"
     :loading="loading" />
 
@@ -265,9 +265,14 @@ function closeDialog() {
 }
 
 const OptionsStatus = [
+
+{ label: "Programado", value: "1" },
+{ label: "Ejecutado", value: "2" },
   { label: "Pendiente", value: "3" },
   { label: "Verificado", value: "4" },
 ];
+
+const filteredOptionsStatus = OptionsStatus.filter(option => option.value !== "1" && option.value !== "2");
 
 async function onclickSelectOptions(row, value) {
   try {
