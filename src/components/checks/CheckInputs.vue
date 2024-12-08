@@ -15,7 +15,10 @@
         :checked="checkProjectInstructor"
         @change="$emit('update-check', id, 'checkProjectInstructor', $event.target.checked)"
       />
+    </label>
     </div>
+
+
   </template>
   
   <script>

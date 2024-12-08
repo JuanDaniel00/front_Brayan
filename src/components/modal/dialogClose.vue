@@ -67,6 +67,10 @@ function closeDialog() {
 
 
 <style>
+
+ddf{
+  color: rgb(34, 189, 101);
+}
 .title {
   background-color: #2f7d32;
   color: white;
@@ -81,5 +85,9 @@ function closeDialog() {
 
 .q-card__actions {
   background-color: rgb(193, 189, 189);
+}
+
+.q-message-name {
+  font-weight: bold;
 }
 </style>

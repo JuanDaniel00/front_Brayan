@@ -54,6 +54,7 @@ let searchValue = ref("");
 let radioButtonList = ref("");
 let optionSearch = ref([]);
 let filterOptionsSearch = ref([]);
+let responseFromLoadDataBinnacles = ref(null)
 
 //Variables de observaciones
 let observationBinnacles = ref("");
@@ -75,7 +76,8 @@ let loadingSearch = ref(false);
 let loadingCreateOdservation = ref(false);
 const route = useRoute();
 
-
+let instructorId = ref("");
+let instructorName = ref("");
 const chatMessages = [];
 
 // validacions de input e busqueda
@@ -161,28 +163,28 @@ async function loadDataBinnacles() {
   console.log("listfollow", idRegister);
   try {
     if (idRegister) {
-      const response = await getData(
+      const responseFromLoadDataBinnacles = await getData(
         `/binnacles/listBinnaclesByRegister/${idRegister}`
       );
-      console.log("Listar por Bitacoras", response);
-      rows.value = response.binnacles;
+      console.log("responseFromLoadDataBinnacles", responseFromLoadDataBinnacles);
+      rows.value = responseFromLoadDataBinnacles.binnacles;
     } else {
-      const response = await getData("/binnacles/listallbinnacles");
-      console.log(response);
-      rows.value = response;
+      const responseFromLoadDataBinnacles = await getData("/binnacles/listallbinnacles");
+      console.log(responseFromLoadDataBinnacles);
+      rows.value = responseFromLoadDataBinnacles;
     }
   } catch (error) {
     let messageError;
-    if (error.response && error.response.data && error.response.data.message) {
+    if (error.responseFromLoadDataBinnacles && error.responseFromLoadDataBinnacles.data && error.responseFromLoadDataBinnacles.data.message) {
       messageError = "no hay bitacoras para mostrar";
     } else if (
-      error.response &&
-      error.response.data &&
-      error.response.data.errors &&
-      error.response.data.errors[0].msg
+      error.responseFromLoadDataBinnacles &&
+      error.responseFromLoadDataBinnacles.data &&
+      error.responseFromLoadDataBinnacles.data.errors &&
+      error.responseFromLoadDataBinnacles.data.errors[0].msg
     ) {
       messageError =
-        error.response.data.errors[0].msg || "Error al cargar las bitacoras";
+        error.responseFromLoadDataBinnacles.data.errors[0].msg || "Error al cargar las bitacoras";
     } else {
       messageError = "Error al cargar las bitacoras";
     }
@@ -192,9 +194,16 @@ async function loadDataBinnacles() {
   }
 }
 
+
 async function openClickSeeObservation(row) {
   isChatOpen.value = true;
+  console.log("row", row);
   console.log("row.observation", row.observation);
+  instructorId.value = row.instructor._id
+  console.log("instructorId", instructorId.value)
+  
+
+  instructorName.value = row.instructor.name
 
 
   // Si no hay observaciones, mostrar mensaje por defecto
@@ -213,11 +222,11 @@ async function openClickSeeObservation(row) {
     chatMessages.splice(0, chatMessages.length); // Limpiar mensajes previos
     chatMessages.push(
       ...row.observation.map((obs) => ({
-        name: "ADMIN",
+        name: obs.user ? "Instructor(a) " + instructorName.value : "Tú",
         text: [obs.observation],
         stamp: formatDate(obs.observationDate),
-        sent: true,
-        bgColor: "green-7",
+        sent: !obs.user,
+        bgColor: obs.user ? "green-6" : "green-8",
         textColor: "white",
       }))
     );
