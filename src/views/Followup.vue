@@ -1,3 +1,4 @@
+
 <template>
   <Header title="Seguimiento"></Header>
 
@@ -14,27 +15,29 @@
         <div class="InputButtonsSearch">
           <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
             optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select"
-            :rules="[validateRequieredSearch]" lazy-rules ref="inputSearch" />
+            :rules="[validateRequieredSearch]" lazy-rules/>
           <buttonSearch type="submit" :onclickButton="searchButtons" :loading=loadingSearch />
         </div>
       </q-form>
     </div>
   </div>
 
-  <tableSelect :rows="rows" :columns="columns" :onClickSeeObservation="openClickSeeObservation"
-    :onClickCreateObservation="openClickCreateObservation" :loading="loading" />
+  <tableSelect :rows="rows" :columns="columns" :options="OptionsStatus" :onClickSeeObservation="openClickSeeObservation"
+    :onClickCreateObservation="openClickCreateObservation" :onclickSelectOptions="onclickSelectOptions"
+    :loading="loading" />
 
   <dialogSeeObservation v-model="isDialogVisibleObservation" title="OBSERVACIONES" labelClose="Cerrar"
     labelSend="Guardad" :onclickClose="closeDialog" :onclickSend="saveChanges"
     :informationBinnacles="observationFollowup">
-
   </dialogSeeObservation>
 
+  <q-form ref="formObservation" @submit.prevent="handleSend">
   <dialogCreateObservation v-model="isDialogVisibleCreateObservation" title="AÑADIR ODSERVACIONES" labelClose="close"
     labelSend="guardar" :onclickClose="closeDialog" :onclickSend="handleSend"
     labelTextArea="Escriba esta observación para este Seguimiento" v-model:textValue="newObservation"
-    :loading="loadingCreateOdservation">
+    :loading="loadingCreateOdservation" :rules="[ (val) => !!val || 'El campo es obligatorio']">
   </dialogCreateObservation>
+  </q-form>
 </template>
 
 <script setup>
@@ -83,6 +86,7 @@ let id = ref('')
 
 // validaciones de input de vusqueda
 const formRef = ref(null)
+const formObservation = ref(null)
 const validateRequieredSearch = (v) => {
   if (radioButtonList.value === '') {
     return 'Debes seleccionar una opción (Seguimiento, Aprendiz) antes de buscar.'
@@ -91,6 +95,12 @@ const validateRequieredSearch = (v) => {
     return 'El campo de búsqueda es obligatorio';
   }
   return true;
+}
+
+// Función para obtener el nombre del estado
+const getStatusLabel = (status) => {
+  const statusOption = OptionsStatus.find(option => option.value === String(status));
+  return statusOption ? statusOption.label : status;
 }
 
 const columns = ref([
@@ -126,7 +136,7 @@ const columns = ref([
     name: "status",
     label: "ESTADO",
     align: "center",
-    field: "status",
+    field: row => getStatusLabel(row.status),
     sortable: true,
   },
   {
@@ -160,11 +170,17 @@ async function loadDataFollowup() {
     if (idInstructor) {
       const response = await getData(`/followup/listFollowupByRegister/${idInstructor}`);
       console.log(response);
-      rows.value = response.followup
+      rows.value = response.followup.map(item => ({
+        ...item,
+        status: getStatusLabel(item.status)
+      }));
     } else {
       const response = await getData('/followup/listallfollowup');
       console.log(response)
-      rows.value = response
+      rows.value = response.map(item => ({
+        ...item,
+        status: getStatusLabel(item.status)
+      }));
     }
   } catch (error) {
     let messageError;
@@ -199,7 +215,10 @@ async function openClickCreateObservation(row) {
   id.value = row._id;
 }
 async function handleSend() {
-  console.log('idod', id.value);
+  const isvalid = await formObservation.value.validate();
+  if (!isvalid) {
+    return;
+  }
   loadingCreateOdservation.value = true;
   try {
     const response = await putData(`/followup/addobservation/${id.value}`, { observation: newObservation.value });
@@ -233,7 +252,31 @@ function validarHandleSend() {
   }
 }
 
+const OptionsStatus = [
+  { label: "Programado", value: "1", disable: true },
+  { label: "Ejecutado", value: "2", disable: true },
+  { label: "Pendiente", value: "3" },
+  { label: "Verificado", value: "4" },
+];
 
+
+async function onclickSelectOptions(row, value) {
+  try {
+    const response = await putData(
+      `/followup/updatestatus/${row._id}/${value}`,
+      {
+        status: row.value,
+      }
+    );
+    const index = rows.value.findIndex((r) => r._id === row._id);
+    if (index !== -1) {
+      rows.value[index].status = getStatusLabel(value); // Actualiza solo el estado de la fila modificada
+    }
+    console.log("Estado actualizado:", response.data);
+  } catch (error) {
+    console.error("Error al actualizar el estado:", error);
+  }
+}
 
 function cleanObservaton() {
   newObservation.value = '';
@@ -246,7 +289,10 @@ async function searchInstructor() {
   try {
     const response = await getData(`/followup/listfollowupbyinstructor/${searchValue.value}`)
     console.log('Instlist', response);
-    rows.value = response
+    rows.value = response.map(item => ({
+      ...item,
+      status: getStatusLabel(item.status)
+    }));
   } catch (error) {
     if (searchValue.value === '') {
       validationSearch()
@@ -268,7 +314,10 @@ async function searchApprentice() {
   try {
     const response = await getData(`/followup/listFollowupByRegister/${searchValue.value}`)
     console.log('aprendiz', response);
-    rows.value = response.followup
+    rows.value = response.followup.map(item => ({
+      ...item,
+      status: getStatusLabel(item.status)
+    }));
 
   } catch (error) {
     if (searchValue.value === '') {
@@ -294,10 +343,10 @@ const handleRadioChange = async () => {
     console.log('apprentice', response)
     optionSearch.value = response.map(option => {
       const instructorId = option.instructor.idinstructor;
-      if(!uniqueInstructors.has(instructorId)){
+      if (!uniqueInstructors.has(instructorId)) {
         uniqueInstructors.add(instructorId);
         return {
-          _id:  option.instructor.idinstructor,
+          _id: option.instructor.idinstructor,
           label: `${option.instructor.name}`,
         };
       }
@@ -358,11 +407,10 @@ async function searchButtons() {
   if (!isvalid) {
     return;
   }
-  loadingSearch.value = true;
   if (!validationSearch()) {
-    loadingSearch.value = false
     return
   }
+  loadingSearch.value = true;
   try {
     if (radioButtonList.value === 'instructor') {
       await searchInstructor()
@@ -404,6 +452,7 @@ async function searchButtons() {
   font-size: 11px;
   margin: 0px;
 }
+
 .searchButtons {
   display: flex;
   gap: 20px;

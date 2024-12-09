@@ -10,7 +10,7 @@
       <q-card-section>
         <slot>
           <div class="q-pa-md" style="max-width: 500px">
-            <q-input v-model="computedTextValue" filled type="textarea" :label="labelTextArea" />
+            <q-input v-model="computedTextValue" :rules="rules" filled type="textarea" :label="labelTextArea"/>
           </div>
         </slot>
       </q-card-section>
@@ -69,10 +69,17 @@ const props = defineProps({
   loading:{
     type: Boolean,
     required: true
-  }
+  },
+  rules:{
+    type: Array,
+    required: true
+  },
+  rules: {
+        type: Array,
+        default: () => [],
+    },
 
 });
-
 
 const emit = defineEmits(['update:modelValue', 'update:textValue']);
 

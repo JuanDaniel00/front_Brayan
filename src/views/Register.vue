@@ -25,13 +25,16 @@
         :next="nextFormModal">
         <template #content>
           <div class="input-grid">
-            <CustomSelect map-options label="Seleccionar modalidad" v-model="modalityId" required
-              :options="modalitiesOptions" optionLabel="name" optionValue="_id" errorMessage="Modalidad requerida"
-              icon="shapes" type="text">
-            </CustomSelect>
+            <q-form ref="formRef" @submit.prevent="nextFormModal">
+              <CustomSelect map-options label="Seleccionar modalidad" v-model="modalityId" required
+                :options="modalitiesOptions" optionLabel="name" optionValue="_id" errorMessage="Modalidad requerida"
+                icon="shapes" type="text">
+              </CustomSelect>
+              </q-form>
           </div>
         </template>
       </FormModal>
+
 
       <FormModal :modelValue="secondModaldialog" :title="dialogTitle" :onSave="saveRegister"
         @update:modelValue="secondModaldialog = $event">
@@ -916,6 +919,10 @@ function formatDate(date) {
 
 // Función para abrir el siguiente modal del formulario
 function nextFormModal() {
+  const isvalid =  formRef.value.validate();
+  if (!isvalid) {
+    return;
+  }
   console.log(modalityId.value.name);
   dialogTitle.value = "CREAR REGISTRO";
   if (
@@ -1101,8 +1108,8 @@ const formRef = ref(null);
 // Función para guardar un registro
 const saveRegister = async () => {
   if (!formRef.value.validate()) {
-  return
-}
+    return
+  }
   try {
     let response = await postData("register/addregister", registerData);
 
@@ -1117,9 +1124,9 @@ const saveRegister = async () => {
 
 
 const saveRegisterModal = async () => {
-if (!formRef.value.validate()) {
-  return
-}
+  if (!formRef.value.validate()) {
+    return
+  }
 
   // Verificar que todos los campos estén llenos
   if (
