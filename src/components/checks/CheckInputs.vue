@@ -1,17 +1,21 @@
-<!-- components/checks/CheckInputs.vue -->
 <template>
-    <div>
-      <input
-        type="checkbox"
-        :checked="checkTechnicalInstructor"
-        @change="$emit('update-check', id, 'checkTechnicalInstructor', $event.target.checked)"
-      />
+  <div class="check-inputs">
+    <label class="checkbox-container">
+      <input type="checkbox" :checked="checkTechnicalInstructor"
+        @change="$emit('update-check', id, 'checkTechnicalInstructor', $event.target.checked)" />
+      <span class="checkmark"></span>
+      Técnico
+    </label>
+    <label class="checkbox-container">
       <input
         type="checkbox"
         :checked="checkProjectInstructor"
         @change="$emit('update-check', id, 'checkProjectInstructor', $event.target.checked)"
       />
+    </label>
     </div>
+
+
   </template>
   
   <script>
@@ -19,15 +23,12 @@
     props: {
       checkTechnicalInstructor: {
         type: Boolean,
-        required: true,
       },
       checkProjectInstructor: {
         type: Boolean,
-        required: true,
       },
       id: {
         type: String,
-        required: true,
       },
     },
   };

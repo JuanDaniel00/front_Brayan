@@ -41,15 +41,14 @@
         <template #content>
           <q-form ref="formRef" @submit="saveRegister" class="formModality">
             <div class="input-grid">
-              <CustomSelect map-options label="Aprendiz" v-model="apprentice" @filter="filterApprentice" required
+              <CustomSelect map-options label="Aprendiz" v-model="idApprentice" @filter="filterApprentice" required
                 :options="apprenticeOptions" optionLabel="apprenticeName" optionValue="apprenticeId"
                 errorMessage="Aprendiz requerido" icon="users-line" type="text">
               </CustomSelect>
 
-              <CustomSelect filled label="Instructor de Seguimiento" v-model="followupInstructor"
-                @filter="filtroInstructores" required :options="instructoresFiltrados" optionLabel="instructorName"
-                optionValue="instructorId" errorMessage="Instructor de seguimiento requerido" icon="chalkboard-user"
-                type="text"></CustomSelect>
+              <CustomSelect filled label="Instructor de Seguimiento" v-model="followupInstructor" required
+                :options="instructorsOptions" optionLabel="instructorName" optionValue="instructorId"
+                errorMessage="Instructor de seguimiento requerido" icon="chalkboard-user" type="text"></CustomSelect>
 
               <Input id="startDate" filled label="Fecha de Inicio" v-model="startDate" required
                 errorMessage="Fecha requerida" icon="calendar-days" type="date" :rules="[
@@ -417,6 +416,7 @@ const confirmDialog = ref(false);
 
 const modalitiesOptions = ref([]);
 const apprenticeOptions = ref([]);
+const instructorsOptions = ref([]);
 
 // v-models de los inputs
 const idApprentice = ref("");
@@ -779,9 +779,9 @@ const filtroInstructores = (val, update) => {
   }
 
   update(() => {
-    // Filtra los instructores aquí
-    instructoresFiltrados.value = instructoresFiltrados.value.filter(
-      (instructor) => instructor.name.toLowerCase().includes(val.toLowerCase())
+    const needle = val.toLowerCase();
+    instructoresFiltrados.value = instructores.value.filter((instructor) =>
+      instructor.name.toLowerCase().includes(needle)
     );
   });
 };
@@ -861,6 +861,12 @@ async function getDataForTable() {
           apprenticeId: apprentice._id,
           apprenticeName:
             `${apprentice.firstName} ${apprentice.lastName} - ${apprentice.fiche.name}`.trim(),
+        }));
+
+        instructorsOptions.value = instructores.value.map((instructor) => ({
+          instructorId: instructor._id,
+          instructorName:
+            `${instructor.name} - ${instructor.numdocument}`.trim()
         }));
 
         return {

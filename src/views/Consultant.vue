@@ -153,13 +153,13 @@ const getApprenticeInfo = async () => {
     case 1:
       productiveStageStatus.value = " " + "Activo";
       break;
-    case 3:
+    case 2:
       productiveStageStatus.value = " " + "En Etapa Práctica";
       break;
-    case 4:
+    case 3:
       productiveStageStatus.value = " " + "Por Certificar";
       break;
-    case 5:
+    case 4:
       productiveStageStatus.value = " " + "Certificado";
       break;
     default:

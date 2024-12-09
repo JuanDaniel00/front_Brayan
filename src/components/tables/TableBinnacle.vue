@@ -11,10 +11,7 @@
 
             <template v-slot:body-cell-status="props">
                 <q-td :props="props" class="q-pa-xs text-center">
-                    <q-select v-model="props.row.status"
-                        @update:model-value="value => onclickSelectOptions(props.row, value)" :options="options"
-                        class="status-select" label="Seleccione Estado" dense outlined emit-value map-options>
-                    </q-select>
+                    <q-input v-model="props.row.status" readonly dense outlined :value="mapStatus(props.row.status)" />
                 </q-td>
             </template>
 
@@ -55,10 +52,10 @@
 import { ref } from "vue";
 import CheckButton from "./../checks/CheckInputs.vue"
 
-// const OptionsStatus = [
-//   { label: 'Pendiente', value: '3' },
-//   { label: 'Verificado', value: '4' }
-// ];
+const mapStatus = (status) => {
+    return status === '1' ? 'Programado' : 'Ejecutado';
+};
+
 
 const props = defineProps({
     rows: {
@@ -77,18 +74,10 @@ const props = defineProps({
         type: Function,
         required: true,
     },
-    options: {
-        type: Array,
-        required: true,
-    },
-    onclickSelectOptions: {
-        type: Function,
-        required: true,
-    },
     loading: {
-    type: Boolean,
-    required: true,
-  },
+        type: Boolean,
+        required: true,
+    },
     onClickLinkDetail: {
         type: Function,
         required: true,
@@ -99,25 +88,25 @@ const props = defineProps({
 
 <style scoped>
 .q-table-custom {
-  scrollbar-width: thin; 
-  scrollbar-color: #2F7D32 #f1f1f1;
+    scrollbar-width: thin;
+    scrollbar-color: #2F7D32 #f1f1f1;
 }
 
 .custom-header-row {
-  background-color: #449247;
+    background-color: #449247;
 }
 
 .custom-header-cell {
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  padding: 12px;
-  font-size: 16px;
-  font-weight: 700;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 700;
 }
 
 .edit-btn {
-  background-color: #1c4b33 !important;
+    background-color: #1c4b33 !important;
 }
 
 .q-pa-xs {
