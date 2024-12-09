@@ -89,7 +89,7 @@
         </div>
       </div>
     </div>
-    <q-form ref="formRef" @submit.prevent="searchButton" class="InputButtonsSearch">
+    <q-form ref="formSearch" @submit.prevent="searchButton" class="InputButtonsSearch">
       <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
         optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select"
         :rules="[validateRequieredSearch]" lazy-rules />
@@ -129,6 +129,7 @@ onBeforeMount(() => {
 });
 
 const formRef = ref(null)
+const formSearch = ref(null)
 const formData = ref({
   firstName: '',
   lastName: '',
@@ -687,7 +688,7 @@ async function filterFunctionSearch(val, update) {
 }
 
 async function searchButton() {
-  const isvalid = await formRef.value.validate();
+  const isvalid = await formSearch.value.validate();
   if(!isvalid){
     return
   }

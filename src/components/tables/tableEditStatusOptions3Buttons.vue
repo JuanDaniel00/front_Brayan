@@ -55,9 +55,6 @@
                             <q-fab-action external-label label-position="top" color="primary" @click="onClick"
                                 icon="visibility">
 
-                                <!-- <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 10]">
-                                    <strong>Detalles</strong>
-                                </q-tooltip> -->
                                 <q-tooltip anchor="top middle" self="bottom middle" :offset="[10, 10]">
                                     <strong>Dellates</strong>
                                 </q-tooltip>

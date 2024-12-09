@@ -92,7 +92,7 @@ let loadingSend = ref(false)
 
 // Lista de modalidades existentes
 let existingModalities = ref([])
-const modalityInstructorUno = ['MONITORIAS', 'PASANTIA', 'VICULO LABORAL', 'UNIDAD PRODUCTIVA FAMILIAR', 'CONTRATO DE APRENDIZAJE']
+const modalityInstructorUno = ['MONITORIAS', 'PASANTIA', 'VINCULO LABORAL', 'UNIDAD PRODUCTIVA FAMILIAR', 'CONTRATO DE APRENDIZAJE']
 const isModalityInstructorUno = computed(() => {
   return modalityInstructorUno.includes(formData.value.modality);
 });

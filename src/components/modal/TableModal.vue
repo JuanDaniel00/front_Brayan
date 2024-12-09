@@ -1,5 +1,5 @@
 <template>
-    <q-dialog :model-value="dialog" persistent full-width transition-show="slide-up" transition-hide="slide-down"
+    <q-dialog :model-value="dialog" persistent full-width  transition-show="slide-up" transition-hide="slide-down"
         @update:model-value="(val) => $emit('update:dialog', val)">
         <q-card>
             <q-bar>
@@ -9,7 +9,7 @@
                 </q-btn>
             </q-bar>
             <slot></slot>
-            <q-card-section class="q-pt-none">
+            <q-card-section class="q-pt-none ">
             </q-card-section>
         </q-card>
     </q-dialog>

@@ -70,7 +70,8 @@ const validateRequiredDocument = (v) => !!v || 'Este campo Documento es obligato
 const validateRequiredPassword = (v) => !!v || 'Este campo Contraseña es obligatorio';
 const validateRequiredRol = (v) => !!v || 'Este campo Rol es obligatorio';
 const validateEmail = (v) => /.+@.+\..+/.test(v) || 'Correo electrónico no válido';
-const validateDocument = (v) => v.length === 10 || 'Documento no válido';
+// const validateDocument = (v) => v.length > 10 || 'El documento no debe  mas de 10 caracteres';
+const validateDocument = (v) => v.length === 10 || 'El documento debe tener exactamente 10 caracteres';
 const validatePassword = (v) => v.length >= 6 || 'Contraseña debe tener al menos 6 caracteres';
 const validateRol = (v) => {
   const validRoles = ['CONSULTOR', 'ADMIN', 'INSTRUCTOR'];
@@ -143,8 +144,10 @@ const handleSubmit = async () => {
     resetForm()
   } catch (error) {
     let messageError;
-    if (error.response?.data?.errors?.length > 0) {
+    if (error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].msg) {
       messageError = error.response.data.errors[0].msg;
+    } else if (error.response && error.response.data && error.response.data.msg) {
+      messageError = error.response.data.msg;
     } else if (error.response?.data?.data?.msg) {
       messageError = 'Usuario/contraseña incorrectos. Intenta nuevamente.';
     } else {
