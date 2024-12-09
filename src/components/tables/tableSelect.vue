@@ -13,7 +13,8 @@
                 <q-td :props="props" class="q-pa-xs text-center">
                     <q-select v-model="props.row.status"
                         @update:model-value="value => onclickSelectOptions(props.row, value)" :options="options"
-                        class="status-select" label="Seleccione Estado" dense outlined emit-value map-options>
+                        class="status-select" label="Seleccione Estado" dense outlined emit-value map-options
+                        option-value="value" option-label="label">
                     </q-select>
                 </q-td>
             </template>
@@ -51,12 +52,6 @@
 
 <script setup>
 import { ref } from "vue";
-
-// const OptionsStatus = [
-//   { label: 'Pendiente', value: '3' },
-//   { label: 'Verificado', value: '4' }
-// ];
-
 const props = defineProps({
     rows: {
         type: Array,
@@ -83,38 +78,47 @@ const props = defineProps({
         required: true,
     },
     loading: {
-    type: Boolean,
-    required: true,
-  },
+        type: Boolean,
+        required: true,
+    },
     onClickLinkDetail: {
         type: Function,
         required: true,
-    },
+    }
 });
+
+
+// const OptionsStatus = [
+//     { label: "Programado", value: "1", disable: true },
+//     { label: "Ejecutado", value: "2", disable: true },
+//     { label: "Pendiente", value: "3" },
+//     { label: "Verificado", value: "4" },
+// ];
+
 
 </script>
 
 <style scoped>
 .q-table-custom {
-  scrollbar-width: thin; 
-  scrollbar-color: #2F7D32 #f1f1f1;
+    scrollbar-width: thin;
+    scrollbar-color: #2F7D32 #f1f1f1;
 }
 
 .custom-header-row {
-  background-color: #449247;
+    background-color: #449247;
 }
 
 .custom-header-cell {
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  padding: 12px;
-  font-size: 16px;
-  font-weight: 700;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 700;
 }
 
 .edit-btn {
-  background-color: #1c4b33 !important;
+    background-color: #1c4b33 !important;
 }
 
 .q-pa-xs {

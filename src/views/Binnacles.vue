@@ -20,22 +20,23 @@
     </div>
   </div>
 
-  <tableSelect :rows="rows" :columns="columns" :options="filteredOptionsStatus" :onClickSeeObservation="openClickSeeObservation"
-    :onClickCreateObservation="openClickCreateObservation" :onclickSelectOptions="onclickSelectOptions"
-    :loading="loading" />
+  <tableSelect :rows="rows" :columns="columns" :options="OptionsStatus"
+    :onClickSeeObservation="openClickSeeObservation" :onClickCreateObservation="openClickCreateObservation"
+    :onclickSelectOptions="onclickSelectOptions" :loading="loading" />
 
   <dialogSeeObservation v-model="isChatOpen" :messages="chatMessages" title="OBSERVACIONES" labelClose="Cerrar">
   </dialogSeeObservation>
-
+  <q-form ref="formObservation" @submit.prevent="handleSend">
   <dialogCreateObservation v-model="isDialogVisibleCreateObservation" title="Añadir Observación" labelClose="Cerrar"
     labelSend="Enviar" :onclickClose="closeDialog" :onclickSend="handleSend" v-model:textValue="newObservation"
     :informationBinnacles="observationBinnacles" :informationBinnaclesDate="observationBinnaclesDate"
-    labelTextArea="Escriba una Observacón para esta bitacoras" :loading="loadingCreateOdservation">
+    labelTextArea="Escriba una Observacón para esta bitacoras" :loading="loadingCreateOdservation"  :rules="[ (val) => !!val || 'El campo es obligatorio']">
   </dialogCreateObservation>
+  </q-form>
 </template>
 
 <script setup>
-import { ref, onBeforeMount, handleError } from "vue";
+import { ref, onBeforeMount } from "vue";
 import Header from "../components/header/header.vue";
 import tableSelect from "../components/tables/tableSelect.vue";
 import dialogSeeObservation from "../components/modal/dialogClose.vue";
@@ -45,10 +46,9 @@ import radioButtonApprentice from "../components/radioButtons/radioButton.vue";
 import inputSelect from "../components/input/inputSelect.vue";
 import buttonSearch from "../components/buttons/buttonSearch.vue";
 import { notifyErrorRequest, notifySuccessRequest, notifyWarningRequest } from "../composables/useNotify.js";
-import { getData, postData, putData } from "../services/ApiClient";
+import { getData, putData } from "../services/ApiClient";
 import { useRoute } from "vue-router";
 import { formatDate } from "../utils/changeDateFormat.js";
-
 
 let searchValue = ref("");
 let radioButtonList = ref("");
@@ -65,8 +65,6 @@ let isChatOpen = ref(false);
 // observación
 let newObservation = ref("");
 
-
-
 const id = ref("");
 
 // spiner
@@ -75,11 +73,11 @@ let loadingSearch = ref(false);
 let loadingCreateOdservation = ref(false);
 const route = useRoute();
 
-
 const chatMessages = [];
 
 // validacions de input e busqueda
 const formRef = ref(null);
+const formObservation = ref(null);
 const validateRequieredSearch = (v) => {
   if (radioButtonList.value === '') {
     return 'Debes seleccionar una opción (Seguimiento, Aprendiz) antes de buscar.'
@@ -89,7 +87,6 @@ const validateRequieredSearch = (v) => {
   }
   return true;
 }
-
 
 const rows = ref([]);
 const columns = ref([
@@ -132,7 +129,7 @@ const columns = ref([
     name: "status",
     label: "ESTADO",
     align: "center",
-    field: "status",
+    field: 'status',
     sortable: true,
   },
   {
@@ -196,9 +193,8 @@ async function openClickSeeObservation(row) {
   isChatOpen.value = true;
   console.log("row.observation", row.observation);
 
-
   // Si no hay observaciones, mostrar mensaje por defecto
-  if (!row.observation || row.observation.length === 0) {  
+  if (!row.observation || row.observation.length === 0) {
     chatMessages.splice(0, chatMessages.length); // Limpiar mensajes previos
     chatMessages.push({
       name: "Sistema",
@@ -224,13 +220,16 @@ async function openClickSeeObservation(row) {
   }
 }
 
-
 async function openClickCreateObservation(row) {
   isDialogVisibleCreateObservation.value = true;
   id.value = row._id;
 }
 
 async function handleSend() {
+  const isvalid = await formObservation.value.validate();
+  if (!isvalid) {
+    return;
+  }
   loadingCreateOdservation.value = true;
   try {
     const response = await putData(`/binnacles/addobservation/${id.value}`, {
@@ -266,22 +265,21 @@ function validationHandleSend() {
     return;
   }
 }
+
 function cleanObservaton() {
   newObservation.value = "";
 }
+
 function closeDialog() {
   cleanObservaton();
 }
 
 const OptionsStatus = [
-
-{ label: "Programado", value: "1" },
-{ label: "Ejecutado", value: "2" },
+  { label: "Programado", value: "1",disable: true },
+  { label: "Ejecutado", value: "2", disable: true },
   { label: "Pendiente", value: "3" },
   { label: "Verificado", value: "4" },
 ];
-
-const filteredOptionsStatus = OptionsStatus.filter(option => option.value !== "1" && option.value !== "2");
 
 async function onclickSelectOptions(row, value) {
   try {
@@ -348,14 +346,14 @@ const handleRadioChange = async () => {
     const uniqueInstructors = new Set();
     console.log(response);
     optionSearch.value = response.map((option) => {
-    const instructorId =  option.instructor.idinstructor
-    if(!uniqueInstructors.has(instructorId)){
-      uniqueInstructors.add(instructorId)
-      return {
-        _id:  option.instructor.idinstructor,
-        label: `${option.instructor.name}`,
+      const instructorId = option.instructor.idinstructor
+      if (!uniqueInstructors.has(instructorId)) {
+        uniqueInstructors.add(instructorId)
+        return {
+          _id: option.instructor.idinstructor,
+          label: `${option.instructor.name}`,
+        }
       }
-    }
     }).filter(Boolean);
     filterOptionsSearch.value = optionSearch.value;
   } else if (radioButtonList.value === "apprentice") {
@@ -385,7 +383,6 @@ function clearSearch() {
 }
 
 function validationSearch() {
-
   if (radioButtonList.value === '') {
     notifyWarningRequest('Debes seleccionar una opción (Seguimiento, Aprendiz) antes de buscar.');
     return false;
@@ -393,7 +390,6 @@ function validationSearch() {
   if (searchValue.value === '') {
     notifyWarningRequest('El campo de búsqueda no puede estar vacío. Por favor, ingrese un dato para continuar.');
     return false;
-
   }
   return true;
 }
@@ -403,6 +399,7 @@ async function fetchDataSearch() {
 }
 
 fetchDataSearch();
+
 async function filterFunctionSearch(val, update) {
   update(() => {
     const needle = val.toLowerCase();
@@ -418,7 +415,6 @@ async function searchButton() {
     return;
   }
   if (!validationSearch()) {
-    loadingSearch.value = false
     return
   }
   loadingSearch.value = true;
@@ -432,7 +428,6 @@ async function searchButton() {
   } finally {
     loadingSearch.value = false;
   }
-
 }
 </script>
 
@@ -449,7 +444,6 @@ async function searchButton() {
   margin: 20px;
 }
 
-
 .allInputButtonsSearch p {
   font-weight: bold;
   color: green;
@@ -461,7 +455,6 @@ async function searchButton() {
   display: flex;
   gap: 20px;
 }
-
 
 .InputButtonsSearch {
   display: flex;

@@ -5,8 +5,8 @@ const token = JSON.parse(localStorage.getItem("auth")) || {};
 
 // Crear una instancia de axios
 const apiClient = axios.create({
-  baseURL: 'http://localhost:4500/api',
-  // baseURL: "https://etapas-practicas-ep.onrender.com/api",
+  // baseURL: 'http://localhost:4500/api',
+  baseURL: "https://etapas-practicas-ep.onrender.com/api",
   headers: {
     token: token.token || "",
   },

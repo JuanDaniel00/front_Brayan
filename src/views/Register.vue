@@ -25,18 +25,21 @@
         :next="nextFormModal">
         <template #content>
           <div class="input-grid">
-            <CustomSelect map-options label="Seleccionar modalidad" v-model="modalityId" required
-              :options="modalitiesOptions" optionLabel="name" optionValue="_id" errorMessage="Modalidad requerida"
-              icon="shapes" type="text">
-            </CustomSelect>
+            <q-form ref="formRef" @submit.prevent="nextFormModal">
+              <CustomSelect map-options label="Seleccionar modalidad" v-model="modalityId" required
+                :options="modalitiesOptions" optionLabel="name" optionValue="_id" errorMessage="Modalidad requerida"
+                icon="shapes" type="text">
+              </CustomSelect>
+              </q-form>
           </div>
         </template>
       </FormModal>
 
+
       <FormModal :modelValue="secondModaldialog" :title="dialogTitle" :onSave="saveRegister"
         @update:modelValue="secondModaldialog = $event">
         <template #content>
-          <q-form ref="formRef" @submit="saveRegister" class="formModality" >
+          <q-form ref="formRef" @submit="saveRegister" class="formModality">
             <div class="input-grid">
               <CustomSelect map-options label="Aprendiz" v-model="apprentice" @filter="filterApprentice" required
                 :options="apprenticeOptions" optionLabel="apprenticeName" optionValue="apprenticeId"
@@ -87,7 +90,7 @@
                 errorMessage="Documento requerido" icon="file-invoice" type="text" :rules="[
                   (val) => validateRequired(val, 'El documento alternativo es requerido'),
                   (val) => validateNoSpaces(val),
-                  (val) =>validateGoogleDriveLink(val)
+                  (val) => validateGoogleDriveLink(val)
                 ]" />
               <Input id="hour" filled label="Horas" v-model="hour" required errorMessage="Horas requeridas" icon="clock"
                 type="text" :rules="[
@@ -101,7 +104,7 @@
                   (val) => validateRequired(val, 'Las horas del proyecto de negocio son requeridas'),
                   (val) => validateNoSpaces(val),
                   (val) => validateNoAnySpaces(val),
-                  (val) => validateNoLetters(val)   
+                  (val) => validateNoLetters(val)
                 ]" />
               <Input id="productiveProjectHour" filled label="Horas del Proyecto Productivo"
                 v-model="productiveProjectHour" required errorMessage="Horas requeridas" icon="stopwatch" type="text"
@@ -110,7 +113,7 @@
                   (val) => validateNoAnySpaces(val),
                   (val) => validateNoSpaces(val),
                   (val) => validateNoLetters(val)
-                  
+
                 ]" />
               <Input id="mailCompany" filled label="Email de la empresa" v-model="mailCompany" required
                 errorMessage="Email de la empresa requerido" icon="envelope" type="text" :rules="[
@@ -145,10 +148,10 @@
               </div>
             </div>
           </div>
-          <q-form ref="formRef" @submit="saveRegister" class="formModality" >
-          <div class="formulario" filled>
-            <div class="contFormFila">
-              <h5>Datos</h5>
+          <q-form ref="formRef" @submit="saveRegister" class="formModality">
+            <div class="formulario" filled>
+              <div class="contFormFila">
+                <h5>Datos</h5>
                 <div class="contInput">
                   <q-input v-model="ownerModal" label="Jefe inmediato" label-color="primary" label-class="customLabel"
                     class="long" :rules="[
@@ -177,9 +180,7 @@
                     label-color="primary" label-class="customLabel" class="short" type="number" :rules="[
                       (val) => !!val || 'Campo requerido',
                       (val) => val >= 0 || 'No puede ser un valor negativo'
-                    ]"   :readonly="isReadOnly"
-  min="0"
-  step="1">
+                    ]" :readonly="isReadOnly" min="0" step="1">
                     <template v-slot:prepend>
                       <q-icon color="green-10" name="schedule" />
                     </template>
@@ -205,59 +206,59 @@
                     </template>
                   </q-input>
                 </div>
-            </div>
-            <div class="contFormFila">
-              <h5>Datos empresa</h5>
-              <div class="contInput">
-                <q-input v-model="companyModal" label="Nombre Empresa" label-color="primary" label-class="customLabel"
-                  class="long" :rules="[
-                    (val) => !!val || 'Campo requerido',
-                    (val) =>
-                      val.trim().length > 0 || 'No se permiten espacios vacíos',
-                    (val) => /^[^\s].*[^\s]$/.test(val) || 'No puede empezar ni terminar con espacios.',
-                    (val) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(val) || 'No puede incluir numeros'
-                  ]" :readonly="isReadOnly">
-                  <template v-slot:prepend>
-                    <q-icon color="green-10" name="business" />
-                  </template>
-                </q-input>
-                <q-input v-model="mailCompanyModal" label="Correo Empresa" label-color="primary"
-                  label-class="customLabel" class="long" type="email" :rules="[
-                    (val) => !!val || 'Campo requerido',
-                    (val) => /.+@.+\..+/.test(val) || 'Correo inválido',
-                    (val) =>
-                      val.trim().length > 0 || 'No se permiten espacios vacíos',
-                  ]" :readonly="isReadOnly">
-                  <template v-slot:prepend>
-                    <q-icon color="green-10" name="email" />
-                  </template>
-                </q-input>
-                <q-input v-model="addressCompanyModal" label="Dirección Empresa" label-color="primary"
-                  label-class="customLabel" class="long" :rules="[
-                    (val) => !!val || 'Campo requerido',
-                    (val) =>
-                      val.trim().length > 0 || 'No se permiten espacios vacíos',
-                    (val) => /^[a-zA-Z0-9\s.,-]+$/.test(val) || 'La dirección contiene caracteres no válidos.',
-                  ]" :readonly="isReadOnly">
-                  <template v-slot:prepend>
-                    <q-icon color="green-10" name="location_on" />
-                  </template>
-                </q-input>
-                <q-input v-model="phoneCompanyModal" label="Número Empresa" label-color="primary"
-                  label-class="customLabel" type="tel" :rules="[
-                    (val) => !!val || 'Campo requerido',
-                    (val) => /^\d+$/.test(val) || 'Solo números',
-                    (val) =>
-                      val.trim().length > 0 || 'No se permiten espacios vacíos',
+              </div>
+              <div class="contFormFila">
+                <h5>Datos empresa</h5>
+                <div class="contInput">
+                  <q-input v-model="companyModal" label="Nombre Empresa" label-color="primary" label-class="customLabel"
+                    class="long" :rules="[
+                      (val) => !!val || 'Campo requerido',
+                      (val) =>
+                        val.trim().length > 0 || 'No se permiten espacios vacíos',
+                      (val) => /^[^\s].*[^\s]$/.test(val) || 'No puede empezar ni terminar con espacios.',
+                      (val) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(val) || 'No puede incluir numeros'
+                    ]" :readonly="isReadOnly">
+                    <template v-slot:prepend>
+                      <q-icon color="green-10" name="business" />
+                    </template>
+                  </q-input>
+                  <q-input v-model="mailCompanyModal" label="Correo Empresa" label-color="primary"
+                    label-class="customLabel" class="long" type="email" :rules="[
+                      (val) => !!val || 'Campo requerido',
+                      (val) => /.+@.+\..+/.test(val) || 'Correo inválido',
+                      (val) =>
+                        val.trim().length > 0 || 'No se permiten espacios vacíos',
+                    ]" :readonly="isReadOnly">
+                    <template v-slot:prepend>
+                      <q-icon color="green-10" name="email" />
+                    </template>
+                  </q-input>
+                  <q-input v-model="addressCompanyModal" label="Dirección Empresa" label-color="primary"
+                    label-class="customLabel" class="long" :rules="[
+                      (val) => !!val || 'Campo requerido',
+                      (val) =>
+                        val.trim().length > 0 || 'No se permiten espacios vacíos',
+                      (val) => /^[a-zA-Z0-9\s.,-]+$/.test(val) || 'La dirección contiene caracteres no válidos.',
+                    ]" :readonly="isReadOnly">
+                    <template v-slot:prepend>
+                      <q-icon color="green-10" name="location_on" />
+                    </template>
+                  </q-input>
+                  <q-input v-model="phoneCompanyModal" label="Número Empresa" label-color="primary"
+                    label-class="customLabel" type="tel" :rules="[
+                      (val) => !!val || 'Campo requerido',
+                      (val) => /^\d+$/.test(val) || 'Solo números',
+                      (val) =>
+                        val.trim().length > 0 || 'No se permiten espacios vacíos',
                       (val) => val.length <= 10 || 'No puede ser mayor a 10 dígitos'
-                  ]" :readonly="isReadOnly">
-                  <template v-slot:prepend>
-                    <q-icon color="green-10" name="phone" />
-                  </template>
-                </q-input>
+                    ]" :readonly="isReadOnly">
+                    <template v-slot:prepend>
+                      <q-icon color="green-10" name="phone" />
+                    </template>
+                  </q-input>
+                </div>
               </div>
             </div>
-          </div>
           </q-form>
           <!-- Fin de Formulario de datos planos -->
           <div>
@@ -912,6 +913,10 @@ function formatDate(date) {
 
 // Función para abrir el siguiente modal del formulario
 function nextFormModal() {
+  const isvalid =  formRef.value.validate();
+  if (!isvalid) {
+    return;
+  }
   console.log(modalityId.value.name);
   dialogTitle.value = "CREAR REGISTRO";
   if (
@@ -1097,8 +1102,8 @@ const formRef = ref(null);
 // Función para guardar un registro
 const saveRegister = async () => {
   if (!formRef.value.validate()) {
-  return
-}
+    return
+  }
   try {
     let response = await postData("register/addregister", registerData);
 
@@ -1113,9 +1118,9 @@ const saveRegister = async () => {
 
 
 const saveRegisterModal = async () => {
-if (!formRef.value.validate()) {
-  return
-}
+  if (!formRef.value.validate()) {
+    return
+  }
 
   // Verificar que todos los campos estén llenos
   if (
