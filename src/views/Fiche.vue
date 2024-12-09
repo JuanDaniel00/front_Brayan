@@ -17,7 +17,7 @@
 <script setup>
 import { ref, onBeforeMount, computed } from 'vue';
 import Header from '../components/header/header.vue';
-import ficheTable from '../components/tables/tableFiche.vue';
+import ficheTable from '../components/tables/tableOneOption.vue';
 import { router } from '../router/routers';
 import { getData } from '../services/ApiClient';
 import { notifyErrorRequest } from '../composables/useNotify';

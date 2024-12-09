@@ -1,7 +1,7 @@
 <template>
   <q-layout view="hHh Lpr lff">
     <Header :toggle-drawer="toggleDrawer" />
-    
+
     <q-page-container class="consultant-page">
       <div class="container">
         <div class="row">
@@ -12,14 +12,15 @@
               <span>DATOS DEL APRENDIZ</span>
             </div>
             <div id="card-aprendiz">
-            <q-img src="https://senasofiaplus.xyz/wp-content/uploads/2023/10/logo-del-sena-01.png" class="sena-logo" />
-            <div class="card-body1">
-              <div><strong>NOMBRE:</strong> {{ apprenticeFullName }}</div>
-              <div><strong>N° DOCUMENTO:</strong> {{ appreticeDocument }}</div>
-              <div><strong>FICHA:</strong> {{ ficheName }}</div>
-              <div><strong>CÓDIGO FICHA:</strong> {{ ficheCode }}</div>
+              <q-img src="https://senasofiaplus.xyz/wp-content/uploads/2023/10/logo-del-sena-01.png"
+                class="sena-logo" />
+              <div class="card-body1">
+                <div><strong>NOMBRE:</strong> {{ apprenticeFullName }}</div>
+                <div><strong>N° DOCUMENTO:</strong> {{ appreticeDocument }}</div>
+                <div><strong>FICHA:</strong> {{ ficheName }}</div>
+                <div><strong>CÓDIGO FICHA:</strong> {{ ficheCode }}</div>
+              </div>
             </div>
-          </div>
           </div>
 
           <div class="card">
@@ -45,16 +46,16 @@
               <span>BITÁCORAS Y SEGUIMIENTOS</span>
             </div>
             <div id="card-aprendiz">
-            <div class="card-body1">
-              <div><strong>N° BITÁCORAS:</strong>{{ binnaclesNumber }}</div>
-              <div><strong>N° SEGUIMIENTOS:</strong>{{ followupNumber }}</div>
-            </div>
-            <div class="card-body1">
-              <div><strong>VER BITÁCORAS:</strong> <q-icon name="folder_open" color="green-7" /></div>
-              <div><strong>VER SEGUIMIENTOS:</strong> <q-icon name="folder_open" color="green-7" /></div>
+              <div class="card-body1">
+                <div><strong>N° BITÁCORAS:</strong>{{ binnaclesNumber }}</div>
+                <div><strong>N° SEGUIMIENTOS:</strong>{{ followupNumber }}</div>
+              </div>
+              <div class="card-body1">
+                <div><strong>VER BITÁCORAS:</strong> <q-icon name="folder_open" color="green-7" /></div>
+                <div><strong>VER SEGUIMIENTOS:</strong> <q-icon name="folder_open" color="green-7" /></div>
+              </div>
             </div>
           </div>
-        </div>
 
           <div class="card">
             <div class="card-header">
@@ -69,20 +70,24 @@
         </div>
       </div>
 
-      <q-btn label="Historial" color="green-7" icon="history" class="history-btn" />
+      <q-btn label="Historial" color="green-7" icon="history" @click="openHistoryApprentice" class="history-btn" :rules="[(val) => val.length === 0 || 'El aprendiz no tiene historial.' ]" />
     </q-page-container>
   </q-layout>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onBeforeMount } from "vue";
 import Header from "../layouts/LayoutHeader.vue";
 import { getData } from "../services/ApiClient";
-import { onBeforeMount } from "vue";
 import { formatDate } from '../utils/changeDateFormat.js';
+import { router } from "../router/routers.js";
+import { useRoute } from "vue-router";
+import { useAuthStore } from "../stores/useAuth.js";
+
 
 const drawer = ref(false);
-const numDocument = localStorage.getItem("apprenticeDocument");
+const route = useRoute();
+const numDocument = ref(route.query.numDocument || localStorage.getItem("apprenticeDocument"));
 
 const currentApprenticeId = ref("");
 
@@ -105,76 +110,143 @@ const binnaclesNumber = ref("");
 const followupNumber = ref("");
 const apprenticeStatus = ref("");
 
+// rol 
+const authStore = useAuthStore();
+const userRole = authStore.rol;
+console.log(userRole);
 
 //funciones
 onBeforeMount(async () => {
   await getCurrentApprentice();
 });
-
 const getCurrentApprentice = async () => {
   try {
-  const apprentices = await getData("/apprendice/listallapprentice");
+    const apprentices = await getData("/apprendice/listallapprentice");
 
-  currentApprenticeId.value = apprentices.find((apprentice) => 
-  apprentice.numDocument === numDocument)?._id;
+    const apprentice = apprentices.find((apprentice) => 
+      apprentice.numDocument === numDocument.value);
 
-  await getApprenticeInfo();
-  await getBinnaclesAndFollowup();
-
+    if (apprentice) {
+      currentApprenticeId.value = apprentice._id;
+      localStorage.setItem("apprenticeDocument", apprentice.numDocument); // Guardar en localStorage
+      await getApprenticeInfo();
+      await getBinnaclesAndFollowup();
+    } else {
+      console.error("No se encontró el aprendiz con el número de documento proporcionado.");
+    }
   } catch (error) {
     console.log(error);
   }
 };
 
 const getApprenticeInfo = async () => {
-  const apprentice = await getData(`/apprendice/listapprenticebyid/${currentApprenticeId.value}`);
-  const registers = await getData(`/register/listregisterbyapprentice/${currentApprenticeId.value}`);
+  if (route.query.numDocument) {
+    console.log('Estamos buscando por historial');
+    const apprentices = await getData("/apprendice/listallapprentice");
+    const apprentice = apprentices.find((apprentice) =>
+      apprentice.numDocument === route.query.numDocument);
+    if (apprentice) {
+      currentApprenticeId.value = apprentice._id;
+      const apprenticeData = await getData(`/apprendice/listapprenticebyid/${currentApprenticeId.value}`);
+      const registers = await getData(`/register/listregisterbyapprentice/${currentApprenticeId.value}`);
 
-  console.log('registers', registers);
-  console.log('apprentice', apprentice);
+      console.log('registers', registers);
+      console.log('apprentice', apprenticeData);
 
-  //card 1
-  apprenticeFullName.value = apprentice.firstName + ' ' + apprentice.lastName;
-  appreticeDocument.value = apprentice.numDocument;
-  ficheName.value = apprentice.fiche.name;
-  ficheCode.value = apprentice.fiche.number;
+      //card 1
+      apprenticeFullName.value = apprenticeData.firstName + ' ' + apprenticeData.lastName;
+      appreticeDocument.value = apprenticeData.numDocument;
+      ficheName.value = apprenticeData.fiche.name;
+      ficheCode.value = apprenticeData.fiche.number;
 
-  //card 2
-  modality.value = " " + registers.data[0].idModality.name;
-  startDate.value = " " + formatDate(registers.data[0].startDate);
-  endDate.value = " " + formatDate(registers.data[0].endDate);
-  followupInstructorName.value = " " + registers.data[0].assignment[0].followUpInstructor.at(-1)?.name;
-  followupInstructorEmail.value = " " + registers.data[0].assignment[0].followUpInstructor.at(-1)?.email;
+      //card 2
+      modality.value = " " + registers.data[0].idModality.name;
+      startDate.value = " " + formatDate(registers.data[0].startDate);
+      endDate.value = " " + formatDate(registers.data[0].endDate);
+      followupInstructorName.value = " " + registers.data[0].assignment[0].followUpInstructor.at(-1)?.name;
+      followupInstructorEmail.value = " " + registers.data[0].assignment[0].followUpInstructor.at(-1)?.email;
 
-  switch (apprentice.status) {
-    case 0:
-      productiveStageStatus.value = " " + "Inactivo";
-      break;
-    case 1:
-      productiveStageStatus.value = " " + "Activo";
-      break;
-    case 2:
-      productiveStageStatus.value = " " + "En Etapa Práctica";
-      break;
-    case 3:
-      productiveStageStatus.value = " " + "Por Certificar";
-      break;
-    case 4:
-      productiveStageStatus.value = " " + "Certificado";
-      break;
-    default:
-      productiveStageStatus.value = " " + "Estado Desconocido";
+      switch (apprenticeData.status) {
+        case 0:
+          productiveStageStatus.value = " " + "Inactivo";
+          break;
+        case 1:
+          productiveStageStatus.value = " " + "Activo";
+          break;
+        case 2:
+          productiveStageStatus.value = " " + "En Etapa Práctica";
+          break;
+        case 3:
+          productiveStageStatus.value = " " + "Por Certificar";
+          break;
+        case 4:
+          productiveStageStatus.value = " " + "Certificado";
+          break;
+        default:
+          productiveStageStatus.value = " " + "Estado Desconocido";
+      }
+
+      //card 4
+      switch (apprenticeData.status) {
+        case 5:
+          apprenticeStatus.value = " " + "Certificado";
+          break;
+        default:
+          apprenticeStatus.value = " " + "Sin Certificar";
+      }
+    } else {
+      console.error("No se encontró el aprendiz con el número de documento proporcionado.");
+    }
+  } else {
+    console.log('Estamos buscando por id');
+    const apprenticeData = await getData(`/apprendice/listapprenticebyid/${currentApprenticeId.value}`);
+    const registers = await getData(`/register/listregisterbyapprentice/${currentApprenticeId.value}`);
+
+    console.log('registers', registers);
+    console.log('apprentice', apprenticeData);
+
+    //card 1
+    apprenticeFullName.value = apprenticeData.firstName + ' ' + apprenticeData.lastName;
+    appreticeDocument.value = apprenticeData.numDocument;
+    ficheName.value = apprenticeData.fiche.name;
+    ficheCode.value = apprenticeData.fiche.number;
+
+    //card 2
+    modality.value = " " + registers.data[0].idModality.name;
+    startDate.value = " " + formatDate(registers.data[0].startDate);
+    endDate.value = " " + formatDate(registers.data[0].endDate);
+    followupInstructorName.value = " " + registers.data[0].assignment[0].followUpInstructor.at(-1)?.name;
+    followupInstructorEmail.value = " " + registers.data[0].assignment[0].followUpInstructor.at(-1)?.email;
+
+    switch (apprenticeData.status) {
+      case 0:
+        productiveStageStatus.value = " " + "Inactivo";
+        break;
+      case 1:
+        productiveStageStatus.value = " " + "Activo";
+        break;
+      case 2:
+        productiveStageStatus.value = " " + "En Etapa Práctica";
+        break;
+      case 3:
+        productiveStageStatus.value = " " + "Por Certificar";
+        break;
+      case 4:
+        productiveStageStatus.value = " " + "Certificado";
+        break;
+      default:
+        productiveStageStatus.value = " " + "Estado Desconocido";
+    }
+
+    //card 4
+    switch (apprenticeData.status) {
+      case 5:
+        apprenticeStatus.value = " " + "Certificado";
+        break;
+      default:
+        apprenticeStatus.value = " " + "Sin Certificar";
+    }
   }
-
-  //card 4
-  switch (apprentice.status) {
-  case 5:
-    apprenticeStatus.value = " " + "Certificado";
-    break;
-  default:
-    apprenticeStatus.value = " " + "Sin Certificar";
-}
-
 };
 
 const getBinnaclesAndFollowup = async () => {
@@ -187,6 +259,16 @@ const getBinnaclesAndFollowup = async () => {
 const toggleDrawer = () => {
   drawer.value = !drawer.value;
 };
+
+function openHistoryApprentice() {
+  router.push({
+    path: '/history',
+    query: { numDocument: numDocument.value }
+  })
+  console.log('nudoc', numDocument);
+
+}
+
 </script>
 
 <style scoped>
@@ -229,9 +311,9 @@ const toggleDrawer = () => {
 }
 
 #card-aprendiz {
-  display: flex; 
-  align-items: center; 
-  gap: 16px; 
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .card-header q-icon {
@@ -239,7 +321,7 @@ const toggleDrawer = () => {
 }
 
 .sena-logo {
-  max-width: 150px; 
+  max-width: 150px;
   height: auto;
 }
 
@@ -252,8 +334,8 @@ const toggleDrawer = () => {
 .card-body1 {
   display: flex;
   flex-direction: column;
-  gap: 8px; 
-  flex-grow: 1; 
+  gap: 8px;
+  flex-grow: 1;
 }
 
 .card-body1 div strong {
@@ -268,7 +350,7 @@ const toggleDrawer = () => {
   margin-left: 80.5%;
 }
 
-span{
+span {
   font-weight: 700;
   font-size: 24px;
 }

@@ -34,7 +34,6 @@
             <template v-slot:loading>
                 <q-inner-loading :showing="loading" color="primary" />
             </template>
-            
         </q-table>
     </div>
 </template>

@@ -20,9 +20,10 @@
 
             <template v-slot:body-cell-seeApprentice="props">
                 <q-td :props="props" class="q-pa-xs text-center">
-                    <q-btn @click="toggleSeeApprentice(props.row)" icon="visibility" color="primary" round size="md" 
-                        aria-label="Visibility" :loading="loadingButtonSee[props.row._id]" >
+                    <q-btn v-if=" userRole !== 'CONSULTOR'"  @click="toggleSeeApprentice(props.row)" icon="visibility" color="primary" round size="md" 
+                        aria-label="Visibility" :loading="loadingButtonSee[props.row._id]"  >
                     </q-btn>
+                    <q-btn v-else @click="toggleHistoryApprentice(props.row)" icon="search" color="primary" round size="md"></q-btn>
                 </q-td>
             </template>
 
@@ -41,7 +42,15 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref} from "vue";
+import { useAuthStore } from "../../stores/useAuth";
+
+// rol 
+const authStore = useAuthStore();
+const userRole = authStore.rol;
+console.log(userRole);
+
+
 let loadingButtonSee = ref({})
 const props = defineProps({
     rows: {
@@ -64,6 +73,14 @@ const props = defineProps({
         type: Boolean,
         required: true,
     },
+    toggleHistoryApprentice: {
+        type: Function,
+        required: true,
+    },
+    toggleHistoryApprentice:{
+        type: Function,
+        required: true,
+    }
 
 });
 

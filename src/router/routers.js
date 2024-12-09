@@ -16,6 +16,7 @@ import certificaciones from '../views/Certificaciones.vue'
 import consultant from '../views/Consultant.vue'
 import binnacleInstructor from '../views/BinnacleInstructor.vue'
 import followupInstructor from '../views/FollowupInstructor.vue'
+import history from '../views/AcademicHistoryApprentice.vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { useAuthStore } from "../stores/useAuth.js";
 
@@ -71,7 +72,8 @@ const routes = [
   },
   { path: '/', component: loguin },
   { path: '/apprentices', component: loguin },
-  { path: '/consultant', component: consultant }
+  { path: '/consultant', component: consultant},
+  { path: '/history', component: history}
 ];
 
 export const router = createRouter({

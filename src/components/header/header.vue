@@ -10,8 +10,12 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '../../stores/useAuth';
 
 const router = useRouter();
+const authStore = useAuthStore();
+const userRole = authStore.rol
+console.log(userRole)
 
 const props = defineProps({
   title:{
@@ -25,8 +29,14 @@ const props = defineProps({
   } 
 })
 
+
 const Salir = async () => {
-  router.replace("/layouts/home")
+  if(userRole !== 'CONSULTOR'){
+    router.replace("/layouts/home")
+  }else{
+    router.replace("/consultant")
+ 
+  }
 }
 
 
