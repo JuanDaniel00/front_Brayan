@@ -40,7 +40,7 @@
           </q-input>
 
           <q-input v-model="formData.emailPersonal" label="Email Personal Aprendiz" filled
-            :rules="[validateRequieredEmailPersonal, validateEmailPersonal,validateEmail]" lazy-rules >
+            :rules="[validateRequieredEmailPersonal, validateEmailPersonal, validateEmail]" lazy-rules>
             <template v-slot:prepend>
               <q-icon name="mail" />
             </template>
@@ -63,7 +63,6 @@
           <q-select v-model="formData.idmodality" :options="filterOptionsModality" label="Modalidad Etapa Productiva"
             emit-value map-options option-label="name" option-value="_id" :use-input="!fiche"
             @filter="filterFunctionModality" clearable class="custom-select" v-show="modality" filled
-
             :rules="[validateRequiredIdModality]" lazy-rules>
             <template v-slot:prepend>
 
@@ -186,7 +185,7 @@ const validateRequiredPhone = (v) => !!v || 'El teléfono es obligatorio';
 const validateRequiredFiche = (v) => !!v || 'La ficha es obligatorio';
 const validateRequiredIdModality = (v) => !!v || 'La modalidad Etapa Productiva es obligatorio';
 const validateNumericDocument = (v) => {
-  if(!v){
+  if (!v) {
     return 'El número de Documento es obligatorio'
   }
   if (/\s/.test(v)) {
@@ -195,9 +194,13 @@ const validateNumericDocument = (v) => {
   if (/[^0-9]/.test(v)) {
     return 'El número de documento solo puede contener números';
   }
-  if (v.length > 10) {
-    return 'El número de documento no puede contener mas de 10 dígitos';
+
+  if (v.length < 8) {
+    return 'El documento debe tener al menos 8 caracteres';
+  } else if (v.length > 10) {
+    return 'El documento no debe tener más de 10 caracteres';
   }
+  return true;
 };
 
 const validateNumericPhone = (v) => {
@@ -518,37 +521,31 @@ async function fetchDataFiche() {
   const response = await getData('/repfora/fiches');
   const uniqueFiches = new Set();
   options.value = response.map(option => {
-    const ficheId = option._id
+    const ficheId = option.program._id;
     if (!uniqueFiches.has(ficheId)) {
-      uniqueFiches.add(ficheId)
+      uniqueFiches.add(ficheId);
       return {
         _id: option._id,
         label: `${option.program.name} - ${option.program.code}`,
         name: option.program.name,
         number: option.program.code,
-      }
+      };
     }
-  });
+  }).filter(Boolean);
   filterOptions.value = options.value;
-
 }
+
 fetchDataFiche();
 
-async function filterFunctionFiches(val, update) {
-  if (val === " ") {
-    update(() => {
-      filterOptions.value = filterOptions.value;
-    });
-    return;
-  }
-
+function filterFunctionFiches(val, update) {
   update(() => {
     const needle = val.toLowerCase();
-    filterOptions.value = options.value.filter((option) =>
+    filterOptions.value = options.value.filter(option =>
       option.label.toLowerCase().includes(needle)
     );
   });
 }
+
 
 // filtro de modalidades
 async function fetchDataModality() {
@@ -628,11 +625,18 @@ async function listApprenticeForStatus() {
 const handleRadioChange = async () => {
   // validationSearch()
   if (radiobuttonlist.value === 'Fiche') {
-    const response = await getData('/repfora/fiches');
-    optionSearch.value = response.map(option => ({
-      _id: option._id,
-      label: `${option.program.name} - ${option.program.code}`,
-    }));
+    const response = await getData('/apprendice/listallapprentice');
+    const uniqueFiches = new Set();
+    optionSearch.value = response.map(option => {
+      const ficheId = option.fiche.idFiche
+      if (!uniqueFiches.has(ficheId)) {
+        uniqueFiches.add(ficheId)
+        return {
+          _id: option.fiche.idFiche,
+          label: `${option.fiche.name} - ${option.fiche.number}`,
+        }
+      }
+    }).filter(Boolean)
     filterOptionsSearch.value = optionSearch.value;
   } else if (radiobuttonlist.value === 'Appretice') {
     const response = await getData('/apprendice/listallapprentice');
@@ -689,7 +693,7 @@ async function filterFunctionSearch(val, update) {
 
 async function searchButton() {
   const isvalid = await formSearch.value.validate();
-  if(!isvalid){
+  if (!isvalid) {
     return
   }
   if (!validationSearch()) {

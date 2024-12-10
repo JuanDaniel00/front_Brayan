@@ -30,7 +30,7 @@
                 :options="modalitiesOptions" optionLabel="name" optionValue="_id" errorMessage="Modalidad requerida"
                 icon="shapes" type="text">
               </CustomSelect>
-              </q-form>
+            </q-form>
           </div>
         </template>
       </FormModal>
@@ -88,8 +88,7 @@
               <Input id="docAlternative" filled label="Documento Alternativo" v-model="docAlternative" required
                 errorMessage="Documento requerido" icon="file-invoice" type="text" :rules="[
                   (val) => validateRequired(val, 'El documento alternativo es requerido'),
-                  (val) => validateNoSpaces(val),
-                  (val) => validateGoogleDriveLink(val)
+                  (val) => validateNoSpaces(val)
                 ]" />
               <Input id="hour" filled label="Horas" v-model="hour" required errorMessage="Horas requeridas" icon="clock"
                 type="text" :rules="[
@@ -169,7 +168,6 @@
                       (val) => !!val || 'Campo requerido',
                       (val) =>
                         val.trim().length > 0 || 'No se permiten espacios vacíos',
-                      (val) => /^https:\/\/(?:drive|docs)\.google\.com\/(?:file\/d\/|document\/d\/|spreadsheets\/d\/|presentation\/d\/|forms\/d\/|drive\/folders\/|open\?id=)[a-zA-Z0-9_-]+(?:\/.*)?(?:\?.*)?$/.test(val) || 'Enlace de Google Drive no válido'
                     ]" :readonly="isReadOnly">
                     <template v-slot:prepend>
                       <q-icon color="green-10" name="description" />
@@ -237,7 +235,6 @@
                       (val) => !!val || 'Campo requerido',
                       (val) =>
                         val.trim().length > 0 || 'No se permiten espacios vacíos',
-                      (val) => /^[a-zA-Z0-9\s.,-]+$/.test(val) || 'La dirección contiene caracteres no válidos.',
                     ]" :readonly="isReadOnly">
                     <template v-slot:prepend>
                       <q-icon color="green-10" name="location_on" />
@@ -465,13 +462,9 @@ const validateNoNumbers = (val, message = 'No puede incluir números') => /^[^0-
 const validateMaxLengthTen = (val, message = 'No puede ser mayor a 10 dígitos') => val.length <= 10 || message;
 const validateNoLeadingTrailingSpaces = (val, message = 'No puede empezar ni terminar con espacios.') => /^[^\s].*[^\s]$/.test(val) || message;
 const validateEmail = (val, message = 'Correo inválido') => /.+@.+\..+/.test(val) || message;
-// const validateAddress = (val, message = 'La dirección contiene caracteres no válidos.') => /^[a-zA-Z0-9\s.,-]+$/.test(val) || message;
 const validateNoLetters = (val, message = 'Solo puede contener números') => /^[0-9]*$/.test(val) || message;
 const validateNoAnySpaces = (val, message = 'No se permiten espacios vacíos en ningún lugar') => !/\s/.test(val) || message;
-const validateGoogleDriveLink = (val, message = 'Enlace de Google Drive inválido') => {
-  const drivePattern = /^https:\/\/(?:drive|docs)\.google\.com\/(?:file\/d\/|document\/d\/|spreadsheets\/d\/|presentation\/d\/|forms\/d\/|drive\/folders\/|open\?id=)[a-zA-Z0-9_-]+(?:\/.*)?(?:\?.*)?$/;
-  return drivePattern.test(val) || message;
-};
+
 
 
 
@@ -919,7 +912,7 @@ function formatDate(date) {
 
 // Función para abrir el siguiente modal del formulario
 function nextFormModal() {
-  const isvalid =  formRef.value.validate();
+  const isvalid = formRef.value.validate();
   if (!isvalid) {
     return;
   }
