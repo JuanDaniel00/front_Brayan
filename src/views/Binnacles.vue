@@ -293,6 +293,7 @@ const OptionsStatus = [
 ];
 
 async function onclickSelectOptions(row, value) {
+  loading.value = true;
   try {
     const response = await putData(
       `/binnacles/updatestatus/${row._id}/${value}`,
@@ -304,9 +305,18 @@ async function onclickSelectOptions(row, value) {
     if (index !== -1) {
       rows.value[index].status = value; // Actualiza solo el estado de la fila modificada
     }
+    if (value === "3" ) {
+      notifySuccessRequest("El estado ha sido actualizado a Pendiente");
+      return;
+    } else if (value === "4") {
+      notifySuccessRequest("El estado ha sido actualizado a Verificado");
+      return;
+    }
     console.log("Estado actualizado:", response.data);
   } catch (error) {
     console.error("Error al actualizar el estado:", error);
+  }finally{
+    loading.value = false;
   }
 }
 

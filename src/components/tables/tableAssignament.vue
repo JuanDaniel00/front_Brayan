@@ -1,6 +1,6 @@
 <template>
     <div class="q-pa-md">
-        <q-table :rows="rows" :columns="columns" flat bordered class="q-table-custom" :londing="loading">
+        <q-table :rows="rows" :columns="columns" flat bordered class="q-table-custom" :loading="loading">
             <template v-slot:header="props">
                 <q-tr :props="props" class="custom-header-row">
                     <q-th v-for="col in props.cols" :key="col.name" :props="props" class="custom-header-cell">
@@ -11,14 +11,14 @@
 
             <template v-slot:body-cell-binnacle="props">
                 <q-td :props="props" class="q-pa-xs text-center">
-                    <q-btn @click="toggleBinnacle(props.row)" icon="add_circle" color="primary" round size="md"></q-btn>
+                    <q-btn @click="toggleBinnacle(props.row)" icon="search" color="primary" round size="md"></q-btn>
                 </q-td>
             </template>
 
 
             <template v-slot:body-cell-follow="props">
                 <q-td :props="props" class="q-pa-xs text-center">
-                    <q-btn @click="toggleFollow(props.row)" icon="add_circle" color="primary" round size="md"></q-btn>
+                    <q-btn @click="toggleFollow(props.row)" icon="search" color="primary" round size="md"></q-btn>
                 </q-td>
             </template>
 
