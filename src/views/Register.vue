@@ -30,7 +30,7 @@
                 :options="modalitiesOptions" optionLabel="name" optionValue="_id" errorMessage="Modalidad requerida"
                 icon="shapes" type="text">
               </CustomSelect>
-              </q-form>
+            </q-form>
           </div>
         </template>
       </FormModal>
@@ -41,14 +41,14 @@
         <template #content>
           <q-form ref="formRef" @submit="saveRegister" class="formModality">
             <div class="input-grid">
-              <CustomSelect map-options label="Aprendiz" v-model="idApprentice" @filter="filterApprentice" required
-                :options="apprenticeOptions" optionLabel="apprenticeName" optionValue="apprenticeId"
-                errorMessage="Aprendiz requerido" icon="users-line" type="text">
+              <CustomSelect map-options label="Aprendiz" v-model="idApprentice" :options="apprenticeOptions"
+                optionLabel="apprenticeName" optionValue="apprenticeId" errorMessage="Aprendiz requerido"
+                icon="users-line" type="text">
               </CustomSelect>
 
-              <CustomSelect filled label="Instructor de Seguimiento" v-model="followupInstructor" required
-                :options="instructorsOptions" optionLabel="instructorName" optionValue="instructorId"
-                errorMessage="Instructor de seguimiento requerido" icon="chalkboard-user" type="text"></CustomSelect>
+              <CustomSelect filled label="Instructor de Seguimiento" v-model="followUpInstructorUnico" required
+                :options="instructorsOptions" optionLabel="instructorLabel" optionValue="instructorId"
+                errorMessage="Instructor de seguimiento requerido" icon="chalkboard-user" type="text" />
 
               <Input id="startDate" filled label="Fecha de Inicio" v-model="startDate" required
                 errorMessage="Fecha requerida" icon="calendar-days" type="date" :rules="[
@@ -432,6 +432,7 @@ const hour = ref("");
 const businessProyectHour = ref("");
 const productiveProjectHour = ref("");
 const mailCompany = ref("");
+const followUpInstructorUnico = ref("");
 
 // v-models de los inputs del modal
 const idApprenticeModal = ref("");
@@ -865,8 +866,11 @@ async function getDataForTable() {
 
         instructorsOptions.value = instructores.value.map((instructor) => ({
           instructorId: instructor._id,
-          instructorName:
-            `${instructor.name} - ${instructor.numdocument}`.trim()
+          instructorLabel:
+            `${instructor.name} - ${instructor.numdocument}`.trim(),
+          name: instructor.name,
+          email: instructor.email,
+          numDocument: instructor.numdocument,
         }));
 
         return {
@@ -919,7 +923,7 @@ function formatDate(date) {
 
 // Función para abrir el siguiente modal del formulario
 function nextFormModal() {
-  const isvalid =  formRef.value.validate();
+  const isvalid = formRef.value.validate();
   if (!isvalid) {
     return;
   }
@@ -1001,6 +1005,22 @@ const clearForm = () => {
   mailCompanyModal.value = "";
   instructoresAgregados.value = [];
   aprendicesAgregados.value = [];
+  busquedaInstructor.value = null;
+  busquedaAprendiz.value = null;
+
+  startDate.value = "";
+  endDate.value = "";
+  company.value = "";
+  phoneCompany.value = "";
+  addressCompany.value = "";
+  owner.value = "";
+  docAlternative.value = "";
+  hour.value = "";
+  businessProyectHour.value = "";
+  productiveProjectHour.value = "";
+  mailCompany.value = "";
+  followUpInstructorUnico.value = "";
+  idApprentice.value = "";
 };
 
 // Función para editar un registro
@@ -1013,67 +1033,6 @@ const editRegister = (row) => {
 
   modalityName.value = row.modalityName;
 
-  // Asignar los datos seleccionados a los campos del formulario
-  idApprenticeModal.value = row.idApprentice.map(
-    (apprentice) => apprentice._id
-  );
-  startDateModal.value = formatDateToInput(row.startDate);
-  endDateModal.value = formatDateToInput(row.endDate);
-  companyModal.value = row.company;
-  phoneCompanyModal.value = row.phoneCompany;
-  addressCompanyModal.value = row.addressCompany;
-  ownerModal.value = row.owner;
-  docAlternativeModal.value = row.docAlternative;
-  hourProductiveStageApprenticeModal.value = row.hourProductiveStageApprentice;
-  mailCompanyModal.value = row.mailCompany;
-
-  if (row.assignment && row.assignment.length > 0) {
-    const lastAssignment = row.assignment[row.assignment.length - 1];
-    const followUpInstructor = lastAssignment.followUpInstructor
-      .slice(-1)
-      .map((instructor) => ({ ...instructor, tipo: "Seguimiento" }));
-    const technicalInstructor = lastAssignment.technicalInstructor
-      .slice(-1)
-      .map((instructor) => ({ ...instructor, tipo: "Tecnico" }));
-    const projectInstructor = lastAssignment.projectInstructor
-      .slice(-1)
-      .map((instructor) => ({ ...instructor, tipo: "Proyecto" }));
-
-    instructoresAgregados.value = followUpInstructor
-      .concat(technicalInstructor, projectInstructor)
-      .map((instructor) => {
-        const busquedaInstructorData =
-          instructores.value.find((i) => i._id === instructor.idInstructor) ||
-          {};
-        return {
-          id: instructor.idInstructor,
-          name: instructor.name,
-          tpdocument: busquedaInstructorData.tpdocument || "",
-          numdocument: busquedaInstructorData.numdocument || "",
-          email: instructor.email,
-          phone: busquedaInstructorData.phone || "",
-          thematicarea: busquedaInstructorData.thematicarea || "",
-          tipo: instructor.tipo,
-        };
-      });
-  } else {
-    instructoresAgregados.value = [];
-  }
-
-  aprendicesAgregados.value = row.idApprentice.map((apprentice) => {
-    return {
-      id: apprentice._id,
-      firstName: apprentice.firstName,
-      lastName: apprentice.lastName,
-      tpdocument: apprentice.tpdocument,
-      numDocument: apprentice.numDocument,
-      personalEmail: apprentice.personalEmail,
-      phone: apprentice.phone,
-      numfiche: apprentice.fiche.number,
-      fiche: apprentice.fiche.name,
-    };
-  });
-
   if (
     row.modalityName.toLowerCase() == "pasantia" ||
     row.modalityName.toLowerCase() == "vinculo laboral" ||
@@ -1082,9 +1041,99 @@ const editRegister = (row) => {
     row.modalityName.toLowerCase() == "monitorias"
   ) {
     dialog.value = false;
+
+    // Asignar los datos seleccionados a los campos del formulario del segundo modal
+    idApprentice.value = {
+      apprenticeId: row.idApprentice[0]?._id,
+      apprenticeName: `${row.idApprentice[0]?.firstName} ${row.idApprentice[0]?.lastName} - ${row.idApprentice[0]?.fiche?.name}`
+    };
+    startDate.value = formatDateToInput(row.startDate);
+    endDate.value = formatDateToInput(row.endDate);
+    company.value = row.company;
+    phoneCompany.value = row.phoneCompany;
+    addressCompany.value = row.addressCompany;
+    owner.value = row.owner;
+    docAlternative.value = row.docAlternative;
+    hour.value = row.hourProductiveStageApprentice;
+    businessProyectHour.value = row.businessProyectHour;
+    productiveProjectHour.value = row.productiveProjectHour;
+    mailCompany.value = row.mailCompany;
+
+    if (row.assignment && row.assignment.length > 0) {
+      const lastAssignment = row.assignment[row.assignment.length - 1];
+      followUpInstructorUnico.value = {
+        instructorId: lastAssignment.followUpInstructor[0]?.idInstructor,
+        instructorLabel: `${lastAssignment.followUpInstructor[0]?.name}`
+      };
+    } else {
+      followUpInstructorUnico.value = null;
+    }
+
     secondModaldialog.value = true;
   } else {
     dialog.value = false;
+
+    // Asignar los datos seleccionados a los campos del formulario del primer modal
+    idApprenticeModal.value = row.idApprentice.map(
+      (apprentice) => apprentice._id
+    );
+    startDateModal.value = formatDateToInput(row.startDate);
+    endDateModal.value = formatDateToInput(row.endDate);
+    companyModal.value = row.company;
+    phoneCompanyModal.value = row.phoneCompany;
+    addressCompanyModal.value = row.addressCompany;
+    ownerModal.value = row.owner;
+    docAlternativeModal.value = row.docAlternative;
+    hourProductiveStageApprenticeModal.value = row.hourProductiveStageApprentice;
+    mailCompanyModal.value = row.mailCompany;
+
+    if (row.assignment && row.assignment.length > 0) {
+      const lastAssignment = row.assignment[row.assignment.length - 1];
+      const followUpInstructor = lastAssignment.followUpInstructor
+        .slice(-1)
+        .map((instructor) => ({ ...instructor, tipo: "Seguimiento" }));
+      const technicalInstructor = lastAssignment.technicalInstructor
+        .slice(-1)
+        .map((instructor) => ({ ...instructor, tipo: "Tecnico" }));
+      const projectInstructor = lastAssignment.projectInstructor
+        .slice(-1)
+        .map((instructor) => ({ ...instructor, tipo: "Proyecto" }));
+
+      instructoresAgregados.value = followUpInstructor
+        .concat(technicalInstructor, projectInstructor)
+        .map((instructor) => {
+          const busquedaInstructorData =
+            instructores.value.find((i) => i._id === instructor.idInstructor) ||
+            {};
+          return {
+            id: instructor.idInstructor,
+            name: instructor.name,
+            tpdocument: busquedaInstructorData.tpdocument || "",
+            numdocument: busquedaInstructorData.numdocument || "",
+            email: instructor.email,
+            phone: busquedaInstructorData.phone || "",
+            thematicarea: busquedaInstructorData.thematicarea || "",
+            tipo: instructor.tipo,
+          };
+        });
+    } else {
+      instructoresAgregados.value = [];
+    }
+
+    aprendicesAgregados.value = row.idApprentice.map((apprentice) => {
+      return {
+        id: apprentice._id,
+        firstName: apprentice.firstName,
+        lastName: apprentice.lastName,
+        tpdocument: apprentice.tpdocument,
+        numDocument: apprentice.numDocument,
+        personalEmail: apprentice.personalEmail,
+        phone: apprentice.phone,
+        numfiche: apprentice.fiche.number,
+        fiche: apprentice.fiche.name,
+      };
+    });
+
     dialogFull.value = true;
 
     // PROYECTO EMPRESARIAL y PROYECTO PRODUCTIVO I+D:
@@ -1101,24 +1150,6 @@ const editRegister = (row) => {
     } else {
       tipos.value = ["Seguimiento", "Tecnico", "Proyecto"];
     }
-  }
-};
-const formRef = ref(null);
-
-// Función para guardar un registro
-const saveRegister = async () => {
-  if (!formRef.value.validate()) {
-    return
-  }
-  try {
-    let response = await postData("register/addregister", registerData);
-
-    // Si la respuesta es exitosa, actualizamos la tabla y cerramos el modal
-    rows.value = response;
-    dialog.value = false;
-    notifySuccessRequest("Asignación guardada exitosamente");
-  } catch (error) {
-    notifyErrorRequest("Ocurrió un error al guardar la asignación");
   }
 };
 
