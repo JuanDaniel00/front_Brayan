@@ -3,7 +3,7 @@
         <q-select filled clearable use-input input-debounce="100" behavior="menu"
             :rules="[val => !!val || errorMessage || 'Este campo es obligatorio']" v-model="internalValue"
             :label="label" :options="filteredOptions" :option-label="optionLabel" :option-value="optionValue"
-            :class="['select-styled', { 'input-error': hasError }]" @filter="filterOptions" @input="handleInputChange">
+            :class="['select-styled', { 'input-error': hasError }]" @filter="filterOptions">
             <template v-slot:prepend>
                 <font-awesome-icon :icon="icon" />
             </template>
