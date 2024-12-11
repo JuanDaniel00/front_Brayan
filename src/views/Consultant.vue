@@ -3,7 +3,7 @@
     <Header :toggle-drawer="toggleDrawer" />
 
     <q-page-container class="consultant-page">
-      <div class="container">
+      <div class="container" :loading="loading">
         <div class="row">
 
           <div class="card">
@@ -115,6 +115,9 @@ const authStore = useAuthStore();
 const userRole = authStore.rol;
 console.log(userRole);
 
+// spiners
+let loading = ref (false)
+
 //funciones
 onBeforeMount(async () => {
   await getCurrentApprentice();
@@ -152,7 +155,7 @@ const getApprenticeInfo = async () => {
 
       console.log('registers', registers);
       console.log('apprentice', apprenticeData);
-
+      loading.value = true
       //card 1
       apprenticeFullName.value = apprenticeData.firstName + ' ' + apprenticeData.lastName;
       appreticeDocument.value = apprenticeData.numDocument;
@@ -194,6 +197,7 @@ const getApprenticeInfo = async () => {
         default:
           apprenticeStatus.value = " " + "Sin Certificar";
       }
+      loading.value = false
     } else {
       console.error("No se encontró el aprendiz con el número de documento proporcionado.");
     }
@@ -206,7 +210,7 @@ const getApprenticeInfo = async () => {
     console.log('apprentice', apprenticeData);
 
     //card 1
-    apprenticeFullName.value = apprenticeData.firstName + ' ' + apprenticeData.lastName;
+    apprenticeFullName.value = apprenticeData.firstName + ' ' + apprenticeData.lastName
     appreticeDocument.value = apprenticeData.numDocument;
     ficheName.value = apprenticeData.fiche.name;
     ficheCode.value = apprenticeData.fiche.number;
@@ -273,18 +277,22 @@ function openHistoryApprentice() {
 
 <style scoped>
 .consultant-page {
+  height: 100%;
   background-color: #f5f5f5;
-  padding: 20px;
-  height: 100vh;
+  min-height: 100vh;
+  
 }
 
 .container {
-  margin-top: 4%;
   display: flex;
   flex-direction: column;
   gap: 20px;
   justify-content: center;
-  align-items: center;
+  justify-items: center;
+}
+.consultant-page{
+  justify-content: center;
+  align-content: center;
 }
 
 .row {
@@ -334,6 +342,7 @@ function openHistoryApprentice() {
 .card-body1 {
   display: flex;
   flex-direction: column;
+  background-color: white;
   gap: 8px;
   flex-grow: 1;
 }
@@ -349,9 +358,13 @@ function openHistoryApprentice() {
   color: white;
   margin-left: 80.5%;
 }
-
+.q-icon{
+  font-size: 25px;
+}
 span {
   font-weight: 700;
   font-size: 24px;
 }
+
+
 </style>
