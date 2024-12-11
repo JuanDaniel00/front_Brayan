@@ -1,34 +1,40 @@
 <template>
-    <Header title="Programas"></Header>
-
-    <div class="search-container">
-        <q-input borderless dense debounce="300" v-model="localFilter" @update:model-value="updateFilter"
-            label="Buscar por Número O Nombre de ficha">
-            <template v-slot:append>
-                <q-icon name="search" />
-            </template>
-        </q-input>
+    <Header title="Programas" />
+    <div>
+        <div id="AllInputButtonsSearch">
+            <q-form ref="formSearch" @submit.prevent="searchButton" class="InputButtonsSearch">
+                <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
+                    optionValue="_id" :useInput="!Search" :filter="filterFunctionFiche" class="custom-select" 
+                    :rules="[(val) => !!val || 'El campo de búsqueda es obligatorio']" lazy-rules />
+                <buttonSearch :onclickButton="searchButton" :loading="loadingSearch" />
+            </q-form>
+        </div>
     </div>
 
-    <ficheTable :rows="filteredRows" :columns="columns" v-model:filter="filter" :toggleSeeApprentice="seeApprentices"
-        :loading="loading" />
+    <ficheTable :rows="rows" :columns="columns" :toggleSeeApprentice="seeApprentices" :loading="loading" />
 </template>
 
 <script setup>
-import { ref, onBeforeMount, computed } from 'vue';
+import { ref, onBeforeMount } from 'vue';
 import Header from '../components/header/header.vue';
 import ficheTable from '../components/tables/tableOneOption.vue';
 import { router } from '../router/routers';
 import { getData } from '../services/ApiClient';
 import { notifyErrorRequest } from '../composables/useNotify';
+import inputSelect from '../components/input/inputSelect.vue';
+import buttonSearch from '../components/buttons/buttonSearch.vue';
 
 
 
 onBeforeMount(() => {
     loadDataFiches();
 })
-let loading = ref(false); 
-let filter = ref('');
+let loading = ref(false);
+let formSearch = ref(null)
+let loadingSearch = ref(false)
+let searchValue = ref(null)
+let filterOptionsSearch = ref([])
+let optionFiche = ref([])
 
 async function loadDataFiches() {
     loading.value = true; // Inicia el estado de carga
@@ -90,31 +96,71 @@ async function seeApprentices(row) {
                 query: { ficheId: row._id }
             });
         }
-
     } catch (error) {
         notifyErrorRequest('No hay aprendices registrados en esta ficha.')
     }
-
 }
 
-const filteredRows = computed(() => {
-    if (!filter.value) {
-        return rows.value;
+
+const fetchDataFiche = async () => {
+    const response = await getData('/repfora/fiches');
+        rows.value = response;
+        const uniqueFiches = new Set();
+        optionFiche.value = response.map(fiche => {
+            const idfiche = fiche.program._id;
+            if (!uniqueFiches.has(idfiche)) {
+                uniqueFiches.add(idfiche);
+                return {
+                    label: fiche.program.name + ' ' + fiche.program.code,
+                    _id: fiche._id
+                };
+            }
+        }).filter(Boolean);
+        filterOptionsSearch.value = optionFiche.value;
+}
+
+fetchDataFiche()
+
+const filterFunctionFiche = (val, update) => {
+    update(() => {
+        const needle = val.toLowerCase();
+        const filtered = optionFiche.value.filter(v => v.label.toLowerCase().includes(needle));
+        filterOptionsSearch.value = filtered;
+    });
+};
+
+
+async function searchButton() {
+    if(!(await formSearch.value.validate())) return;
+    loadingSearch.value = true;
+    try {
+        const response = await getData(`/Repfora/fiches/${searchValue.value}`);
+        console.log('respuesta', response);
+        rows.value = [response] // Asigna la respuesta directamente a rows.value
+    } catch (error) {
+        let messageError;
+        if (error.response && error.response.data && error.response.data.message) {
+            messageError = error.response.data.message;
+        } else if (error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].msg) {
+            messageError = error.response.data.errors[0].msg;
+        } else {
+            messageError = 'Error. Por favor, intente más tarde.';
+        }
+        notifyErrorRequest(messageError);
+    } finally {
+        loadingSearch.value = false;
     }
-    const searchTerm = filter.value.toLowerCase();
-    return rows.value.filter(row =>
-        row.program.name.toLowerCase().includes(searchTerm) ||
-        row.program.code.toLowerCase().includes(searchTerm)
-    );
-});
-function updateFilter(value) {
-    filter.value = value;
 }
-
 
 </script>
 
 <style scoped>
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
 .search-container {
     display: flex;
     justify-content: flex-end;
@@ -147,5 +193,20 @@ function updateFilter(value) {
 
 .q-input .q-icon {
     color: #2f7d32;
+}
+
+#AllInputButtonsSearch {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin: 20px;
+}
+
+.InputButtonsSearch {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-items: center;
+    margin-bottom: -20px;
 }
 </style>

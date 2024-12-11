@@ -70,14 +70,19 @@ const validateRequiredDocument = (v) => !!v || 'Este campo Documento es obligato
 const validateRequiredPassword = (v) => !!v || 'Este campo Contraseña es obligatorio';
 const validateRequiredRol = (v) => !!v || 'Este campo Rol es obligatorio';
 const validateEmail = (v) => /.+@.+\..+/.test(v) || 'Correo electrónico no válido';
-// const validateDocument = (v) => v.length > 10 || 'El documento no debe  mas de 10 caracteres';
-const validateDocument = (v) => v.length === 10 || 'El documento debe tener exactamente 10 caracteres';
 const validatePassword = (v) => v.length >= 6 || 'Contraseña debe tener al menos 6 caracteres';
 const validateRol = (v) => {
   const validRoles = ['CONSULTOR', 'ADMIN', 'INSTRUCTOR'];
   return validRoles.includes(v?.value || v) || 'Rol no válido';
 };
-
+const validateDocument = (v) => {
+  if (v.length < 8) {
+    return 'El documento debe tener al menos 8 caracteres';
+  } else if (v.length > 10) {
+    return 'El documento no debe tener más de 10 caracteres';
+  }
+  return true;
+};
 function resetForm() {
   formData.value.email = '',
     formData.value.password = '',

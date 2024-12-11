@@ -72,7 +72,6 @@ const idApprentice = ref('')
 const instructorEmail = localStorage.getItem('userEmail');
 const currentInstructor = ref()
 
-
 const id = ref('')
 
 
@@ -82,7 +81,6 @@ let loadingSearch = ref(false);
 let loadingCreateOdservation = ref(false)
 const route = useRoute();
 const currentInstructorId = ref('')
-
 
 const rows = ref([]);
 const columns = ref([
@@ -131,26 +129,31 @@ const columns = ref([
 
 onBeforeMount(async () => {
   await loadDataBinnacles();
-  await getCurrentInstructor()
+  // await getCurrentInstructor()
 })
 
 async function loadDataBinnacles() {
   loading.value = true;
-
   const email = authStore.email;
+  const idApprentice = route.query.id
+  console.log('idApprentice:', idApprentice);
   console.log(authStore.email);
   if (!email) {
       notifyErrorRequest('No se pudo obtener el correo del usuario. Por favor, verifica tu sesión.');
       loading.value = false;
       return;
   }
-
   try {
+    if(idApprentice){
+      const response = await getData(`/binnacles/listBinnaclesByRegister/${idApprentice}`)
+      console.log('Bitácoras listadas por asignament:', response);
+      rows.value = response.binnacles
+    }else{
       const response = await getData(`/binnacles/listbinnaclesbyinstructoremail/${email}`);
       console.log('Bitácoras listadas:', response);
       rows.value = response; // Asignar los datos de las bitácoras
       console.log('Rows:', rows.value);
-
+    }
   } catch (error) {
       let messageError;
       if (error.response && error.response.data && error.response.data.message) {

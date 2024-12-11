@@ -15,8 +15,9 @@
   <tableSelect :rows="rows" :columns="columns" :onClickSeeObservation="openClickSeeObservation"
     :onClickCreateObservation="openClickCreateObservation" :loading="loading" />
 
-  <dialogSeeObservation v-model="isDialogVisibleObservation" title="OBSERVACIONES" labelClose="Cerrar" labelSend="Guardar"
-    :onclickClose="closeDialog" :onclickSend="saveChanges" :informationBinnacles="observationFollowup" />
+  <dialogSeeObservation v-model="isDialogVisibleObservation" title="OBSERVACIONES" labelClose="Cerrar"
+    labelSend="Guardar" :onclickClose="closeDialog" :onclickSend="saveChanges"
+    :informationBinnacles="observationFollowup" />
 
   <dialogCreateObservation v-model="isDialogVisibleCreateObservation" title="AÑADIR OBSERVACIONES" labelClose="Cerrar"
     labelSend="Guardar" :onclickClose="closeDialog" :onclickSend="handleSend"
@@ -39,7 +40,7 @@ import { useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/useAuth.js';
 import radioButtonInstructor from '../components/radioButtons/radioButton.vue';
 import radioButtonApprentice from '../components/radioButtons/radioButton.vue';
-import { Loading } from 'quasar';
+
 
 
 let isDialogVisibleCreateObservation = ref(false)
@@ -126,9 +127,9 @@ const columns = ref([
 
 async function loadDataFollowup() {
   loading.value = true;
-
   const email = authStore.email;
   console.log(authStore.email);
+  const idRegister = route.query.id
   if (!email) {
     notifyErrorRequest('No se pudo obtener el correo del usuario. Por favor, verifica tu sesión.');
     loading.value = false;
@@ -136,9 +137,15 @@ async function loadDataFollowup() {
   }
 
   try {
-    const response = await getData(`/followup/listfollowupbyinstructoremail/${email}`);
-    console.log('seguimientos listados:', response);
-    rows.value = response; // Asignar los datos de las bitácoras
+    if (idRegister) {
+      const response = await getData(`/followup/listFollowupByRegister/${idRegister}`);
+      console.log('seguimientos listados por asignación:', response);
+      rows.value = response.followup
+    } else {
+      const response = await getData(`/followup/listfollowupbyinstructoremail/${email}`);
+      console.log('seguimientos listados:', response);
+      rows.value = response; // Asignar los datos de las bitácoras
+    }
   } catch (error) {
     console.log(error.response);
 
@@ -204,8 +211,6 @@ function validarHandleSend() {
 
   }
 }
-
-
 
 function cleanObservaton() {
   newObservation.value = '';

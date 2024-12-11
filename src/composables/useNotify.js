@@ -7,7 +7,7 @@ export const notifyErrorRequest = (msg, position = "top") => {
     message: msg,
     icon: "error",
     position: position,
-    timeout: 2500,
+    timeout: 3500,
   });
   return
 };
@@ -18,7 +18,7 @@ export const notifySuccessRequest = (msg, position = "top") => {
     message: msg,
     icon: "check",
     position: position,
-    timeout: 2500,
+    timeout: 3500,
   });
   return
 };
@@ -31,7 +31,7 @@ export const notifyWarningRequest = (msg, position = "top") => {
     icon: "warning",
     textColor: "black",
     position: position,
-    timeout: 2500,
+    timeout: 3500,
   });
   return
 }

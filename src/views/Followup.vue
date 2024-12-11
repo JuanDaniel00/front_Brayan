@@ -23,7 +23,7 @@
   </div>
 
   <tableSelect :rows="rows" :columns="columns" :options="OptionsStatus" :onClickSeeObservation="openClickSeeObservation"
-    :onClickCreateObservation="openClickCreateObservation" :onclickSelectOptions="onclickSelectOptions"
+    :onClickCreateObservation="openClickCreateObservation" :onclickSelectOptions="onclickSelectOptions"  :onClickLinkDetail="onClickLinkDetail"
     :loading="loading" />
 
   <dialogSeeObservation v-model="isDialogVisibleObservation" title="OBSERVACIONES" labelClose="Cerrar"
@@ -149,7 +149,7 @@ const columns = ref([
     name: "detail",
     label: "DETALLES",
     align: "center",
-    field: "observation",
+    field: 'document',
     sortable: true,
   },
   {
@@ -261,6 +261,7 @@ const OptionsStatus = [
 
 
 async function onclickSelectOptions(row, value) {
+  loading.value = true;
   try {
     const response = await putData(
       `/followup/updatestatus/${row._id}/${value}`,
@@ -272,9 +273,18 @@ async function onclickSelectOptions(row, value) {
     if (index !== -1) {
       rows.value[index].status = getStatusLabel(value); // Actualiza solo el estado de la fila modificada
     }
+    if (value === "3" ) {
+      notifySuccessRequest("El estado ha sido actualizado a Pendiente");
+      return;
+    } else if (value === "4") {
+      notifySuccessRequest("El estado ha sido actualizado a Verificado");
+      return;
+    }
     console.log("Estado actualizado:", response.data);
   } catch (error) {
     console.error("Error al actualizar el estado:", error);
+  }finally{
+    loading.value = false;
   }
 }
 
@@ -422,6 +432,25 @@ async function searchButtons() {
     loadingSearch.value = false
   }
 }
+
+async function onClickLinkDetail(row) {
+  const url = row.document;
+  if (isValidUrl(url)) {
+    window.open(url, '_blank');
+  } else {
+    notifyErrorRequest('El enlace no existe o es inválido.');
+  }
+}
+
+function isValidUrl(url) {
+  try {
+    new URL(url);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 
 </script>
 
