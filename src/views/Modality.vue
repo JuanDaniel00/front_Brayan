@@ -35,7 +35,7 @@
         </q-input>
       </q-form>
     </modalDialog>
-    <q-form ref="formRef" @submit="searchModality" class="formModality">
+    <q-form ref="formSearch" @submit="searchModality" class="formModality">
       <div class="InputButtonsSearch">
         <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
           optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select"
@@ -72,6 +72,7 @@ const optionsModality = ref([]);
 const filterOptionsModality = ref([]);
 
 const formRef = ref(null)
+const formSearch = ref(null)
 const formData = ref({
   modality: '',
   hourInstFollowup: '',
@@ -102,9 +103,15 @@ const validateRequiredModality = (v) => {
     return 'La modalidad es obligatorio'
   }
 }
+const normalizeString = (str) => {
+  return str.trim().toLowerCase().replace(/\s+/g, ' ');
+};
+
 
 const validateUniqueModality = (v) => {
-  if (existingModalities.value.includes(v) && (ismodalType.value || v !== originalDataValues.value.modality)) {
+  const normalizedValue = normalizeString(v);
+  const normalizedExistingModalities = existingModalities.value.map(modality => normalizeString(modality));
+  if (normalizedExistingModalities.includes(normalizedValue) && (ismodalType.value || normalizedValue !== normalizeString(originalDataValues.value.modality))) {
     return 'Ya existe una modalidad con este nombre'
   }
 }
@@ -113,7 +120,7 @@ const validateRequieredHourFollowup = (v) => {
   if (ismodalType.value === true && !v) {
     return 'La hora del instructor de seguimiento es obligatorio'
   }
-  if (!modalityInstructorUno.includes(formData.value.modality) && !v || modalityInstructorUno.includes(formData.value.modality) && !v) {
+  if (!modalityInstructorUno.includes(formData.value.modality) && v === '') {
     return 'La hora del instructor de seguimiento es requerida'
   }
   if (/\s/.test(v)) {
@@ -128,8 +135,8 @@ const validateRequiredHourTechinical = (v) => {
   if (ismodalType.value === true && !v) {
     return 'La hora del instructor técnico es obligatorio'
   }
-  if (!modalityInstructorUno.includes(formData.value.modality) && !v) {
-    return 'La hora del instructor de técnico es requerida'
+  if (!modalityInstructorUno.includes(formData.value.modality) && v === '') {
+    return 'La hora del instructor técnico es requerida'
   }
   if (/\s/.test(v)) {
     return 'La hora de instructor técnico no puede contener espacios en blanco'
@@ -143,7 +150,7 @@ const validateRequiredHuorProyect = (v) => {
   if (ismodalType.value === true && !v) {
     return 'La hora del instructor de proyecto es obligatorio'
   }
-  if (!modalityInstructorUno.includes(formData.value.modality) && !v) {
+  if (!modalityInstructorUno.includes(formData.value.modality) && v === '') {
     return 'La hora del instructor de proyecto es requerida'
   }
   if (/\s/.test(v)) {
@@ -349,7 +356,7 @@ function filterFunctionSearch(val, update) {
 }
 
 async function searchModality() {
-  const isvalid = await formRef.value.validate()
+  const isvalid = await formSearch.value.validate()
   if (!isvalid) {
     return
   }

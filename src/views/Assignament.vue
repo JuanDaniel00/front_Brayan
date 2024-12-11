@@ -85,12 +85,6 @@ const columns = ref([
     align: "resgister",
   },
   {
-    name: "numApprentice",
-    label: "N° APREDIZ",
-    field: row => row.idApprentice ? row.idApprentice.length : 0,
-    align: "center",
-  },
-  {
     name: "program",
     required: true,
     label: "PROGRAMA",
@@ -173,6 +167,14 @@ async function loadDataAssignament() {
     const response = await getData('/register/listallassignment');
     console.log(response)
     rows.value = response.data
+      .reverse()
+      .filter(row => row.status === 1)
+      .flatMap(option =>
+        option.idApprentice.map(apprentice => ({
+          ...option,
+          idApprentice: [apprentice]
+        }))
+      )
   } catch (error) {
     notifyErrorRequest('Error al cargar las asignaciones');
   } finally {
@@ -183,13 +185,26 @@ async function loadDataAssignament() {
 async function searchApprentice() {
   try {
     const response = await getData(`/register/listregisterbyapprentice/${searchValue.value}`);
-    rows.value = response.data;
+    rows.value = response.data
+      .flatMap(option =>
+        option.idApprentice
+          .filter(apprentice => apprentice._id === searchValue.value)
+          .map(apprentice => ({
+            ...option,
+            idApprentice: [apprentice]
+          }))
+      )
   } catch (error) {
     if (searchValue.value === '') {
       validationSearch()
     } else {
-      const message = error.response?.data?.error || 'Error al buscar el aprendiz';
-      notifyErrorRequest(message);
+      let messageError;
+      if (error.response.data && error.response.data.message) {
+        messageError = error.response.data.message
+      } else if (error.response.data && error.response.data.errors[0].msg) {
+        messageError = error.response.data.errors[0].msg
+      }
+      notifyErrorRequest(messageError);
     }
   }
 }
@@ -198,7 +213,17 @@ async function searchinstFollowup() {
   try {
     const response = await getData(`/register/listassigmentbyfollowupinstructor/${searchValue.value}`);
     console.log('Td Follow', response)
-    rows.value = response.data;
+    rows.value = response.data
+    .filter(option => option.status = 1)
+    .filter(option => option.status === 1) // Filtrar por estado activo
+      .flatMap(option =>
+        option.idApprentice
+        
+        .map(apprentice => ({
+          ...option,
+          idApprentice: [apprentice]
+        }))
+      );
   } catch (error) {
     if (searchValue.value === '') {
       validationSearch()
@@ -213,6 +238,13 @@ async function searchInstTechnical() {
     const response = await getData(`/register/listassigmentbytechnicalinstructor/${searchValue.value}`);
     console.log('Td Technical', response)
     rows.value = response.data
+    .filter(option => option.status === 1) // Filtrar por estado activo
+      .flatMap(option =>
+        option.idApprentice.map(apprentice => ({
+          ...option,
+          idApprentice: [apprentice]
+        }))
+      );
   } catch (error) {
     if (searchValue.value === '') {
       validationSearch()
@@ -228,6 +260,13 @@ async function searchInstProject() {
     const response = await getData(`/register/listassigmentbyprojectinstructor/${searchValue.value}`);
     console.log('Td Project', response)
     rows.value = response.data
+    .filter(option => option.status === 1) // Filtrar por estado activo
+      .flatMap(option =>
+        option.idApprentice.map(apprentice => ({
+          ...option,
+          idApprentice: [apprentice]
+        }))
+      );
   } catch (error) {
     if (searchValue.value === '') {
       validationSearch()
@@ -240,18 +279,26 @@ async function searchInstProject() {
 
 const handleRadioChange = async () => {
   if (radioButtonList.value === 'apprentice') {
-    const response = await getData('/apprendice/listallapprentice');
-    optionSearch.value = response.map(option => ({
-      _id: option._id,
-      label: `${option.firstName} ${option.lastName} - ${option.numDocument}`,
-      numDocument: option.numDocument
-    })).filter(Boolean)
+    const response = await getData('/register/listallassignment');
+    console.log('res', response);
+    
+    optionSearch.value = response.data
+      .filter(option => option.status === 1) // Filtrar por estado activo
+      .flatMap(option => 
+        option.idApprentice.map(apprentice => ({
+          _id: apprentice._id,
+          label: `${apprentice.firstName} ${apprentice.lastName} - ${apprentice.numDocument}`,
+          numDocument: apprentice.numDocument
+        }))
+      ).filter(Boolean);
     filterOptionsSearch.value = optionSearch.value;
   } else if (radioButtonList.value === 'instFollowup') {
     const response = await getData('/register/listallregister');
     console.log('resgister Follow', response)
     const uniqueInsFollowup = new Set();
-    optionSearch.value = response.data.map(option => {
+    optionSearch.value = response.data
+    .filter(option => option.status === 1)
+    map(option => {
       if (option.assignment && option.assignment[0] && option.assignment[0].followUpInstructor && option.assignment[0].followUpInstructor[0]) {
         const instFollowup = option.assignment[0].followUpInstructor[0].idInstructor;
         if (!uniqueInsFollowup.has(instFollowup)) {
@@ -268,7 +315,9 @@ const handleRadioChange = async () => {
     const response = await getData('/register/listallregister');
     console.log('info Techenical', response)
     const uniqueInsTechnical = new Set();
-    optionSearch.value = response.data.map(option => {
+    optionSearch.value = response.data
+    .filter(option => option.status === 1)
+    .map(option => {
       if (option.assignment && option.assignment[0] && option.assignment[0].technicalInstructor && option.assignment[0].technicalInstructor[0]) {
         const instTechnical = option.assignment[0].technicalInstructor[0].idInstructor;
         if (!uniqueInsTechnical.has(instTechnical)) {
@@ -285,7 +334,9 @@ const handleRadioChange = async () => {
     const response = await getData('/register/listallregister');
     console.log('info Proyect', response)
     const uniqueInstProject = new Set();
-    optionSearch.value = response.data.map(option => {
+    optionSearch.value = response.data
+    .filter(option => option.status === 1)
+    .map(option => {
       if (option.assignment && option.assignment[0] && option.assignment[0].projectInstructor && option.assignment[0].projectInstructor[0]) {
         const instProject = option.assignment[0].projectInstructor[0].idInstructor;
         console.log('idInstructor', instProject)

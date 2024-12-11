@@ -1,7 +1,7 @@
 <template>
   <Header title="Mis Asignaciones"></Header>
   <div id="buttons-container">
-    
+
     <div class="allInputButtonsSearch">
       <div class="filterButtons">
         <p style="color: #2F7D32; font-weight: bold;">Seleccione una opción:</p>
@@ -91,18 +91,27 @@ const columns = ref([
     sortable: true,
   },
   {
-    name: "document",
-    label: "N° DOCUMENTO",
-    align: "center",
-    field: "document",
-    sortable: true,
-  },
-  {
     name: "modality",
     label: "MODALIDAD",
     align: "center",
     field: row => row.idModality.name,
     sortable: true,
+  },
+  {
+    name: "tpInstructor",
+    label: "TIPO INSTRUCTOR",
+    align: "center",
+    field: row => {
+      if (row.assignment?.[0]?.followUpInstructor?.some(i => i.idInstructor === currenInstructorId.value)) {
+        return 'Inst. Seguimiento';
+      } else if (row.assignment?.[0]?.technicalInstructor?.some(i => i.idInstructor === currenInstructorId.value)) {
+        return 'Inst.Técnico';
+      } else if (row.assignment?.[0]?.projectInstructor?.some(i => i.idInstructor === currenInstructorId.value)) {
+        return 'Inst. Proyecto';
+      } else {
+        return 'N/A';
+      }
+    },
   },
   {
     name: "binnacle",
@@ -172,8 +181,12 @@ const loadDataMyAssignament = async () => {
   try {
     const response = await getData(`/register/listRegisterByInstructorInAssignment/${currenInstructorId.value}`);
     console.log('response', response);
-
-    rows.value = response.data;
+    rows.value = response.data.flatMap(option =>
+      option.idApprentice.map(apprentice => ({
+        ...option,
+        idApprentice: [apprentice]
+      }))
+    );
   } catch (error) {
     console.error("Error al cargar las asignaciones:", error);
   } finally {
@@ -219,8 +232,24 @@ async function onclickSearchFollow(row) {
 async function searchApprentice() {
   try {
     const response = await getData(`/register/listregisterbyapprentice/${searchValue.value}`);
-    console.log(response);
+    console.log('apprentice', response);
+
     rows.value = response.data
+      .filter(option =>
+        option.assignment?.[0]?.followUpInstructor?.some(i => i.idInstructor === currenInstructorId.value) ||
+        option.assignment?.[0]?.technicalInstructor?.some(i => i.idInstructor === currenInstructorId.value) ||
+        option.assignment?.[0]?.projectInstructor?.some(i => i.idInstructor === currenInstructorId.value)
+      )
+      .flatMap(option =>
+        option.idApprentice
+          .filter(apprentice => apprentice._id === searchValue.value) // Filtrar por el aprendiz específico
+          .map(apprentice => ({
+            ...option,
+            idApprentice: [apprentice]
+          }))
+      );
+
+
   } catch (error) {
     if (searchValue.value === '') {
       validationSearch()
@@ -230,11 +259,24 @@ async function searchApprentice() {
   }
 }
 
-async function searchTpModalite() {
+async function searchTpInstructor() {
   try {
-    const response = await getData(`/register/listregisterbymodality/${searchValue.value}`);
+    const response = await getData('/register/listallassignment');
     console.log(response);
+
     rows.value = response.data
+      .filter(option =>
+        option.assignment?.[0]?.followUpInstructor?.some(i => i.idInstructor === currenInstructorId.value) ||
+        option.assignment?.[0]?.technicalInstructor?.some(i => i.idInstructor === currenInstructorId.value) ||
+        option.assignment?.[0]?.projectInstructor?.some(i => i.idInstructor === currenInstructorId.value)
+      )
+      .flatMap(option =>
+        option.idApprentice.map(apprentice => ({
+          ...option,
+          idApprentice: [apprentice]
+        }))
+      );
+
   } catch (error) {
     if (searchValue.value === '') {
       validationSearch()
@@ -247,40 +289,65 @@ async function searchTpModalite() {
   }
 }
 
-
 const handleRadioChange = async () => {
-  // validationSearch()
   if (radiobuttonlist.value === 'apprentice') {
     const response = await getData('/register/listallassignment');
     const uniqueFiches = new Set();
-    optionSearch.value = response.data.map(option => {
-      if (option.idApprentice && option.idApprentice.length > 0) {
-      const apprendice = option.idApprentice[0]._id;
-      if (!uniqueFiches.has(apprendice)) {
-        uniqueFiches.add(apprendice)
-        return {
-          _id: option.idApprentice[0]._id,
-          label: option.idApprentice[0].firstName + ' ' + option.idApprentice[0].lastName,
-        };
-      }
-    }
-    }).filter(Boolean)
+    optionSearch.value = response.data
+      .filter(option =>
+        option.assignment?.[0]?.followUpInstructor?.some(i => i.idInstructor === currenInstructorId.value) ||
+        option.assignment?.[0]?.technicalInstructor?.some(i => i.idInstructor === currenInstructorId.value) ||
+        option.assignment?.[0]?.projectInstructor?.some(i => i.idInstructor === currenInstructorId.value)
+      )
+      .flatMap(option =>
+        option.idApprentice.map(apprentice => ({
+          ...option,
+          idApprentice: [apprentice]
+        })))
+
+      .map(option => {
+        if (option.idApprentice && option.idApprentice.length > 0) {
+          const apprentice = option.idApprentice[0]._id;
+          if (!uniqueFiches.has(apprentice)) {
+            uniqueFiches.add(apprentice);
+            return {
+              _id: option.idApprentice[0]._id,
+              label: option.idApprentice[0].firstName + ' ' + option.idApprentice[0].lastName,
+            };
+          }
+        }
+      }).filter(Boolean);
     filterOptionsSearch.value = optionSearch.value;
   } else if (radiobuttonlist.value === 'tpInstructor') {
     const response = await getData('/register/listallassignment');
     const uniqueTpInstructor = new Set();
-    optionSearch.value = response.data.map(option => {
-      const tpInstructor = option.idModality._id;
-      if (!uniqueTpInstructor.has(tpInstructor)) {
-        uniqueTpInstructor.add(tpInstructor)
-        return {
-          _id: option.idModality._id,
-          label: option.idModality.name 
-        };
-    }
-    }).filter(Boolean)
+    optionSearch.value = response.data
+    .filter(option =>
+        option.assignment?.[0]?.followUpInstructor?.some(i => i.idInstructor === currenInstructorId.value) ||
+        option.assignment?.[0]?.technicalInstructor?.some(i => i.idInstructor === currenInstructorId.value) ||
+        option.assignment?.[0]?.projectInstructor?.some(i => i.idInstructor === currenInstructorId.value)
+      )
+      .map(option => {
+        let label = '';
+        if (option.assignment?.[0]?.followUpInstructor?.some(i => i.idInstructor === currenInstructorId.value)) {
+          label = 'Inst. Seguimiento';
+        } else if (option.assignment?.[0]?.technicalInstructor?.some(i => i.idInstructor === currenInstructorId.value)) {
+          label = 'Inst. Técnico';
+        } else if (option.assignment?.[0]?.projectInstructor?.some(i => i.idInstructor === currenInstructorId.value)) {
+          label = 'Inst. Proyecto';
+        }
+        const tpInstructor = option.label;
+        if (!uniqueTpInstructor.has(tpInstructor)) {
+          uniqueTpInstructor.add(tpInstructor);
+          return {
+            _id: option._id,
+            label: label
+          };
+        }
+      }).filter(Boolean);
+filterOptionsSearch.value = optionSearch.value;
   }
-  clearSearch();
+clearSearch();
 }
 
 // limpiar campos de busqueda
@@ -329,7 +396,7 @@ async function searchButton() {
   if (radiobuttonlist.value === 'apprentice') {
     await searchApprentice();
   } else if (radiobuttonlist.value === 'tpInstructor') {
-    await searchTpModalite();
+    await searchTpInstructor();
   }
   clearSearch();
   loadingSearch.value = false

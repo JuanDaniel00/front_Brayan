@@ -86,10 +86,7 @@
                   (val) => validateMaxLengthTen(val)
                 ]" />
               <Input id="docAlternative" filled label="Documento Alternativo" v-model="docAlternative" required
-                errorMessage="Documento requerido" icon="file-invoice" type="text" :rules="[
-                  (val) => validateRequired(val, 'El documento alternativo es requerido'),
-                  (val) => validateNoSpaces(val)
-                ]" />
+                errorMessage="Documento requerido" icon="file-invoice" type="text"/>
               <Input id="hour" filled label="Horas" v-model="hour" required errorMessage="Horas requeridas" icon="clock"
                 type="text" :rules="[
                   (val) => validateRequired(val, 'Las horas son requeridas'),
@@ -164,11 +161,7 @@
                     </template>
                   </q-input>
                   <q-input v-model="docAlternativeModal" label="Documentos alternativos" label-color="primary"
-                    label-class="customLabel" class="long" :rules="[
-                      (val) => !!val || 'Campo requerido',
-                      (val) =>
-                        val.trim().length > 0 || 'No se permiten espacios vacíos',
-                    ]" :readonly="isReadOnly">
+                    label-class="customLabel" class="long">
                     <template v-slot:prepend>
                       <q-icon color="green-10" name="description" />
                     </template>

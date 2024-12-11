@@ -22,7 +22,7 @@
 
   <tableSelect :rows="rows" :columns="columns" :options="OptionsStatus"
     :onClickSeeObservation="openClickSeeObservation" :onClickCreateObservation="openClickCreateObservation"
-    :onclickSelectOptions="onclickSelectOptions" :loading="loading" />
+    :onclickSelectOptions="onclickSelectOptions" :onClickLinkDetail="onClickLinkDetail" :loading="loading" />
 
   <dialogSeeObservation v-model="isChatOpen" :messages="chatMessages" title="OBSERVACIONES" labelClose="Cerrar">
   </dialogSeeObservation>
@@ -147,7 +147,7 @@ const columns = ref([
     name: "detail",
     label: "DETALLES",
     align: "center",
-    field: "observation",
+    field: 'document',
     sortable: true,
   },
 ]);
@@ -450,6 +450,25 @@ async function searchButton() {
     loadingSearch.value = false;
   }
 }
+async function onClickLinkDetail(row) {
+  const url = row.document;
+  if (isValidUrl(url)) {
+    window.open(url, '_blank');
+  } else {
+    notifyErrorRequest('El enlace no existe o es inválido.');
+  }
+}
+
+function isValidUrl(url) {
+  try {
+    new URL(url);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+
 </script>
 
 <style scoped>
