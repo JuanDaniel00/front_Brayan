@@ -26,7 +26,7 @@
     :onClickCreateObservation="openClickCreateObservation" :onclickSelectOptions="onclickSelectOptions"  :onClickLinkDetail="onClickLinkDetail"
     :loading="loading" />
 
-  <dialogSeeObservation v-model="isDialogVisibleObservation" title="OBSERVACIONES" labelClose="Cerrar"
+  <dialogSeeObservation v-model="isChatOpen" :messages="chatMessages" title="OBSERVACIONES" labelClose="Cerrar"
     labelSend="Guardad" :onclickClose="closeDialog" :onclickSend="saveChanges"
     :informationBinnacles="observationFollowup">
   </dialogSeeObservation>
@@ -76,6 +76,11 @@ const inputSearch = ref(null)
 // observación
 let observationFollowup = ref('');
 let newObservation = ref('')
+let isChatOpen = ref(false);
+
+let instructorId = ref("");
+let instructorName = ref("");
+const chatMessages = [];
 
 let route = useRoute();
 onBeforeMount(() => {
@@ -83,6 +88,7 @@ onBeforeMount(() => {
 });
 const rows = ref([])
 let id = ref('')
+
 
 // validaciones de input de vusqueda
 const formRef = ref(null)
@@ -225,15 +231,54 @@ async function loadDataFollowup() {
 }
 
 
-async function openClickSeeObservation(row) {
-  isDialogVisibleObservation.value = true;
-  if (!row.observation || row.observation.length === 0) {
-    observationFollowup.value = [' No hay observaciones para esta bitacora'];
-  } else {
-    observationFollowup.value = row.observation.map(obs => obs.observation);
-  }
+// async function openClickSeeObservation(row) {
+//   isDialogVisibleObservation.value = true;
+//   if (!row.observation || row.observation.length === 0) {
+//     observationFollowup.value = [' No hay observaciones para esta bitacora'];
+//   } else {
+//     observationFollowup.value = row.observation.map(obs => obs.observation);
+//   }
 
+// }
+
+async function openClickSeeObservation(row) {
+  isChatOpen.value = true;
+  console.log("row", row);
+  console.log("row.observation", row.observation);
+  instructorId.value = row.instructor._id
+  console.log("instructorId", instructorId.value)
+
+
+  instructorName.value = row.instructor.name
+
+  // Si no hay observaciones, mostrar mensaje por defecto
+  if (!row.observation || row.observation.length === 0) {
+    chatMessages.splice(0, chatMessages.length); // Limpiar mensajes previos
+    chatMessages.push({
+      name: "Sistema",
+      avatar:
+        "https://senasofiaplus.xyz/wp-content/uploads/2023/10/logo-del-sena-01.png",
+      text: ["No hay observaciones registradas para esta bitácora."],
+      stamp: new Date().toLocaleString(),
+      sent: false,
+      bgColor: "grey-6",
+    });
+  } else {
+    // Mapear las observaciones a mensajes
+    chatMessages.splice(0, chatMessages.length); // Limpiar mensajes previos
+    chatMessages.push(
+      ...row.observation.map((obs) => ({
+        name: obs.user ? "Instructor(a) " + instructorName.value : "Tú",
+        text: [obs.observation],
+        stamp: formatDate(obs.observationDate),
+        sent: !obs.user,
+        bgColor: obs.user ? "green-6" : "green-8",
+        textColor: "white",
+      }))
+    );
+  }
 }
+
 async function openClickCreateObservation(row) {
   isDialogVisibleCreateObservation.value = true;
   id.value = row._id;
