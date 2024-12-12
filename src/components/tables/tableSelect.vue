@@ -37,6 +37,16 @@
                 </q-td>
             </template>
 
+            <template v-slot:body-cell-validateHoursFollowup="props">
+  <q-td :props="props" class="q-pa-xs">
+    <q-checkbox
+      v-model="props.row.checked"
+      @update:model-value="value => onCheck(value, props.row)"
+    />
+  </q-td>
+</template>
+
+
             <template v-slot:body-cell-detail="props">
                 <q-td :props="props" class="q-pa-xs text-center">
                     <q-btn @click="onClickLinkDetail(props.row)" color="primary" icon="folder" round size="md" />
@@ -60,6 +70,16 @@
 <script setup>
 import { ref } from "vue";
 import CheckButton from "./../checks/CheckInputs.vue"
+
+const checked = ref(false);
+  
+  const emit = defineEmits(["checked-followup"]);
+  
+  function onCheck(value, row) {
+  row.checked = value;
+  emit("checked-followup", { checked: value, row });
+}
+
 
 
 const props = defineProps({

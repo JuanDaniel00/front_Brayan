@@ -24,7 +24,9 @@
 
   <tableSelect :rows="rows" :columns="columns" :options="OptionsStatus" :onClickSeeObservation="openClickSeeObservation"
     :onClickCreateObservation="openClickCreateObservation" :onclickSelectOptions="onclickSelectOptions"  :onClickLinkDetail="onClickLinkDetail"
-    :loading="loading" />
+    :loading="loading" 
+    @checked-followup="handleCheckedFollowup"
+    />
 
   <dialogSeeObservation v-model="isDialogVisibleObservation" title="OBSERVACIONES" labelClose="Cerrar"
     labelSend="Guardad" :onclickClose="closeDialog" :onclickSend="saveChanges"
@@ -154,7 +156,7 @@ const columns = ref([
     sortable: true,
   }, 
   {
-    name: "validateHours",
+    name: "validateHoursFollowup",
     label: "VALIDAR HORAS",
     align: "center",
 
@@ -462,6 +464,29 @@ function isValidUrl(url) {
     return true;
   } catch (e) {
     return false;
+  }
+}
+
+async function validateHours(row) {
+  loading.value = true;
+  console.log('row:   ',row._id);
+  
+  try {
+    const response = await putData(`/followup/validateHoursFollowup/${row._id}`)
+    notifySuccessRequest("Horas validadas exitosamente.");
+
+  } catch (error) {
+    console.log(error);
+    notifyErrorRequest("Error al validar las horas del instructor de seguimiento")
+    
+  } finally {
+    loading.value = false;
+  }
+};
+
+function handleCheckedFollowup({ checked, row }) {
+  if (checked) {
+    validateHours(row);
   }
 }
 

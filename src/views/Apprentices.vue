@@ -146,7 +146,7 @@ let inputIdmodality = ref(false)
 
 // opciones de tipo de documento
 const optionsTpC = [
-  'C.C', 'T.I', 'C.E', 'S.C.R', 'P.A'
+  'C.C', 'T.I', 'C.E'
 ]
 
 // radio buttons
