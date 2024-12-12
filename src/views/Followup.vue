@@ -145,7 +145,14 @@ const columns = ref([
     align: "center",
     field: "observation",
     sortable: true,
-  }, {
+  }, 
+  {
+    name: "validateHours",
+    label: "VALIDAR HORAS",
+    align: "center",
+
+  },
+  {
     name: "detail",
     label: "DETALLES",
     align: "center",
@@ -154,7 +161,7 @@ const columns = ref([
   },
   {
     name: "observationDate",
-    label: "Fecha",
+    label: "FECHA",
     align: "center",
     field: row => formatDate(row.createdAt),
     sortable: true,

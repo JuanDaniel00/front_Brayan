@@ -4,34 +4,76 @@
     <div class="searchButtons">
       <div class="allInputButtonsSearch">
         <p>Seleccione una opción:</p>
-        <radioButtonInstructor v-model="radioButtonList" label="Instructor" val="instructor"
-          @update:model-value="handleRadioChange" />
-        <radioButtonApprentice v-model="radioButtonList" label="Aprendiz" val="apprentice"
-          @update:model-value="handleRadioChange" />
+        <radioButtonInstructor
+          v-model="radioButtonList"
+          label="Instructor"
+          val="instructor"
+          @update:model-value="handleRadioChange"
+        />
+        <radioButtonApprentice
+          v-model="radioButtonList"
+          label="Aprendiz"
+          val="apprentice"
+          @update:model-value="handleRadioChange"
+        />
       </div>
       <q-form ref="formRef" @submit.prevent="searchButton">
         <div class="InputButtonsSearch">
-          <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
-            optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select"
-            :rules="[validateRequieredSearch]" lazy-rules />
-          <buttonSearch :onclickButton="searchButton" :loading="loadingSearch" />
+          <inputSelect
+            v-model="searchValue"
+            label="Buscar"
+            :options="filterOptionsSearch"
+            optionLabel="label"
+            optionValue="_id"
+            :useInput="!Search"
+            :filter="filterFunctionSearch"
+            class="custom-select"
+            :rules="[validateRequieredSearch]"
+            lazy-rules
+          />
+          <buttonSearch
+            :onclickButton="searchButton"
+            :loading="loadingSearch"
+          />
         </div>
       </q-form>
     </div>
   </div>
 
-  <tableSelect :rows="rows" :columns="columns" :options="OptionsStatus"
-    :onClickSeeObservation="openClickSeeObservation" :onClickCreateObservation="openClickCreateObservation"
-    :onclickSelectOptions="onclickSelectOptions" :onClickLinkDetail="onClickLinkDetail" :loading="loading" />
+  <tableSelect
+    :rows="rows"
+    :columns="columns"
+    :options="OptionsStatus"
+    :onClickSeeObservation="openClickSeeObservation"
+    :onClickCreateObservation="openClickCreateObservation"
+    :onclickSelectOptions="onclickSelectOptions"
+    :onClickLinkDetail="onClickLinkDetail"
+    :loading="loading"
+  />
 
-  <dialogSeeObservation v-model="isChatOpen" :messages="chatMessages" title="OBSERVACIONES" labelClose="Cerrar">
+  <dialogSeeObservation
+    v-model="isChatOpen"
+    :messages="chatMessages"
+    title="OBSERVACIONES"
+    labelClose="Cerrar"
+  >
   </dialogSeeObservation>
   <q-form ref="formObservation" @submit.prevent="handleSend">
-  <dialogCreateObservation v-model="isDialogVisibleCreateObservation" title="Añadir Observación" labelClose="Cerrar"
-    labelSend="Enviar" :onclickClose="closeDialog" :onclickSend="handleSend" v-model:textValue="newObservation"
-    :informationBinnacles="observationBinnacles" :informationBinnaclesDate="observationBinnaclesDate"
-    labelTextArea="Escriba una Observacón para esta bitacoras" :loading="loadingCreateOdservation"  :rules="[ (val) => !!val || 'El campo es obligatorio']">
-  </dialogCreateObservation>
+    <dialogCreateObservation
+      v-model="isDialogVisibleCreateObservation"
+      title="Añadir Observación"
+      labelClose="Cerrar"
+      labelSend="Enviar"
+      :onclickClose="closeDialog"
+      :onclickSend="handleSend"
+      v-model:textValue="newObservation"
+      :informationBinnacles="observationBinnacles"
+      :informationBinnaclesDate="observationBinnaclesDate"
+      labelTextArea="Escriba una Observacón para esta bitacoras"
+      :loading="loadingCreateOdservation"
+      :rules="[(val) => !!val || 'El campo es obligatorio']"
+    >
+    </dialogCreateObservation>
   </q-form>
 </template>
 
@@ -45,7 +87,11 @@ import radioButtonInstructor from "../components/radioButtons/radioButton.vue";
 import radioButtonApprentice from "../components/radioButtons/radioButton.vue";
 import inputSelect from "../components/input/inputSelect.vue";
 import buttonSearch from "../components/buttons/buttonSearch.vue";
-import { notifyErrorRequest, notifySuccessRequest, notifyWarningRequest } from "../composables/useNotify.js";
+import {
+  notifyErrorRequest,
+  notifySuccessRequest,
+  notifyWarningRequest,
+} from "../composables/useNotify.js";
 import { getData, putData } from "../services/ApiClient";
 import { useRoute } from "vue-router";
 import { formatDate } from "../utils/changeDateFormat.js";
@@ -54,7 +100,7 @@ let searchValue = ref("");
 let radioButtonList = ref("");
 let optionSearch = ref([]);
 let filterOptionsSearch = ref([]);
-let responseFromLoadDataBinnacles = ref(null)
+let responseFromLoadDataBinnacles = ref(null);
 
 //Variables de observaciones
 let observationBinnacles = ref("");
@@ -83,14 +129,14 @@ const chatMessages = [];
 const formRef = ref(null);
 const formObservation = ref(null);
 const validateRequieredSearch = (v) => {
-  if (radioButtonList.value === '') {
-    return 'Debes seleccionar una opción'
+  if (radioButtonList.value === "") {
+    return "Debes seleccionar una opción";
   }
   if (!v) {
-    return 'El campo de búsqueda es obligatorio';
+    return "El campo de búsqueda es obligatorio";
   }
   return true;
-}
+};
 
 const rows = ref([]);
 const columns = ref([
@@ -107,11 +153,11 @@ const columns = ref([
     align: "center",
     field: (row) =>
       row.register.idApprentice[0].firstName +
-        " " +
-        row.register.idApprentice[0].lastName
+      " " +
+      row.register.idApprentice[0].lastName
         ? row.register.idApprentice[0].firstName +
-        " " +
-        row.register.idApprentice[0].lastName
+          " " +
+          row.register.idApprentice[0].lastName
         : "No asignado",
     sortable: true,
   },
@@ -133,7 +179,7 @@ const columns = ref([
     name: "status",
     label: "ESTADO",
     align: "center",
-    field: 'status',
+    field: "status",
     sortable: true,
   },
   {
@@ -144,10 +190,15 @@ const columns = ref([
     sortable: true,
   },
   {
+    name: "validateHours",
+    label: "VALIDAR HORAS",
+    align: "center",
+  },
+  {
     name: "detail",
     label: "DETALLES",
     align: "center",
-    field: 'document',
+    field: "document",
     sortable: true,
   },
 ]);
@@ -165,16 +216,25 @@ async function loadDataBinnacles() {
       const responseFromLoadDataBinnacles = await getData(
         `/binnacles/listBinnaclesByRegister/${idRegister}`
       );
-      console.log("responseFromLoadDataBinnacles", responseFromLoadDataBinnacles);
+      console.log(
+        "responseFromLoadDataBinnacles",
+        responseFromLoadDataBinnacles
+      );
       rows.value = responseFromLoadDataBinnacles.binnacles;
     } else {
-      const responseFromLoadDataBinnacles = await getData("/binnacles/listallbinnacles");
+      const responseFromLoadDataBinnacles = await getData(
+        "/binnacles/listallbinnacles"
+      );
       console.log(responseFromLoadDataBinnacles);
       rows.value = responseFromLoadDataBinnacles;
     }
   } catch (error) {
     let messageError;
-    if (error.responseFromLoadDataBinnacles && error.responseFromLoadDataBinnacles.data && error.responseFromLoadDataBinnacles.data.message) {
+    if (
+      error.responseFromLoadDataBinnacles &&
+      error.responseFromLoadDataBinnacles.data &&
+      error.responseFromLoadDataBinnacles.data.message
+    ) {
       messageError = "no hay bitacoras para mostrar";
     } else if (
       error.responseFromLoadDataBinnacles &&
@@ -183,7 +243,8 @@ async function loadDataBinnacles() {
       error.responseFromLoadDataBinnacles.data.errors[0].msg
     ) {
       messageError =
-        error.responseFromLoadDataBinnacles.data.errors[0].msg || "Error al cargar las bitacoras";
+        error.responseFromLoadDataBinnacles.data.errors[0].msg ||
+        "Error al cargar las bitacoras";
     } else {
       messageError = "Error al cargar las bitacoras";
     }
@@ -193,23 +254,22 @@ async function loadDataBinnacles() {
   }
 }
 
-
 async function openClickSeeObservation(row) {
   isChatOpen.value = true;
   console.log("row", row);
   console.log("row.observation", row.observation);
-  instructorId.value = row.instructor._id
-  console.log("instructorId", instructorId.value)
-  
+  instructorId.value = row.instructor._id;
+  console.log("instructorId", instructorId.value);
 
-  instructorName.value = row.instructor.name
+  instructorName.value = row.instructor.name;
 
   // Si no hay observaciones, mostrar mensaje por defecto
   if (!row.observation || row.observation.length === 0) {
     chatMessages.splice(0, chatMessages.length); // Limpiar mensajes previos
     chatMessages.push({
       name: "Sistema",
-      avatar: "https://senasofiaplus.xyz/wp-content/uploads/2023/10/logo-del-sena-01.png",
+      avatar:
+        "https://senasofiaplus.xyz/wp-content/uploads/2023/10/logo-del-sena-01.png",
       text: ["No hay observaciones registradas para esta bitácora."],
       stamp: new Date().toLocaleString(),
       sent: false,
@@ -286,7 +346,7 @@ function closeDialog() {
 }
 
 const OptionsStatus = [
-  { label: "Programado", value: "1",disable: true },
+  { label: "Programado", value: "1", disable: true },
   { label: "Ejecutado", value: "2", disable: true },
   { label: "Pendiente", value: "3" },
   { label: "Verificado", value: "4" },
@@ -305,7 +365,7 @@ async function onclickSelectOptions(row, value) {
     if (index !== -1) {
       rows.value[index].status = value; // Actualiza solo el estado de la fila modificada
     }
-    if (value === "3" ) {
+    if (value === "3") {
       notifySuccessRequest("El estado ha sido actualizado a Pendiente");
       return;
     } else if (value === "4") {
@@ -315,7 +375,7 @@ async function onclickSelectOptions(row, value) {
     console.log("Estado actualizado:", response.data);
   } catch (error) {
     console.error("Error al actualizar el estado:", error);
-  }finally{
+  } finally {
     loading.value = false;
   }
 }
@@ -366,16 +426,18 @@ const handleRadioChange = async () => {
     const response = await getData("/binnacles/listallbinnacles");
     const uniqueInstructors = new Set();
     console.log(response);
-    optionSearch.value = response.map((option) => {
-      const instructorId = option.instructor.idinstructor
-      if (!uniqueInstructors.has(instructorId)) {
-        uniqueInstructors.add(instructorId)
-        return {
-          _id: option.instructor.idinstructor,
-          label: `${option.instructor.name}`,
+    optionSearch.value = response
+      .map((option) => {
+        const instructorId = option.instructor.idinstructor;
+        if (!uniqueInstructors.has(instructorId)) {
+          uniqueInstructors.add(instructorId);
+          return {
+            _id: option.instructor.idinstructor,
+            label: `${option.instructor.name}`,
+          };
         }
-      }
-    }).filter(Boolean);
+      })
+      .filter(Boolean);
     filterOptionsSearch.value = optionSearch.value;
   } else if (radioButtonList.value === "apprentice") {
     const response = await getData("/binnacles/listallbinnacles");
@@ -404,12 +466,16 @@ function clearSearch() {
 }
 
 function validationSearch() {
-  if (radioButtonList.value === '') {
-    notifyWarningRequest('Debes seleccionar una opción (Seguimiento, Aprendiz) antes de buscar.');
+  if (radioButtonList.value === "") {
+    notifyWarningRequest(
+      "Debes seleccionar una opción (Seguimiento, Aprendiz) antes de buscar."
+    );
     return false;
   }
-  if (searchValue.value === '') {
-    notifyWarningRequest('El campo de búsqueda no puede estar vacío. Por favor, ingrese un dato para continuar.');
+  if (searchValue.value === "") {
+    notifyWarningRequest(
+      "El campo de búsqueda no puede estar vacío. Por favor, ingrese un dato para continuar."
+    );
     return false;
   }
   return true;
@@ -436,7 +502,7 @@ async function searchButton() {
     return;
   }
   if (!validationSearch()) {
-    return
+    return;
   }
   loadingSearch.value = true;
   try {
@@ -453,9 +519,9 @@ async function searchButton() {
 async function onClickLinkDetail(row) {
   const url = row.document;
   if (isValidUrl(url)) {
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   } else {
-    notifyErrorRequest('El enlace no existe o es inválido.');
+    notifyErrorRequest("El enlace no existe o es inválido.");
   }
 }
 
@@ -467,8 +533,6 @@ function isValidUrl(url) {
     return false;
   }
 }
-
-
 </script>
 
 <style scoped>

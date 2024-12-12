@@ -30,6 +30,13 @@
                     </div>
                 </q-td>
             </template>
+
+            <template v-slot:body-cell-validateHours="props">
+                <q-td :props="props" class="q-pa-xs ">
+                    <CheckButton></CheckButton>
+                </q-td>
+            </template>
+
             <template v-slot:body-cell-detail="props">
                 <q-td :props="props" class="q-pa-xs text-center">
                     <q-btn @click="onClickLinkDetail(props.row)" color="primary" icon="folder" round size="md" />
@@ -52,6 +59,9 @@
 
 <script setup>
 import { ref } from "vue";
+import CheckButton from "./../checks/CheckInputs.vue"
+
+
 const props = defineProps({
     rows: {
         type: Array,

@@ -1,5 +1,5 @@
 <template>
-    <q-btn round @click="onclickButton" color="primary" glossy icon="search" :loading="loading" />
+    <q-btn round @click="onclickButton" color="primary" icon="search" :loading="loading" />
 </template>
 
 <script setup>
