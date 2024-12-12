@@ -577,7 +577,7 @@ async function listApprenticeForFiches() {
   try {
     const response = await getData(`/apprendice/listapprenticebyfiche/${searchValue.value}`);
     console.log(response);
-    rows.value = response.apprentices;
+    rows.value = response.apprentices.reverse();
   } catch (error) {
     if (searchValue.value === '') {
       validationSearch()
@@ -605,7 +605,7 @@ async function listApprenticeForStatus() {
   try {
     const response = await getData(`/apprendice/listapprenticebystatus/${searchValue.value}`);
     console.log(response);
-    rows.value = response.apprentices;
+    rows.value = response.apprentices.reverse();
   } catch (error) {
     if (searchValue.value === '') {
       validationSearch()
