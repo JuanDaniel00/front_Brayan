@@ -4,37 +4,17 @@
     <div class="searchButtons">
       <div class="allInputButtonsSearch">
         <p>Seleccione una opción:</p>
-        <radioButtonInstructor
-          v-model="radioButtonList"
-          label="Instructor"
-          val="instructor"
-          @update:model-value="handleRadioChange"
-        />
-        <radioButtonApprentice
-          v-model="radioButtonList"
-          label="Aprendiz"
-          val="apprentice"
-          @update:model-value="handleRadioChange"
-        />
+        <radioButtonInstructor v-model="radioButtonList" label="Instructor" val="instructor"
+          @update:model-value="handleRadioChange" />
+        <radioButtonApprentice v-model="radioButtonList" label="Aprendiz" val="apprentice"
+          @update:model-value="handleRadioChange" />
       </div>
       <q-form ref="formRef" @submit.prevent="searchButton">
         <div class="InputButtonsSearch">
-          <inputSelect
-            v-model="searchValue"
-            label="Buscar"
-            :options="filterOptionsSearch"
-            optionLabel="label"
-            optionValue="_id"
-            :useInput="!Search"
-            :filter="filterFunctionSearch"
-            class="custom-select"
-            :rules="[validateRequieredSearch]"
-            lazy-rules
-          />
-          <buttonSearch
-            :onclickButton="searchButton"
-            :loading="loadingSearch"
-          />
+          <inputSelect v-model="searchValue" label="Buscar" :options="filterOptionsSearch" optionLabel="label"
+            optionValue="_id" :useInput="!Search" :filter="filterFunctionSearch" class="custom-select"
+            :rules="[validateRequieredSearch]" lazy-rules />
+          <buttonSearch :onclickButton="searchButton" :loading="loadingSearch" />
         </div>
       </q-form>
     </div>
@@ -44,12 +24,7 @@
     :onClickCreateObservation="openClickCreateObservation" :onclickSelectOptions="onclickSelectOptions"
     :onClickLinkDetail="onClickLinkDetail" :loading="loading" />
 
-  <dialogSeeObservation
-    v-model="isChatOpen"
-    :messages="chatMessages"
-    title="OBSERVACIONES"
-    labelClose="Cerrar"
-  >
+  <dialogSeeObservation v-model="isChatOpen" :messages="chatMessages" title="OBSERVACIONES" labelClose="Cerrar">
   </dialogSeeObservation>
   <q-form ref="formObservation" @submit.prevent="handleSend">
     <dialogCreateObservation v-model="isDialogVisibleCreateObservation" title="Añadir Observación" labelClose="Cerrar"
@@ -136,12 +111,12 @@ const columns = ref([
     label: "ETAPA PRODUCTIVA ASIGNADA",
     align: "center",
     field: (row) => {
-    if (row.register && row.register.idApprentice && row.register.idApprentice.length > 0) {
-      return row.register.idApprentice[0].firstName + " " + row.register.idApprentice[0].lastName;
-    } else {
-      return "No asignado";
-    }
-  },
+      if (row.register && row.register.idApprentice && row.register.idApprentice.length > 0) {
+        return row.register.idApprentice[0].firstName + " " + row.register.idApprentice[0].lastName;
+      } else {
+        return "No asignado";
+      }
+    },
     sortable: true,
   },
   {
@@ -203,13 +178,23 @@ async function loadDataBinnacles() {
         "responseFromLoadDataBinnacles",
         responseFromLoadDataBinnacles
       );
-      rows.value = responseFromLoadDataBinnacles.binnacles;
+      rows.value = responseFromLoadDataBinnacles.binnacles
+        // .reverse()
+        // .flatMap(option =>
+        //   option.register.idApprentice.map(apprentice => ({
+        //     ...option,
+        //     register: {
+        //       ...option.register,
+        //       idApprentice: [apprentice]
+        //     }
+        //   }))
+        // );
     } else {
       const responseFromLoadDataBinnacles = await getData(
         "/binnacles/listallbinnacles"
       );
       console.log(responseFromLoadDataBinnacles);
-      rows.value = responseFromLoadDataBinnacles;
+      rows.value = responseFromLoadDataBinnacles
     }
   } catch (error) {
     let messageError;
@@ -425,17 +410,21 @@ const handleRadioChange = async () => {
     filterOptionsSearch.value = optionSearch.value;
   } else if (radioButtonList.value === "apprentice") {
     const response = await getData("/binnacles/listallbinnacles");
+    console.log(response);
+
     const uniqueApprentices = new Set();
     optionSearch.value = response
       .map((option) => {
-        const apprenticeId = option.register._id;
-        if (!uniqueApprentices.has(apprenticeId)) {
-          uniqueApprentices.add(apprenticeId);
-          return {
-            _id: apprenticeId,
-            label: `${option.register.idApprentice[0].firstName} ${option.register.idApprentice[0].lastName} - ${option.register.idApprentice[0].numDocument}`,
-            numDocument: option.numDocument,
-          };
+        if (option.register && option.register.idApprentice && option.register.idApprentice.length > 0) {
+          const apprenticeId = option.register._id;
+          if (!uniqueApprentices.has(apprenticeId)) {
+            uniqueApprentices.add(apprenticeId);
+            return {
+              _id: option.register._id,
+              label: `${option.register.idApprentice[0].firstName} ${option.register.idApprentice[0].lastName} - ${option.register.idApprentice[0].numDocument}`,
+              numDocument: option.numDocument,
+            };
+          }
         }
       })
       .filter((option) => option !== undefined);
