@@ -115,8 +115,15 @@ const columns = ref([
     name: "name",
     label: "ETAPA PRODUCTIVA SEGUIMIENTO",
     align: "center",
-    field: row => row.register.idApprentice && row.register.idApprentice[0].firstName + ' ' + row.register.idApprentice[0].lastName ? row.register.idApprentice[0].firstName + ' ' + row.register.idApprentice[0].lastName : 'No hay aprendiz',
+      field: (row) => {
+    if (row.register && row.register.idApprentice && row.register.idApprentice.length > 0) {
+      return row.register.idApprentice[0].firstName + " " + row.register.idApprentice[0].lastName;
+    } else {
+      return "No asignado";
+    }
+  },
     sortable: true,
+  
   },
   {
     name: "number",

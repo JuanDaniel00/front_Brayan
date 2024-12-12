@@ -20,18 +20,19 @@
     </div>
   </div>
 
-  <tableSelect :rows="rows" :columns="columns" :options="OptionsStatus"
-    :onClickSeeObservation="openClickSeeObservation" :onClickCreateObservation="openClickCreateObservation"
-    :onclickSelectOptions="onclickSelectOptions" :onClickLinkDetail="onClickLinkDetail" :loading="loading" />
+  <tableSelect :rows="rows" :columns="columns" :options="OptionsStatus" :onClickSeeObservation="openClickSeeObservation"
+    :onClickCreateObservation="openClickCreateObservation" :onclickSelectOptions="onclickSelectOptions"
+    :onClickLinkDetail="onClickLinkDetail" :loading="loading" />
 
   <dialogSeeObservation v-model="isChatOpen" :messages="chatMessages" title="OBSERVACIONES" labelClose="Cerrar">
   </dialogSeeObservation>
   <q-form ref="formObservation" @submit.prevent="handleSend">
-  <dialogCreateObservation v-model="isDialogVisibleCreateObservation" title="Añadir Observación" labelClose="Cerrar"
-    labelSend="Enviar" :onclickClose="closeDialog" :onclickSend="handleSend" v-model:textValue="newObservation"
-    :informationBinnacles="observationBinnacles" :informationBinnaclesDate="observationBinnaclesDate"
-    labelTextArea="Escriba una Observacón para esta bitacoras" :loading="loadingCreateOdservation"  :rules="[ (val) => !!val || 'El campo es obligatorio']">
-  </dialogCreateObservation>
+    <dialogCreateObservation v-model="isDialogVisibleCreateObservation" title="Añadir Observación" labelClose="Cerrar"
+      labelSend="Enviar" :onclickClose="closeDialog" :onclickSend="handleSend" v-model:textValue="newObservation"
+      :informationBinnacles="observationBinnacles" :informationBinnaclesDate="observationBinnaclesDate"
+      labelTextArea="Escriba una Observacón para esta bitacoras" :loading="loadingCreateOdservation"
+      :rules="[(val) => !!val || 'El campo es obligatorio']">
+    </dialogCreateObservation>
   </q-form>
 </template>
 
@@ -105,14 +106,13 @@ const columns = ref([
     name: "name",
     label: "ETAPA PRODUCTIVA ASIGNADA",
     align: "center",
-    field: (row) =>
-      row.register.idApprentice[0].firstName +
-        " " +
-        row.register.idApprentice[0].lastName
-        ? row.register.idApprentice[0].firstName +
-        " " +
-        row.register.idApprentice[0].lastName
-        : "No asignado",
+    field: (row) => {
+    if (row.register && row.register.idApprentice && row.register.idApprentice.length > 0) {
+      return row.register.idApprentice[0].firstName + " " + row.register.idApprentice[0].lastName;
+    } else {
+      return "No asignado";
+    }
+  },
     sortable: true,
   },
   {
@@ -200,7 +200,7 @@ async function openClickSeeObservation(row) {
   console.log("row.observation", row.observation);
   instructorId.value = row.instructor._id
   console.log("instructorId", instructorId.value)
-  
+
 
   instructorName.value = row.instructor.name
 
@@ -286,7 +286,7 @@ function closeDialog() {
 }
 
 const OptionsStatus = [
-  { label: "Programado", value: "1",disable: true },
+  { label: "Programado", value: "1", disable: true },
   { label: "Ejecutado", value: "2", disable: true },
   { label: "Pendiente", value: "3" },
   { label: "Verificado", value: "4" },
@@ -305,7 +305,7 @@ async function onclickSelectOptions(row, value) {
     if (index !== -1) {
       rows.value[index].status = value; // Actualiza solo el estado de la fila modificada
     }
-    if (value === "3" ) {
+    if (value === "3") {
       notifySuccessRequest("El estado ha sido actualizado a Pendiente");
       return;
     } else if (value === "4") {
@@ -315,7 +315,7 @@ async function onclickSelectOptions(row, value) {
     console.log("Estado actualizado:", response.data);
   } catch (error) {
     console.error("Error al actualizar el estado:", error);
-  }finally{
+  } finally {
     loading.value = false;
   }
 }
