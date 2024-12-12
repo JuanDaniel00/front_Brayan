@@ -284,12 +284,15 @@ async function handleSend() {
     if (newObservation.value === "") {
       validationHandleSend();
     } else {
-      const messageError =
-        error.response.data.errors[0].msg ||
-        error.response.data.message ||
-        "Hubo un error al intentar añadir la asignación. Por favor, inténtalo nuevamente.";
+      let messageError;
+      if (error.response && error.response.data && error.response.data.message) {
+        messageError = error.response.data.message;
+      } else if (error.response && error.response.data && error.response.data.errors && error.response.data.errors[0].msg) {
+        messageError = error.response.data.errors[0].msg;
+      } else {
+        messageError = 'Error al guardar La obsevación';
+      }
       notifyErrorRequest(messageError);
-      cleanObservaton();
     }
     await loadDataBinnacles();
   } finally {
