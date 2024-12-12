@@ -439,6 +439,7 @@ const mailCompanyModal = ref("");
 const modalityName = ref("");
 let isReadOnly = ref(false);
 let loading = ref(false);
+let formRef = ref(null)
 
 // Asignación de instructores
 const assignment = ref([

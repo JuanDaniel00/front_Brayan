@@ -61,7 +61,7 @@ let loadingSearch = ref(false);
 // validacions de input e busqueda
 const validateRequieredSearch = (v) => {
   if (radioButtonList.value === '') {
-    return 'Debes seleccionar una opción (Aprendiz, Inst. Seguimiento, Inst. Tecnico, o Inst. Proyecto) antes de buscar.'
+    return 'Debes seleccionar una opción'
   }
   if (!v) {
     return 'El campo de búsqueda es obligatorio';

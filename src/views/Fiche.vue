@@ -137,6 +137,7 @@ async function searchButton() {
         const response = await getData(`/Repfora/fiches/${searchValue.value}`);
         console.log('respuesta', response);
         rows.value = [response] // Asigna la respuesta directamente a rows.value
+        cleanSearch()
     } catch (error) {
         let messageError;
         if (error.response && error.response.data && error.response.data.message) {
@@ -151,6 +152,10 @@ async function searchButton() {
         loadingSearch.value = false;
     }
 }
+
+ function cleanSearch(){
+    searchValue.value  = ''
+ }
 
 </script>
 

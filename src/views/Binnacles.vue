@@ -84,7 +84,7 @@ const formRef = ref(null);
 const formObservation = ref(null);
 const validateRequieredSearch = (v) => {
   if (radioButtonList.value === '') {
-    return 'Debes seleccionar una opción (Seguimiento o Aprendiz) antes de buscar.'
+    return 'Debes seleccionar una opción'
   }
   if (!v) {
     return 'El campo de búsqueda es obligatorio';

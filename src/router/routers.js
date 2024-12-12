@@ -59,7 +59,7 @@ const routes = [
       { path: 'myAssignament', component: myAssignament, beforeEnter: auth, meta: { roles: ['INSTRUCTOR'] } },
       { path: 'fiche', component: fiche, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
       { path: 'horas', component: horas, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
-      { path: 'certificaciones', component: certificaciones, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
+      { path: 'certificaciones', component: certificaciones, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
       { path: 'binnacles', component: binnacles, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
       { path: 'followup', component: followup, beforeEnter: auth, meta: { roles: ['ADMIN'] } },
       { path: 'instructor', component: instructor, beforeEnter: auth, meta: { roles: ['ADMIN', 'INSTRUCTOR'] } },
