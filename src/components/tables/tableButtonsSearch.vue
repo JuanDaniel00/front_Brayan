@@ -117,25 +117,6 @@ const props = defineProps({
 
 });
 
-const onClickSearchFollow = async (row) => {
-    loadingFollowup.value[row._id] = true
-    try {
-        await props.onClickSearchFollow(row)
-    } catch (error) {
-
-    } finally {
-        loadingFollowup.value[row._id] = false
-    }
-}
-
-const onClickSearchBinnacle = async (row) => {
-    loadingBinnacles.value[row._id] = true
-    try {
-        await props.onClickSearchBinnacle(row)
-    } finally {
-        loadingBinnacles.value[row._id] = false
-    }
-}
 
 </script>
 

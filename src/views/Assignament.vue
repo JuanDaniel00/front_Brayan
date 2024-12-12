@@ -417,6 +417,7 @@ async function searchDate() {
 }
 
 async function onclickSearchBinnacles(row) {
+  loading.value = true
   try {
     const response = await getData(`/binnacles/listBinnaclesByRegister/${row._id}`);
     if (response) {
@@ -427,9 +428,12 @@ async function onclickSearchBinnacles(row) {
     }
   } catch (error) {
     notifyErrorRequest('No se encontro Bitácora registrada para el aprendiz.');
+  }finally{
+    loading.value = false;
   }
 }
 async function onclickSearchFollow(row) {
+  loading.value = true;
   try {
     const response = await getData(`/followup/listFollowupByRegister/${row._id}`);
     if (response) {
@@ -440,6 +444,8 @@ async function onclickSearchFollow(row) {
     }
   } catch (error) {
     notifyErrorRequest('No se encontro seguimiento registrado para el aprendiz.');
+  }finally{
+    loading.value = false;
   }
 }
 </script>

@@ -186,10 +186,20 @@ async function loadDataFollowup() {
     if (idInstructor) {
       const response = await getData(`/followup/listFollowupByRegister/${idInstructor}`);
       console.log(response);
-      rows.value = response.followup.map(item => ({
+      rows.value = response.followup
+      .map(item => ({
         ...item,
         status: getStatusLabel(item.status)
-      }));
+      }))
+      .flatMap(option =>
+          option.register.idApprentice.map(apprentice => ({
+            ...option,
+            register: {
+              ...option.register,
+              idApprentice: [apprentice]
+            }
+          }))
+        );
     } else {
       const response = await getData('/followup/listallfollowup');
       console.log(response)
@@ -343,7 +353,9 @@ async function searchApprentice() {
     rows.value = response.followup.map(item => ({
       ...item,
       status: getStatusLabel(item.status)
+
     }));
+    
 
   } catch (error) {
     if (searchValue.value === '') {
@@ -382,6 +394,7 @@ const handleRadioChange = async () => {
     const response = await getData('/followup/listallfollowup');
     const uniqueApprentices = new Set();
     optionSearch.value = response.map(option => {
+      if (option.register && option.register.idApprentice && option.register.idApprentice.length > 0) {
       const apprenticeId = option.register._id;
       if (!uniqueApprentices.has(apprenticeId)) {
         uniqueApprentices.add(apprenticeId);
@@ -391,6 +404,7 @@ const handleRadioChange = async () => {
           numDocument: option.numDocument
         };
       }
+    }
     }).filter(option => option !== undefined);
     filterOptionsSearch.value = optionSearch.value;
   }
