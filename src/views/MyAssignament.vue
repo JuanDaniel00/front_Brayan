@@ -56,7 +56,7 @@ let radiobuttonlist = ref('');
 // validar el input de busqueda
 const validateRequieredSearch = (v) => {
   if (radiobuttonlist.value === '') {
-    return 'Debes seleccionar una opción (Aprendiz o Tipo Instructor) antes de buscar'
+    return 'Debes seleccionar una opción'
   }
   if (radiobuttonlist.value === 'Status' && (v === 0 || v === 1)) {
     return true;
