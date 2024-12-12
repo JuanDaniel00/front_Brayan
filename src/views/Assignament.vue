@@ -186,6 +186,7 @@ async function searchApprentice() {
   try {
     const response = await getData(`/register/listregisterbyapprentice/${searchValue.value}`);
     rows.value = response.data
+    .reverse()
       .flatMap(option =>
         option.idApprentice
           .filter(apprentice => apprentice._id === searchValue.value)
@@ -215,10 +216,8 @@ async function searchinstFollowup() {
     console.log('Td Follow', response)
     rows.value = response.data
     .filter(option => option.status = 1)
-    .filter(option => option.status === 1) // Filtrar por estado activo
       .flatMap(option =>
         option.idApprentice
-        
         .map(apprentice => ({
           ...option,
           idApprentice: [apprentice]
@@ -238,6 +237,7 @@ async function searchInstTechnical() {
     const response = await getData(`/register/listassigmentbytechnicalinstructor/${searchValue.value}`);
     console.log('Td Technical', response)
     rows.value = response.data
+    
     .filter(option => option.status === 1) // Filtrar por estado activo
       .flatMap(option =>
         option.idApprentice.map(apprentice => ({
@@ -297,8 +297,9 @@ const handleRadioChange = async () => {
     console.log('resgister Follow', response)
     const uniqueInsFollowup = new Set();
     optionSearch.value = response.data
+    optionSearch.value = response.data
     .filter(option => option.status === 1)
-    map(option => {
+    .map(option => {
       if (option.assignment && option.assignment[0] && option.assignment[0].followUpInstructor && option.assignment[0].followUpInstructor[0]) {
         const instFollowup = option.assignment[0].followUpInstructor[0].idInstructor;
         if (!uniqueInsFollowup.has(instFollowup)) {

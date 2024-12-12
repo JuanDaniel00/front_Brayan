@@ -40,16 +40,9 @@
     </div>
   </div>
 
-  <tableSelect
-    :rows="rows"
-    :columns="columns"
-    :options="OptionsStatus"
-    :onClickSeeObservation="openClickSeeObservation"
-    :onClickCreateObservation="openClickCreateObservation"
-    :onclickSelectOptions="onclickSelectOptions"
-    :onClickLinkDetail="onClickLinkDetail"
-    :loading="loading"
-  />
+  <tableSelect :rows="rows" :columns="columns" :options="OptionsStatus" :onClickSeeObservation="openClickSeeObservation"
+    :onClickCreateObservation="openClickCreateObservation" :onclickSelectOptions="onclickSelectOptions"
+    :onClickLinkDetail="onClickLinkDetail" :loading="loading" />
 
   <dialogSeeObservation
     v-model="isChatOpen"
@@ -59,20 +52,11 @@
   >
   </dialogSeeObservation>
   <q-form ref="formObservation" @submit.prevent="handleSend">
-    <dialogCreateObservation
-      v-model="isDialogVisibleCreateObservation"
-      title="Añadir Observación"
-      labelClose="Cerrar"
-      labelSend="Enviar"
-      :onclickClose="closeDialog"
-      :onclickSend="handleSend"
-      v-model:textValue="newObservation"
-      :informationBinnacles="observationBinnacles"
-      :informationBinnaclesDate="observationBinnaclesDate"
-      labelTextArea="Escriba una Observacón para esta bitacoras"
-      :loading="loadingCreateOdservation"
-      :rules="[(val) => !!val || 'El campo es obligatorio']"
-    >
+    <dialogCreateObservation v-model="isDialogVisibleCreateObservation" title="Añadir Observación" labelClose="Cerrar"
+      labelSend="Enviar" :onclickClose="closeDialog" :onclickSend="handleSend" v-model:textValue="newObservation"
+      :informationBinnacles="observationBinnacles" :informationBinnaclesDate="observationBinnaclesDate"
+      labelTextArea="Escriba una Observacón para esta bitacoras" :loading="loadingCreateOdservation"
+      :rules="[(val) => !!val || 'El campo es obligatorio']">
     </dialogCreateObservation>
   </q-form>
 </template>
@@ -151,14 +135,13 @@ const columns = ref([
     name: "name",
     label: "ETAPA PRODUCTIVA ASIGNADA",
     align: "center",
-    field: (row) =>
-      row.register.idApprentice[0].firstName +
-      " " +
-      row.register.idApprentice[0].lastName
-        ? row.register.idApprentice[0].firstName +
-          " " +
-          row.register.idApprentice[0].lastName
-        : "No asignado",
+    field: (row) => {
+    if (row.register && row.register.idApprentice && row.register.idApprentice.length > 0) {
+      return row.register.idApprentice[0].firstName + " " + row.register.idApprentice[0].lastName;
+    } else {
+      return "No asignado";
+    }
+  },
     sortable: true,
   },
   {
@@ -258,10 +241,11 @@ async function openClickSeeObservation(row) {
   isChatOpen.value = true;
   console.log("row", row);
   console.log("row.observation", row.observation);
-  instructorId.value = row.instructor._id;
-  console.log("instructorId", instructorId.value);
+  instructorId.value = row.instructor._id
+  console.log("instructorId", instructorId.value)
 
-  instructorName.value = row.instructor.name;
+
+  instructorName.value = row.instructor.name
 
   // Si no hay observaciones, mostrar mensaje por defecto
   if (!row.observation || row.observation.length === 0) {
