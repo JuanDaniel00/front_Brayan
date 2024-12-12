@@ -86,7 +86,7 @@
                   (val) => validateMaxLengthTen(val)
                 ]" />
               <Input id="docAlternative" filled label="Documento Alternativo" v-model="docAlternative" required
-                errorMessage="Documento requerido" icon="file-invoice" type="text"/>
+                errorMessage="Documento requerido" icon="file-invoice" type="text" />
               <Input id="hour" filled label="Horas" v-model="hour" required errorMessage="Horas requeridas" icon="clock"
                 type="text" :rules="[
                   (val) => validateRequired(val, 'Las horas son requeridas'),
@@ -1008,6 +1008,85 @@ const clearForm = () => {
   mailCompany.value = "";
   followUpInstructorUnico.value = "";
   idApprentice.value = "";
+};
+
+// Funcion para crear un registro (instructor unico)
+
+const saveRegister = async () => {
+  if (!formRef.value.validate()) {
+    return;
+  }
+
+  // Verificar que todos los campos estén llenos
+  if (
+    !startDate.value ||
+    !endDate.value ||
+    !company.value ||
+    !phoneCompany.value ||
+    !addressCompany.value ||
+    !owner.value ||
+    !mailCompany.value ||
+    !idApprentice.value ||
+    !productiveProjectHour.value ||
+    !businessProyectHour.value ||
+    !followUpInstructorUnico.value
+  ) {
+    notifyErrorRequest("Todos los campos deben estar llenos.");
+    return;
+  }
+
+  if (new Date(endDate.value) < new Date(startDate.value)) {
+    notifyErrorRequest(
+      "La fecha final no puede ser menor que la fecha inicial."
+    );
+    return;
+  }
+
+  const followUpInstructor = {
+    idInstructor: followUpInstructorUnico.value.instructorId,
+    name: followUpInstructorUnico.value.instructorName,
+    email: followUpInstructorUnico.value.email,
+    status: 1, // Agregar el campo status
+  };
+
+  const assignmentData = {
+    followUpInstructor: [followUpInstructor],
+    technicalInstructor: [],
+    projectInstructor: [],
+  };
+
+  const registerData = {
+    idApprentice: idApprentice.value.apprenticeId, // Solo enviar los IDs
+    idModality: modalityId.value._id,
+    modalityName: modalityId.value.name,
+    startDate: startDate.value,
+    endDate: endDate.value,
+    company: company.value,
+    phoneCompany: phoneCompany.value,
+    addressCompany: addressCompany.value,
+    owner: owner.value,
+    docAlternative: docAlternative.value,
+    hourProductiveStageApprentice: hour.value,
+    mailCompany: mailCompany.value,
+    assignment: [assignmentData],
+  };
+
+  try {
+    let response = await postData("register/addregister", registerData);
+
+    console.log("Data ", registerData);
+
+    dialog.value = false;
+    getDataForTable();
+    notifySuccessRequest("Asignación guardada exitosamente");
+    clearForm();
+  } catch (error) {
+    notifyErrorRequest("Ocurrió un error al guardar la asignación");
+    console.log("data enviado", registerData);  
+
+    console.error("Error al guardar la asignación:", error);
+    throw error;
+  }
 };
 
 // Función para editar un registro

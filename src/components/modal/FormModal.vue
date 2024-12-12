@@ -90,11 +90,15 @@ const closeModal = () => {
   emit("update:modelValue", false);
 };
 
-const handleSave = () => {
+const handleSave = async () => {
   if (props.onSave) {
-    props.onSave();
+    try {
+      await props.onSave();
+      // closeModal();
+    } catch (error) {
+      console.error("Error al guardar:", error);
+    }
   }
-  closeModal();
 };
 </script>
 
